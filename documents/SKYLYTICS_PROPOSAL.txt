@@ -1,0 +1,871 @@
+Skylytics – An AI Powered Flight Delay Prediction System 
+ 
+Final Year Project 
+PROPOSAL 
+ 
+ 
+Supervisor 
+Dr. Nadeem Sarwar 
+ 
+Submitted by (BSCS-F25-026) 
+STUDENT NAME 
+ENROLLMENT # 
+ABDUL MUTLIB ALI 
+03-134222-003 
+ABUZAR RASHID 
+03-134222-007 
+KUMAIL AHMED 
+03-134222-039 
+ 
+Bachelor of Science in Computer Sciences 
+Department of Computer Sciences 
+ 
+Bahria University Lahore Campus 
+September 2025 
+
+Version History 
+Version 
+Date 
+Remarks 
+1. 0 
+19-Sep-2025 
+First Complete Submission to FYP Office 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+
+Abstract 
+Flight delays remain a persistent challenge in the aviation industry, causing financial losses for 
+airlines, disrupting flight operations, and frustrating passengers. Existing delay management 
+approaches depend largely on fixed schedules or manual decision-making, which are insufficient 
+for handling the complexity of modern air traffic. Variables such as adverse weather, airport 
+congestion, aircraft rotation, and crew availability create dynamic conditions that make delay 
+forecasting difficult. This lack of accurate predictive systems leads to inefficiencies, reduced 
+passenger trust, and operational strain on flight managers. Addressing this challenge is vital to 
+improve airline efficiency, reduce costs, and enhance the overall passenger experience. 
+This project, Skylytics – An AI Powered Flight Delay Prediction System, proposes an intelligent 
+solution that integrates multiple data sources including historical flight records, real-time weather 
+data, and airport information. Using a hybrid machine learning approach combining models such 
+as XGBoost and LSTM/Transformer, the system will forecast both the likelihood and duration of 
+delays. Explainable AI techniques (e.g., SHAP) will provide transparency by highlighting the key 
+factors influencing each prediction. A web dashboard (Next.js, Tailwind) and an iOS mobile 
+application (SwiftUI) will deliver user-friendly interfaces for both flight managers and passengers, 
+offering features like what-if analysis, delay heatmaps, smart notifications, and an AI assistant. 
+Cloud deployment with FastAPI and scalable databases will ensure fast, reliable, and professional 
+performance, making Skylytics a practical and industry-relevant Final Year Project. 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+
+Table of Contents 
+Abstract .................................................................................................................................. 3 
+1. Introduction ............................................................................................................................................ 5 
+2. Problem Description .............................................................................................................................. 6 
+2. 1 Primary Scope ............................................................................................................... 6 
+2. 2 Final Deliverables and Beneficiaries ............................................................................... 6 
+2. 3 Optional Scope .............................................................................................................. 7 
+2. 4 Objectives ..................................................................................................................... 7 
+2. 5 Novelty .......................................................................................................................... 8 
+3. Literature Review .................................................................................................................................. 8 
+3. 1 Flight Delay Prediction .................................................................................................. 8 
+3. 2 Machine Learning Models Used in Delay Prediction ........................................................ 8 
+3. 3 Explainability in AI for Aviation .................................................................................... 9 
+3. 4 Gaps in Existing Research .............................................................................................. 9 
+3. 5 Summary ...................................................................................................................... 9 
+3. 6 References ................................................................................................................... 10 
+4. Methodology ......................................................................................................................................... 10 
+4. 1 Prototyping Phase ........................................................................................................ 11 
+4. 2 Advanced Model Development Phase ............................................................................ 12 
+4. 3 Evaluation, Explainability, and Deployment .................................................................. 13 
+4. 4 User Interfaces and Applications .................................................................................. 14 
+4. 5 Workflow Summary .................................................................................................... 15 
+5. Feasibility Plan ..................................................................................................................................... 15 
+5. 1 Resource Requirement ................................................................................................. 15 
+5. 1. 1 Expertise of the Team ............................................................................................... 15 
+5. 1. 2 Tools / Technology ................................................................................................... 16 
+5. 2 Risks Involved ............................................................................................................. 16 
+6. Key Milestones and Schedule .............................................................................................................. 17 
+6. 1 Key Milestones ............................................................................................................ 17 
+6. 2 Gantt Chart ................................................................................................................. 18 
+ 
+
+1. Introduction 
+Air travel plays a vital role in modern global connectivity, supporting the movement of people, 
+goods, and services while driving economic growth and cultural exchange. With millions of 
+passengers depending on airlines daily, reliability and punctuality are critical. However, flight 
+delays remain one of the most persistent challenges in aviation, creating cascading disruptions, 
+financial losses, and passenger dissatisfaction. Airlines operate on tight schedules where a minor 
+delay can ripple across multiple flights, while passengers often face missed connections, business 
+losses, or added expenses. 
+Globally, billions of dollars are lost annually due to delays. In the United States alone, thousands 
+of flights are delayed each year by more than 15 minutes, as reported by the Bureau of 
+Transportation Statistics (BTS). Causes range from adverse weather and air traffic congestion to 
+crew scheduling and technical issues. These complexities make delay prediction a difficult but 
+crucial task for improving aviation reliability. Traditional systems relying on manual assessments 
+or static schedules are inadequate, as they fail to process the vast, real-time data required to capture 
+non-linear and interdependent delay factors. 
+Artificial Intelligence (AI) and Machine Learning (ML) provide a transformative solution. By 
+leveraging massive datasets - including historical flight records, weather data, and airport 
+congestion - AI models can detect hidden patterns and generate real-time predictions. This 
+empowers airline operation managers to proactively address disruptions and enhances passengers’ 
+trust in airline services. 
+Skylytics is proposed as an AI-powered flight delay prediction system designed to address these 
+challenges. By integrating data from BTS, OpenFlights, and Meteostat, the system will employ 
+hybrid ML models (XGBoost, LSTMs, and Transformers) to predict both delay likelihood and 
+duration. Beyond prediction, Skylytics emphasizes explainability and usability: managers will gain 
+insights into “why” a flight is delayed through SHAP values, test alternate scenarios with what-if 
+simulations, and collaborate with teams using built-in communication tools. Passengers, in turn, 
+will access real-time updates, delay notifications, and monitoring features. 
+This project represents more than delay forecasting - it envisions a holistic aviation management 
+ecosystem. By fusing predictive analytics, explainable AI, and user-focused design, Skylytics aims 
+to reduce uncertainty, optimize airline operations, and enhance passenger experience. For this 
+Final Year Project (FYP), it offers both deep technical learning and real-world impact, setting a 
+benchmark for applying AI to practical aviation challenges. 
+ 
+ 
+ 
+ 
+
+2. Problem Description 
+2. 1 Primary Scope 
+The aviation industry faces one of its most persistent challenges in the form of flight delays, which 
+impact both airline operators and passengers. The problem is not merely about late arrivals; it 
+extends to cascading operational inefficiencies, increased financial costs, and significant passenger 
+dissatisfaction. Despite decades of technological advancements, most existing delay management 
+systems rely on static schedules, manual monitoring, or limited statistical models that are 
+insufficient for capturing the dynamic and multi-factor nature of delays. 
+Flight delays can be caused by diverse factors such as adverse weather, airport congestion, 
+technical malfunctions, crew scheduling conflicts, and even cascading effects from earlier delayed 
+flights. Each of these components interacts in non-linear ways, making manual prediction nearly 
+impossible. Without reliable predictive tools, airline managers are left to reactively manage crises 
+rather than proactively preventing them. 
+This project seeks to answer three fundamental questions: 
+• 
+What is the problem? 
+Persistent and costly flight delays that reduce reliability in aviation. 
+• 
+Why is it important? 
+Because delays harm airlines financially, frustrate passengers, and reduce overall trust in air travel 
+systems. 
+• 
+How can it be solved? 
+By leveraging AI-driven predictive analytics, historical and real-time datasets, and explainable 
+machine learning models to forecast flight delays accurately and provide actionable insights. 
+By building an intelligent predictive system, this project addresses a pressing real-world challenge 
+while contributing innovative solutions that align with global trends toward AI-enabled decision 
+support systems in aviation. 
+ 
+2. 2 Final Deliverables and Beneficiaries 
+The product of this work will be a web-based platform and iOS application powered by an AI-
+driven backend capable of predicting flight delays and providing actionable insights. 
+
+• 
+Direct beneficiaries: Airline operation managers, flight schedules, and ground staff who can 
+make data-driven decisions to reduce operational inefficiencies. 
+• 
+Indirect beneficiaries: Passengers, who will receive more reliable updates and improved travel 
+experiences, and airlines, which will reduce costs and protect their reputation. 
+ 
+2. 3 Optional Scope 
+If resources allow, additional premium integrations will be considered, such as real-time aviation 
+data APIs (e. g., FlightAware, FlightRadar24) for higher prediction accuracy, and 3D flight 
+visualization modules (via Three.js) to enhance user interactivity. While not mandatory, these 
+features would significantly expand the usability and professional depth of the system. 
+ 
+2. 4 Objectives 
+1. The primary objective of this project is to develop a reliable and industry-ready flight delay 
+prediction system that integrates multiple data sources such as flight schedules, weather 
+information, and airport operational records. 
+2. For the prototype phase, tree-based models such as XGBoost, Random Forest, and LightGBM 
+will be used to establish the baseline system. 
+3. In the advanced phase, the system will move to hybrid ensemble models that combine 
+XGBoost with LSTM and Transformer architectures to predict both the likelihood and the 
+duration of delays. 
+4. Explainable AI techniques such as SHAP and LIME will be incorporated to ensure 
+transparency and trust, allowing operational managers to clearly understand the factors 
+influencing each prediction. 
+5. The solution will include a professional and user-friendly interface in the form of a web-based 
+dashboard, featuring interactive capabilities such as delay heatmaps, what-if analysis, and 
+smart notifications. 
+6. An iOS mobile application will also be developed to provide quick access to predictions and 
+real-time monitoring for operational managers and staff. 
+7. Performance optimization will be achieved through caching, load balancing, and efficient 
+cloud deployment strategies, with hosting support provided by platforms such as AWS, GCP, 
+and Vercel, along with Apple Developer accounts for iOS distribution. 
+8. The system will be rigorously evaluated using established accuracy metrics such as ROC-
+AUC, RMSE, and F1-score, and complemented with user experience testing to validate its 
+effectiveness in real-world operational scenarios. 
+ 
+ 
+ 
+
+2. 5 Novelty 
+The novelty of this project lies in its hybrid modeling approach (XGBoost combined with 
+LSTM/Transformer), explainable predictions through SHAP-based feature importance 
+visualization, and multi-platform usability with both a professional web dashboard and an iOS 
+app. It further stands out with advanced interactive features such as what-if analysis, delay 
+heatmaps, and collaboration tools, alongside professional deployment on cloud platforms with 
+SEO-friendly, responsive, and scalable design. 
+ 
+3. Literature Review 
+3. 1 Flight Delay Prediction 
+Flight delay prediction remains one of the most persistent challenges in the aviation industry. 
+According to the U. S. Bureau of Transportation Statistics (BTS), nearly 20% of all flights 
+experience delays annually, creating cascading effects for airlines, airports, and passengers [1]. 
+Traditional methods of prediction relied heavily on regression models or historical averages [2]. 
+These statistical tools, though useful for broad patterns, failed to capture the dynamic, multi-
+factorial causes of delays such as weather, airport congestion, and aircraft rotations. 
+With the increasing availability of large aviation datasets, researchers have shifted towards 
+machine learning approaches. Rebollo and Balakrishnan [3] highlighted the insufficiency of static 
+tools in fast-changing traffic conditions and advocated for data-driven models. These approaches 
+allow more accurate and flexible prediction by incorporating diverse data sources. 
+ 
+3. 2 Machine Learning Models Used in Delay Prediction 
+Several ML models have been applied in flight delay prediction: 
+• 
+Decision Trees and Random Forest (RF): 
+Random Forest has been widely adopted due to its interpretability and robustness. Xu et al. 
+[4] demonstrated its strength in managing heterogeneous data types and nonlinear 
+interactions in flight operations. 
+• 
+Gradient Boosting Models (XGBoost, LightGBM): 
+Chen and Guestrin [5] introduced XGBoost, which has since become a standard in aviation 
+prediction tasks. It efficiently handles missing values and complex interactions, making it 
+suitable for binary tasks like predicting whether a flight will be delayed. 
+• 
+Deep Learning (LSTM, Transformers): 
+LSTM models are particularly strong at handling sequential data, making them effective in 
+modeling delay propagation from inbound flights [6]. More recently, Transformer-based 
+
+approaches have been applied for aviation time-series forecasting, handling long 
+dependencies with superior performance [7]. 
+• 
+Hybrid Approaches: 
+Combining ensemble models (like XGBoost) with temporal models (LSTM/Transformer) 
+improves prediction performance. Chen and Huang [8] showed that hybrid systems 
+consistently outperform individual models, though they require more computational 
+resources. 
+ 
+3. 3 Explainability in AI for Aviation 
+While machine learning models can achieve high accuracy, their adoption in aviation requires trust 
+and transparency. Black-box systems are often resisted by airlines and regulators. Explainable AI 
+(XAI) frameworks such as SHAP (SHapley Additive Explanations) and LIME provide insights 
+into feature contributions [9]. 
+In aviation delay prediction, this means managers can understand whether weather, traffic, or 
+operational factors are most responsible for a predicted delay. While explainability has been 
+widely explored in fields like finance and healthcare [10], its systematic use in aviation systems is 
+still limited. Zhang et al. [12] demonstrated that providing feature attribution significantly 
+improved operator confidence in delay prediction tools. 
+ 
+3. 4 Gaps in Existing Research 
+From current literature, the following gaps are clear: 
+1. Lack of real-time data integration: Many models rely solely on static datasets and ignore 
+live updates [11]. 
+2. Low practical deployment: Few studies develop production-ready systems accessible to 
+airlines. 
+3. Explainability gap: Accuracy is prioritized over interpretability, limiting adoption [12]. 
+4. Passenger-facing systems are rare: Most research is operations-focused. 
+5. Scalability challenges: Scaling deep models to global datasets remains a bottleneck [13]. 
+6. Simulation and what-if analysis: Almost absent in the reviewed literature [14]. 
+ 
+3. 5 Summary 
+The reviewed literature confirms the potential of machine learning in aviation but highlights 
+critical shortcomings. Skylytics addresses these gaps by: 
+• 
+Using a hybrid ML model (XGBoost + LSTM/Transformer). 
+
+• 
+Integrating real-time data streams (weather + operations). 
+• 
+Applying XAI techniques (SHAP, LIME) to ensure transparency. 
+• 
+Building both manager- and passenger-facing interfaces. 
+• 
+Providing simulation, history tracking, and performance analytics. 
+This dual focus on academic rigor and practical deployment ensures novelty and real-world 
+impact. 
+ 
+3. 6 References 
+[1] U. S. Bureau of Transportation Statistics, “On-Time Performance Data, ” 2023. 
+[2] J. D. Shumsky, “Dynamic Statistical Forecasting of Airline Delays, ” Transportation 
+Research Part B, vol. 35, no. 8, pp. 797–822, 2001. 
+[3] G. Rebollo and H. Balakrishnan, “Characterization and Prediction of Air Traffic Delays, ” 
+Transportation Research Part C, vol. 23, pp. 107–119, 2012. 
+[4] Y. Xu, S. Donohue, and M. Hansen, “Predicting Airline Delays with Ensemble Learning, ” 
+Journal of Air Transport Management, vol. 63, pp. 34–44, 2017. 
+[5] T. Chen and C. Guestrin, “XGBoost: A Scalable Tree Boosting System, ” Proc. ACM KDD, 
+2016. 
+[6] M. Ding, H. Wang, and J. Yang, “Application of LSTM Neural Networks to Flight Delay 
+Prediction, ” Aerospace Science and Technology, vol. 96, pp. 105–115, 2020. 
+[7] H. Li, C. Zhang, and J. Wang, “Transformers for Time-Series Forecasting in Aviation, ” 
+IEEE Transactions on Intelligent Transportation Systems, vol. 22, no. 12, pp. 7688–7700, 2021. 
+[8] C. Chen and L. Huang, “Hybrid Machine Learning Models for Predicting Flight Delays, ” 
+Transportation Research Procedia, vol. 52, pp. 678–685, 2021. 
+[9] S. Lundberg and S. Lee, “A Unified Approach to Interpreting Model Predictions, ” NeurIPS, 
+2017. 
+[10] F. Doshi-Velez and B. Kim, “Towards a Rigorous Science of Interpretable Machine 
+Learning, ” arXiv preprint, 2017. 
+[11] M. Hansen and D. Clarke, “Air Traffic Flow and Delay Forecasting: A Real-Time 
+Challenge, ” Journal of Transportation Engineering, 2018. 
+[12] L. Zhang, C. Park, and R. Hansen, “Explainability in Flight Delay Predictions: A Case 
+Study, ” International Journal of Aviation Management, 2021. 
+[13] R. K. Blanchard and M. A. Smith, “Challenges of Scaling Deep Learning Models for 
+Aviation Data, ” IEEE Access, vol. 9, pp. 14500–14512, 2021. 
+[14] P. Wang and J. Wei, “Simulation-Based What-If Analysis for Aviation Operations, ” 
+Transportation Research Procedia, vol. 52, pp. 678–685, 2021. 
+ 
+4. Methodology 
+The methodology of this project is structured as an iterative, end-to-end workflow that begins with 
+data collection and preparation, advances into model development and optimization, and concludes 
+
+with evaluation, deployment, and user-facing application design. To ensure technical soundness 
+and practical usability, the process is divided into two phases: prototyping (establishing feasibility 
+and baselines) and advanced development (building scalable, explainable, and production-ready 
+models). 
+ 
+Figure 1 
+ 
+4. 1 Prototyping Phase 
+The prototyping phase establishes the foundation of the system through simplified datasets and 
+baseline models. This stage validates feasibility, sets benchmark metrics, and highlights potential 
+challenges before investing in complex architectures. 
+• 
+Dataset Selection and Preprocessing 
+Historical flight delay records from Kaggle and BTS form the initial dataset. Raw data is 
+cleaned to address missing values, standardize time formats, and ensure logical consistency 
+between scheduled and actual flights. Outliers are retained where they represent realistic 
+events, such as severe weather. 
+• 
+Baseline Modeling 
+Simple models such as Logistic Regression and Decision Trees are implemented to measure 
+
+predictive potential. These benchmarks serve as a reference for evaluating improvements 
+gained through more advanced models later. 
+• 
+Pipeline Validation 
+The prototype includes exploratory data analysis (EDA), basic ETL scripts, and small-scale 
+experiments in scikit-learn. This confirms that the system can process aviation datasets 
+reliably and lays the groundwork for more complex workflows. 
+ 
+4. 2 Advanced Model Development Phase 
+Building on the validated prototype, this phase introduces advanced models, feature engineering, 
+and system integration for real-world application. 
+• 
+Data Handling and Feature Engineering 
+Multiple data sources including Meteostat (weather) and OpenFlights (airport routes) are 
+integrated. Feature engineering introduces derived attributes such as congestion indices, day-
+of-week encodings, and historical averages. Time-based features are encoded cyclically, 
+categorical variables are machine-encoded, and scaling ensures consistency. 
+                      
+Figure 2          
+
+• 
+Ensemble and Sequential Models 
+Gradient boosting models (XGBoost, LightGBM) capture nonlinear interactions. To address 
+sequential dependencies, Long Short-Term Memory (LSTM) networks and Transformers are 
+incorporated. Outputs from these models are fused into a hybrid ensemble, combining 
+predictive accuracy with interpretability. 
+ 
+ 
+Figure 3          
+ 
+• 
+Optimization and Validation 
+Hyperparameter tuning (Randomized Search, Optuna) ensures performance efficiency. 
+Cross-validation mitigates overfitting, while imbalanced classes are addressed through 
+SMOTE and class reweighting. 
+ 
+4. 3 Evaluation, Explainability, and Deployment 
+Once trained, models are evaluated with multiple metrics, since accuracy alone is insufficient in 
+imbalanced datasets. Precision, Recall, F1-Score, and ROC-AUC provide a multi-dimensional 
+performance view. Misclassifications undergo error analysis to refine model design. 
+Explainability tools such as SHAP and LIME ensure transparency by attributing predictions to 
+features like weather or congestion. This improves trust and enables operational managers to 
+understand model behavior. 
+
+For deployment, FastAPI serves predictions through real-time APIs, with Docker containers 
+ensuring portability. Redis provides caching for fast queries, and optional Kubernetes orchestration 
+supports scalability. Monitoring pipelines detect data drift to maintain reliability. 
+ 
+4. 4 User Interfaces and Applications 
+The final stage emphasizes usability. 
+• 
+Web Dashboard (Next.js + Tailwind) for airline managers, featuring delay predictions, 
+SHAP-based explanations, delay heatmaps, and what-if analysis tools. Collaboration features 
+allow teams to share insights and coordinate responses. 
+• 
+iOS Mobile App (SwiftUI) for passengers, focusing on real-time predictions, monitoring, and 
+push notifications. Both interfaces connect securely to the backend via APIs, ensuring 
+consistency in results. 
+Figure 4 
+
+4. 5 Workflow Summary 
+The methodology follows a two-stage evolution: 
+1. Prototyping with historical datasets and baseline models to validate feasibility and set 
+benchmarks. 
+2. Advanced Development with integrated datasets, hybrid models, explainability, and 
+production deployment for end-user applications. 
+This staged approach ensures that the system matures from a feasible prototype into a robust, 
+industry-ready solution that balances technical rigor, scalability, and usability. 
+ 
+5. Feasibility Plan 
+The feasibility of Skylytics is justified through available resources, the expertise of the team, the 
+choice of tools and technologies, and a realistic budget. The project is designed to remain 
+achievable within the given timeframe while offering technical depth and practical value. 
+ 
+5. 1 Resource Requirement 
+The project requires computing power for data processing, model training, and system deployment. 
+Standard laptops with cloud-based support (Google Colab/AWS credits) will be sufficient. 
+Additional requirements include real-time APIs for weather and flight data, database hosting, and 
+deployment platforms. No specialized hardware is required. 
+ 
+5. 1. 1 Expertise of the Team 
+The team collectively has the right foundation and interest for successful completion: 
+• Abdul Mutlib Ali: Data Science/ML - Python, Kaggle, and scikit-learn for baseline-to-improved 
+models. 
+ 
+• Abuzar Rashid: Web & Integration - Node/Express, REST APIs, and relational databases. 
+ 
+• Kumail Ahmed: iOS & Frontend - SwiftUI app with API integration; basic React/Next.js. 
+All members have studied Databases, Machine Learning, Networking, and Software Engineering, 
+ensuring preparation. The project aligns with our interests and offers a focused, balanced learning 
+curve. 
+ 
+
+5. 1. 2 Tools / Technology 
+The tools and technologies required are open-source or accessible through educational resources: 
+Backend: FastAPI (lightweight, asynchronous, Python-based), Docker for 
+deployment. 
+• 
+Frontend: Next.js (SEO-friendly React framework), Tailwind CSS, Recharts/Plotly for 
+visualizations. 
+• 
+Mobile App: SwiftUI for native iOS development. 
+• 
+Database: PostgreSQL (relational storage) and Redis (caching). 
+• 
+Machine Learning: Python (Pandas, Scikit-learn, XGBoost, PyTorch). 
+• 
+Data Sources/APIs: 
+1. Kaggle BTS Flight Delay Dataset (2015) – https://www.kaggle.com/datasets/usdot/flight-
+delays?resource=download 
+2. Meteostat API for weather – https: //meteostat. net 
+3. OpenFlights (airports, routes) – https: //openflights. org/data. html 
+4. Optional: OpenSky Network for live traffic – https: //opensky-network. org 
+• 
+Hosting/Deployment: AWS EC2 (backend), AWS RDS (database), Vercel (frontend), Apple 
+Developer account (iOS). 
+ 
+5. 1. 3 Budget 
+The project has minimal financial requirements. Most tools and datasets are free. Costs include: 
+• 
+Apple Developer Account: $99/year. 
+• 
+Professional Hosting (AWS EC2 + RDS): $10–15/month. 
+Total estimated cost: under PKR 90,000, which is manageable. 
+ 
+5. 2 Risks Involved 
+The proposed project involves some potential risks that need to be considered: 
+1. Data Availability: Real-time APIs (e.g., Meteostat, OpenSky) may have usage limits or 
+downtime.  
+Mitigation: Use cached data and maintain fallback Kaggle datasets for continuity. 
+2. Model Accuracy: Flight delay prediction is inherently uncertain due to unpredictable events 
+(e.g., emergencies).  
+
+Mitigation: Use hybrid models and explainable AI to improve trust and reliability. 
+3. Compute Limitations: Training advanced models may require high processing power.  
+Mitigation: Use cloud services (Google Colab Pro, AWS) for scalability. 
+4. Integration Complexity: Multi-platform deployment (web + iOS) may create integration 
+challenges.  
+Mitigation: Follow modular development with API-first design. 
+Overall, these risks are manageable and do not hinder the successful completion of the project. 
+ 
+6. Key Milestones and Schedule 
+6. 1 Key Milestones 
+Following are the major milestones of the project and their related information. 
+ 
+Table 0-1: Breakdown of work in form of milestones 
+S. 
+No. 
+S. No. 
+of 
+Predece
+ssor 
+Milestone Key Milestone Name / Description 
+Duration 
+(person-
+hours) 
+1 
+- 
+Prototyping Data Setup (Kaggle, Meteostat, OpenFlights) 
+81 
+2 
+1 
+Baseline Prototype Model (XGBoost classifier & regressor) 
+81 
+3 
+2 
+Prototype Frontend (Basic Web UI for predictions) 
+54 
+4 
+- 
+Production Data Collection & API Integration (BTS, Meteostat live) 
+81 
+5 
+4 
+Advanced Model – Phase 1 (LSTM/Transformer & Graph POC) 
+54 
+6 
+- 
+Contingency / Buffer (EDA, fixes, reviews) 
+81 
+7 
+5 
+Advanced Model – Phase 2 (Hybrid integration & tuning) 
+162 
+8 
+7 
+Backend API Development (FastAPI, Redis caching, PostgreSQL) 
+72 
+9 
+7, 8 
+Full Web Frontend (Next.js + Tailwind + Explainable AI UI) 
+72 
+10 
+8 
+iOS App Development (SwiftUI + notifications, saved flights) 
+36 
+11 
+7-10 
+System Integration & Internal Testing 
+30 
+12 
+11 
+Hosting & Deployment (AWS + App Store + SEO + Final 
+Documentation 
+30 
+13 
+12 
+Documentation + Final Report + Diagrams 
+30 
+14 
+13 
+Final Revisions, Buffer, Submission 
+- 
+ 
+
+6. 2 Gantt Chart 
+Activity 
+Weeks 
+1 
+2 
+3 
+4 
+5 
+6 
+7 
+8 
+9 
+10 11 12 13 14 15 16 17 
+18 
+Prototyping Data 
+Setup (Kaggle, 
+Meteostat, 
+OpenFlights) 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+Midterm Exam Week 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+Exam Week 
+Baseline Prototype 
+Model 
+(XGBoost classifier & 
+regressor) 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+Prototype Frontend 
+(Basic Web UI for 
+predictions) 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+Advanced Model 
+– Phase 1 
+(LSTM/Transformer & 
+Graph POC) 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+Advanced Model 
+– Phase 1 
+(LSTM/Transformer & 
+Graph POC) 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+Contingency / Buffer 
+(EDA, fixes, reviews) 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+Figure 6.1: SEMESTER 7 (Fall 2025)          
+
+Figure 6.2: SEMESTER 2 (Spring 2026) 
+Activity 
+Weeks 
+1 
+2 
+3 
+4 
+5 
+6 
+7 
+8 
+9 
+10 
+11 
+12 
+13 
+14 
+15 
+16 
+17 
+18 
+Advanced 
+Model – 
+Phase 2 
+(Hybrid 
+integration 
+& tuning) 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+Midterm Exam Week 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+Exam Week 
+Backend API  
+ 
+Development 
+(FastAPI, 
+Redis 
+caching, 
+PostgreSQL) 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+Full Web 
+Frontend 
+(Next. js + 
+Tailwind + 
+Explainable 
+AI UI) 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+iOS App 
+Developme
+nt 
+(SwiftUI + 
+notifications
+, saved 
+flights) 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+Hosting & 
+Deployment 
+(AWS + 
+App Store + 
+SEO + 
+Final 
+Documentat
+ion 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+Documentat
+ion + Final 
+Report + 
+Diagrams  
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+

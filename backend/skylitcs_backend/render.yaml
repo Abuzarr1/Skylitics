@@ -1,0 +1,22 @@
+services:
+  - type: web
+    name: skylytics-backend
+    env: python
+    region: ohio
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: skylytics-db
+          property: connectionString
+      - key: GEMINI_API_KEY
+        sync: false # You will need to paste your Gemini key in the Render dashboard manually!
+      - key: SECRET_KEY
+        generateValue: true
+
+databases:
+  - name: skylytics-db
+    region: ohio
+    plan: free
