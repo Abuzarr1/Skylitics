@@ -95,7 +95,7 @@ def run_inference(
     legacy_request["weather_severity"] = weather_severity
     
     # Import locally to avoid top-level issues
-    from skylytics_adapters import from_legacy_input
+    from app.ml.adapters.skylytics_adapters import from_legacy_input
 
     active_pipeline = get_pipeline()
     if active_pipeline is not None:
