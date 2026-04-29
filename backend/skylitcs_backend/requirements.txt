@@ -17,3 +17,4 @@ lightgbm>=4.3.0
 psycopg2-binary>=2.9.9
 python-multipart>=0.0.9
 requests>=2.32.3
+shap>=0.45.1
