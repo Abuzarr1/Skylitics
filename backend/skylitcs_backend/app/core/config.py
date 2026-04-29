@@ -27,8 +27,13 @@ class Settings(BaseSettings):
     @property
     def SQLALCHEMY_DATABASE_URI(self) -> str:
         if self.DATABASE_URL:
-            # Render provides postgres://, but asyncpg needs postgresql+asyncpg://
-            return self.DATABASE_URL.replace("postgres://", "postgresql+asyncpg://", 1)
+            # Handle Render/Heroku style URLs
+            uri = self.DATABASE_URL.strip()
+            if uri.startswith("postgres://"):
+                uri = uri.replace("postgres://", "postgresql+asyncpg://", 1)
+            elif uri.startswith("postgresql://"):
+                uri = uri.replace("postgresql://", "postgresql+asyncpg://", 1)
+            return uri
         # Construct async PostgreSQL URI from components (local dev)
         return f"postgresql+asyncpg://{self.POSTGRES_USER}:{self.POSTGRES_PASSWORD}@{self.POSTGRES_SERVER}:{self.POSTGRES_PORT}/{self.POSTGRES_DB}"
     

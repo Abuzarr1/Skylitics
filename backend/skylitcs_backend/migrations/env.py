@@ -77,8 +77,18 @@ async def run_async_migrations() -> None:
     """
 
     from sqlalchemy.ext.asyncio import create_async_engine
+    uri = settings.SQLALCHEMY_DATABASE_URI
+    # Mask password for security in logs
+    masked_uri = uri
+    if ":" in uri and "@" in uri:
+        parts = uri.split("@")
+        prefix = parts[0].rsplit(":", 1)[0]
+        masked_uri = f"{prefix}:****@{parts[1]}"
+    
+    print(f"[Alembic] Connecting to database: {masked_uri}")
+    
     connectable = create_async_engine(
-        settings.SQLALCHEMY_DATABASE_URI,
+        uri,
         poolclass=pool.NullPool,
     )
 
