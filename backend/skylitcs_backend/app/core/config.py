@@ -17,6 +17,7 @@ class Settings(BaseSettings):
     ]
     
     # DB
+    DATABASE_URL: str = ""
     POSTGRES_SERVER: str = "127.0.0.1"
     POSTGRES_USER: str = "postgres"
     POSTGRES_PASSWORD: str = "postgres"
@@ -25,7 +26,10 @@ class Settings(BaseSettings):
     
     @property
     def SQLALCHEMY_DATABASE_URI(self) -> str:
-        # Construct async PostgreSQL URI
+        if self.DATABASE_URL:
+            # Render provides postgres://, but asyncpg needs postgresql+asyncpg://
+            return self.DATABASE_URL.replace("postgres://", "postgresql+asyncpg://", 1)
+        # Construct async PostgreSQL URI from components (local dev)
         return f"postgresql+asyncpg://{self.POSTGRES_USER}:{self.POSTGRES_PASSWORD}@{self.POSTGRES_SERVER}:{self.POSTGRES_PORT}/{self.POSTGRES_DB}"
     
     # Redis
