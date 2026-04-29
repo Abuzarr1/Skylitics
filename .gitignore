@@ -36,6 +36,7 @@ env/
 # ML / Data (Large Files)
 Dataset/
 skylytics_model_assets/
+*.db
 *.csv
 *.joblib
 *.pkl

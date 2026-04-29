@@ -13,9 +13,13 @@ services:
           name: skylytics-db
           property: connectionString
       - key: GEMINI_API_KEY
-        sync: false # You will need to paste your Gemini key in the Render dashboard manually!
+        sync: false
       - key: SECRET_KEY
         generateValue: true
+      - key: PYTHON_VERSION
+        value: "3.11"
+      - key: PORT
+        value: "10000"
 
 databases:
   - name: skylytics-db
