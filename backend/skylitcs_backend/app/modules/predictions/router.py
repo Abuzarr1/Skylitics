@@ -23,10 +23,20 @@ from app.ml.models.xgboost_clf import ENGINE
 from app.ml.explain.shap_explainer import explain_prediction as shap_explain, explain_simple as shap_simple
 from app.ml.pipeline.clean import clean_input
 import os, sys
-MODEL_DIR = os.path.join(os.path.dirname(__file__), "../../../skylytics_model_assets/production")
+
+# Robust path resolution for local model assets
+BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../"))
+MODEL_DIR = os.path.join(BASE_DIR, "skylytics_model_assets/production")
+
 if MODEL_DIR not in sys.path:
     sys.path.insert(0, MODEL_DIR)
-from skylytics_adapters import from_legacy_input
+
+try:
+    from skylytics_adapters import from_legacy_input
+except ImportError:
+    # Fallback if path insertion failed or environment differs
+    sys.path.append(MODEL_DIR)
+    from skylytics_adapters import from_legacy_input
 
 import asyncio
 import json

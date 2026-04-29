@@ -5,7 +5,9 @@ Import clf, reg, encoders, ENGINE from here — do not reload in each module.
 import os
 import joblib
 
-MODEL_DIR = os.path.join(os.path.dirname(__file__), "../../../skylytics_model_assets")
+# Robust path resolution for local model assets
+BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../"))
+MODEL_DIR = os.path.join(BASE_DIR, "skylytics_model_assets")
 
 try:
     clf      = joblib.load(os.path.join(MODEL_DIR, "xgb_classifier.pkl"))
