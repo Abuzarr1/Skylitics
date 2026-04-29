@@ -26,6 +26,7 @@ interface FlightData {
         neural_health: string;
         last_training: string;
     };
+    prediction_id?: string;
 }
 
 const IMPACT_PCT: Record<string, number> = {

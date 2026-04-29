@@ -68,7 +68,7 @@ const Connection = ({ startX, startY, endX, endY, delay = 0 }: any) => {
                     ease: "linear"
                 }}
             >
-                <motion.animateMotion
+                <animateMotion
                     path={path}
                     dur="2s"
                     repeatCount="indefinite"

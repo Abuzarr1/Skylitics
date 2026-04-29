@@ -1,12 +1,12 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Plane, Lock, ShieldAlert, CheckCircle2 } from "lucide-react";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { resetPassword } from "@/lib/api";
 
-export default function ResetPasswordPage() {
+function ResetPasswordPageContent() {
     const searchParams = useSearchParams();
     const token = searchParams.get("token") || "";
     const email = searchParams.get("email") || "";
@@ -142,5 +142,13 @@ export default function ResetPasswordPage() {
                 )}
             </div>
         </div>
+    );
+}
+
+export default function ResetPasswordPage() {
+    return (
+        <Suspense fallback={<div className="min-h-screen bg-[#0A0C10] flex items-center justify-center"><div className="w-8 h-8 border-2 border-[#DFFF00]/20 border-t-[#DFFF00] rounded-full animate-spin" /></div>}>
+            <ResetPasswordPageContent />
+        </Suspense>
     );
 }
