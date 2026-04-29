@@ -76,9 +76,9 @@ async def run_async_migrations() -> None:
 
     """
 
-    connectable = async_engine_from_config(
-        config.get_section(config.config_ini_section, {}),
-        prefix="sqlalchemy.",
+    from sqlalchemy.ext.asyncio import create_async_engine
+    connectable = create_async_engine(
+        settings.SQLALCHEMY_DATABASE_URI,
         poolclass=pool.NullPool,
     )
 
