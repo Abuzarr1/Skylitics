@@ -128,33 +128,44 @@ export const MOCK_FLIGHTS = [
     }
 ];
 
+// Field names must match the API response shape from /ops/dashboard and /ops/at-risk
 export const MOCK_DASHBOARD_STATS = {
-    total_tracked: 1422,
-    at_risk: 12,
-    avg_delay: "14m",
-    net_sync: "98.4%",
-    est_impact: "Low",
-    anomalies: [
-        { id: 1, callsign: "DL452", route: "ATL → ORD", risk: 58, status: "Critical" },
-        { id: 2, callsign: "UA892", route: "SFO → SEA", risk: 84, status: "Delayed" },
-    ],
+    total_tracked:      152,
+    delayed_count:      6,
+    at_risk_count:      5,
+    avg_delay_min:      22.4,
+    on_time_pct:        91.2,
+    model_accuracy_pct: 91.8,
+    airport:            null,
 };
 
 export const MOCK_AT_RISK_FLIGHTS = [
-    { id: "MOCK-DL452", callsign: "DL452", origin: "ATL", destination: "ORD", delay_probability: 0.58, status: "at_risk", aircraft_type: "B739", altitude_ft: 28000, speed_kts: 420 },
-    { id: "MOCK-UA892", callsign: "UA892", origin: "SFO", destination: "SEA", delay_probability: 0.84, status: "delayed", aircraft_type: "A321", altitude_ft: 31000, speed_kts: 465 },
-    { id: "MOCK-AA101", callsign: "AA101", origin: "JFK", destination: "LAX", delay_probability: 0.12, status: "on_time", aircraft_type: "B772", altitude_ft: 34000, speed_kts: 480 },
-    { id: "MOCK-WN221", callsign: "WN221", origin: "LAS", destination: "DEN", delay_probability: 0.08, status: "on_time", aircraft_type: "B738", altitude_ft: 36000, speed_kts: 490 },
-    { id: "MOCK-B6305", callsign: "B6305", origin: "BOS", destination: "MCO", delay_probability: 0.46, status: "at_risk", aircraft_type: "A320", altitude_ft: 33000, speed_kts: 475 },
+    { flight_id: "MOCK-1", callsign: "AA201",  route: "JFK → LAX", risk: 0.82, status: "delayed",  predicted_delay: 38 },
+    { flight_id: "MOCK-2", callsign: "DL448",  route: "JFK → ATL", risk: 0.71, status: "delayed",  predicted_delay: 31 },
+    { flight_id: "MOCK-3", callsign: "B6407",  route: "JFK → MCO", risk: 0.58, status: "at_risk",  predicted_delay: 19 },
+    { flight_id: "MOCK-4", callsign: "UA1187", route: "JFK → ORD", risk: 0.51, status: "at_risk",  predicted_delay: 14 },
+    { flight_id: "MOCK-5", callsign: "AA753",  route: "JFK → MIA", risk: 0.44, status: "at_risk",  predicted_delay: 9  },
 ];
 
 export const MOCK_DELAY_TREND = [
-    { label: "00:00", probability: 12 }, { label: "02:00", probability: 15 },
-    { label: "04:00", probability: 18 }, { label: "06:00", probability: 14 },
-    { label: "08:00", probability: 12 }, { label: "10:00", probability: 10 },
-    { label: "12:00", probability: 11 }, { label: "14:00", probability: 13 },
-    { label: "16:00", probability: 15 }, { label: "18:00", probability: 14 },
-    { label: "20:00", probability: 12 }, { label: "22:00", probability: 12 },
+    { label: "06:00", probability: 8  },
+    { label: "07:00", probability: 14 },
+    { label: "08:00", probability: 22 },
+    { label: "09:00", probability: 18 },
+    { label: "10:00", probability: 12 },
+    { label: "11:00", probability: 10 },
+    { label: "12:00", probability: 11 },
+    { label: "13:00", probability: 13 },
+    { label: "14:00", probability: 15 },
+    { label: "15:00", probability: 19 },
+    { label: "16:00", probability: 28 },
+    { label: "17:00", probability: 35 },
+    { label: "18:00", probability: 42 },
+    { label: "19:00", probability: 38 },
+    { label: "20:00", probability: 24 },
+    { label: "21:00", probability: 17 },
+    { label: "22:00", probability: 11 },
+    { label: "23:00", probability: 8  },
 ];
 
 export const MOCK_ANALYTICS_ROUTES = [

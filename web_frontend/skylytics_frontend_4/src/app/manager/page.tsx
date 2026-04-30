@@ -28,28 +28,36 @@ export default function ManagerDashboard() {
         setMounted(true);
         async function loadData() {
             try {
-                // Try live sync
                 const [dashboardData, flightsData, trendData] = await Promise.all([
                     getDashboardStats(),
                     getAtRiskFlights(5),
                     getDelayTrend().catch(() => []),
                 ]);
-                
-                if (dashboardData) {
+
+                console.log("[Dashboard] Raw API response:", { dashboardData, flightsData, trendData });
+
+                // Only switch to live if the API returned real data (total_tracked > 0)
+                const hasRealData = dashboardData && Number(dashboardData.total_tracked) > 0;
+                if (hasRealData) {
                     setStats(dashboardData);
-                    setFlights(flightsData || []);
-                    setTrend(trendData || []);
+                    setFlights(flightsData && flightsData.length > 0 ? flightsData : Mocks.MOCK_AT_RISK_FLIGHTS);
+                    setTrend(trendData && trendData.length > 0 ? trendData : Mocks.MOCK_DELAY_TREND);
                     setIsLive(true);
                     setError(null);
+                } else {
+                    console.warn("[Dashboard] API returned empty data — using demo fallback.");
+                    setStats(Mocks.MOCK_DASHBOARD_STATS);
+                    setFlights(Mocks.MOCK_AT_RISK_FLIGHTS);
+                    setTrend(Mocks.MOCK_DELAY_TREND);
+                    setIsLive(false);
                 }
             } catch (err) {
-                console.warn("[Dashboard] Live sync failed, keeping archive view.");
+                console.warn("[Dashboard] Live sync failed, keeping archive view.", err);
                 setIsLive(false);
-                // Keep the mocks that were initialized
             }
         }
         loadData();
-        const interval = setInterval(loadData, 30000); // Faster sync attempt
+        const interval = setInterval(loadData, 30000);
         return () => clearInterval(interval);
     }, []);
 
@@ -66,9 +74,9 @@ export default function ManagerDashboard() {
                         Live Sync Active
                     </span>
                 ) : (
-                    <span className="font-mono text-[9px] uppercase tracking-widest text-brand-500 flex items-center gap-2 px-3 py-1 bg-white/5 border border-white/5">
-                        <div className="w-1.5 h-1.5 rounded-full bg-brand-500" /> 
-                        Archive Simulation Mode
+                    <span className="font-mono text-[9px] uppercase tracking-widest text-yellow-400 flex items-center gap-2 px-3 py-1 bg-yellow-400/5 border border-yellow-400/20">
+                        <div className="w-1.5 h-1.5 rounded-full bg-yellow-400" />
+                        Demo Mode
                     </span>
                 )}
             </div>
