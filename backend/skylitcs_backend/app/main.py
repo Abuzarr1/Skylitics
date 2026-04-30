@@ -10,85 +10,17 @@ def create_app() -> FastAPI:
     app = FastAPI(
         title=settings.PROJECT_NAME,
         version=settings.VERSION,
-        openapi_url=f"{settings.API_V1_STR}/openapi.json"
+        openapi_url=f"{settings.API_V1_STR}/openapi.json",
     )
 
+    # Dynamic CORS for Vercel Preview Deployments
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=[
-            "http://localhost:3000",
-            "http://127.0.0.1:3000",
-            "https://skylitics-m51s.vercel.app",
-        ],
-        allow_origin_regex=r"https://skylitics-m51s.*\.vercel\.app", # Matches all preview/branch URLs
+        allow_origin_regex=r"https://skylitics-m51s.*\.vercel\.app",
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],
     )
-
-    @app.get("/seed-data")
-    async def seed_data(db: AsyncSession = Depends(get_db)):
-        from sqlalchemy import text
-        try:
-            # 1. Create Airports (ATL, JFK, LAX)
-            await db.execute(text("""
-                INSERT INTO airports (id, iata, icao, name, city, country, latitude, longitude, timezone)
-                VALUES 
-                    (gen_random_uuid(), 'ATL', 'KATL', 'Hartsfield-Jackson Atlanta', 'Atlanta', 'USA', 33.64, -84.43, 'America/New_York'),
-                    (gen_random_uuid(), 'JFK', 'KJFK', 'John F. Kennedy', 'New York', 'USA', 40.64, -73.78, 'America/New_York'),
-                    (gen_random_uuid(), 'LAX', 'KLAX', 'Los Angeles Intl', 'Los Angeles', 'USA', 33.94, -118.41, 'America/Los_Angeles')
-                ON CONFLICT (iata) DO NOTHING
-            """))
-            
-            # 2. Create Airlines (DL, AA, UA)
-            await db.execute(text("""
-                INSERT INTO airlines (id, iata, name, country)
-                VALUES 
-                    (gen_random_uuid(), 'DL', 'Delta Air Lines', 'USA'),
-                    (gen_random_uuid(), 'AA', 'American Airlines', 'USA'),
-                    (gen_random_uuid(), 'UA', 'United Airlines', 'USA')
-                ON CONFLICT (iata) DO NOTHING
-            """))
-            
-            # 3. Create Flights for TODAY
-            await db.execute(text("""
-                INSERT INTO flights (id, flight_number, airline_id, origin_id, dest_id, scheduled_dep, status, gate, terminal)
-                SELECT 
-                    gen_random_uuid(),
-                    'DL' || (100 + i),
-                    (SELECT id FROM airlines WHERE iata = 'DL'),
-                    (SELECT id FROM airports WHERE iata = 'ATL'),
-                    (SELECT id FROM airports WHERE iata = 'JFK'),
-                    (CURRENT_DATE + (i || ' hours')::interval),
-                    'SCHEDULED',
-                    'A' || i,
-                    'T'
-                FROM generate_series(1, 10) AS i
-                ON CONFLICT DO NOTHING
-            """))
-            
-            await db.commit()
-            return {"status": "ok", "message": "Production data seeded successfully"}
-        except Exception as e:
-            await db.rollback()
-            return {"status": "error", "detail": str(e)}
-
-    @app.get("/debug-register")
-    async def debug_register(db: AsyncSession = Depends(get_db)):
-        from app.modules.users.models import User, UserRole
-        from app.core.security import get_password_hash
-        try:
-            u = User(
-                email=f"debug_{int(datetime.utcnow().timestamp())}@test.com",
-                password_hash=get_password_hash("pass"),
-                full_name="Debug User",
-                role=UserRole.ADMIN
-            )
-            db.add(u)
-            await db.commit()
-            return {"status": "ok", "user_id": str(u.id)}
-        except Exception as e:
-            return {"status": "error", "detail": str(e)}
 
     @app.get("/health", tags=["system"])
     async def health_check(seed: bool = False, db: AsyncSession = Depends(get_db)):
@@ -127,17 +59,25 @@ def create_app() -> FastAPI:
                     ON CONFLICT (iata) DO NOTHING
                 """))
                 
-                # 3. Create Flights
+                # 3. Seed ML model registry
                 await db.execute(text("""
-                    INSERT INTO flights (id, flight_number, airline_id, origin_id, dest_id, scheduled_dep, scheduled_arr, status, gate, terminal)
-                    SELECT
+                    INSERT INTO ml_models (id, name, version, algorithm, metrics, status)
+                    VALUES 
+                        ('xgb-cls-1.0', 'XGBoost Classifier', 'v1.0.0', 'XGBOOST', '{"accuracy": 0.918, "f1": 0.891}', 'PRODUCTION'),
+                        ('xgb-reg-1.0', 'XGBoost Regressor', 'v1.0.0', 'XGBOOST', '{"rmse": 14.2}', 'PRODUCTION')
+                    ON CONFLICT DO NOTHING
+                """))
+
+                # 4. Create Flights
+                await db.execute(text("""
+                    INSERT INTO flights (id, flight_number, airline_id, origin_id, dest_id, scheduled_dep, status, gate, terminal)
+                    SELECT 
                         gen_random_uuid(),
                         al.iata || (100 + i + (row_number() OVER ())),
                         al.id,
                         ao.id,
                         (SELECT id FROM airports WHERE iata != ao.iata LIMIT 1),
                         (CURRENT_DATE + ((6 + (i % 15)) || ' hours')::interval),
-                        (CURRENT_DATE + ((6 + (i % 15) + 3) || ' hours')::interval),
                         'SCHEDULED',
                         'G' || i,
                         'T'
@@ -148,57 +88,38 @@ def create_app() -> FastAPI:
                     ON CONFLICT DO NOTHING
                 """))
 
-                # 4. Seed ML model registry
+                # 5. Create Predictions
                 await db.execute(text("""
-                    INSERT INTO ml_models (id, name, version, algorithm, metrics, artifact_path, status)
-                    VALUES (
+                    INSERT INTO predictions (id, flight_id, model_id, delay_probability, predicted_delay_min, confidence_lower, confidence_upper, status)
+                    SELECT 
                         gen_random_uuid(),
-                        'XGBoost Delay Classifier',
-                        'v1.0',
-                        'XGBOOST',
-                        '{"accuracy": 0.918, "f1": 0.891, "rmse": 14.2}'::jsonb,
-                        'models/xgb_classifier_v1.pkl',
-                        'PRODUCTION'
-                    )
+                        f.id,
+                        'xgb-cls-1.0',
+                        (0.1 + (random() * 0.8)),
+                        (random() * 60)::int,
+                        5,
+                        120,
+                        'COMPLETED'
+                    FROM flights f
+                    WHERE f.scheduled_dep >= CURRENT_DATE
                     ON CONFLICT DO NOTHING
                 """))
+                
                 await db.commit()
-
-                # 5. Seed predictions (after commit so model_id FK resolves)
-                async with AsyncSessionLocal() as db2:
-                    await db2.execute(text("""
-                        INSERT INTO predictions (id, flight_id, model_id, delay_probability, predicted_delay_min, confidence_lower, confidence_upper)
-                        SELECT
-                            gen_random_uuid(),
-                            f.id,
-                            (SELECT id FROM ml_models WHERE status = 'PRODUCTION' LIMIT 1),
-                            ROUND((0.1 + random() * 0.8)::numeric, 4),
-                            (5 + floor(random() * 85))::int,
-                            5,
-                            90
-                        FROM flights f
-                        WHERE NOT EXISTS (
-                            SELECT 1 FROM predictions p WHERE p.flight_id = f.id
-                        )
-                    """))
-                    await db2.commit()
-
                 seed_msg = "Seeding successful"
             except Exception as e:
                 seed_msg = f"Seeding failed: {e}"
 
-        from app.db.session import AsyncSessionLocal
+        db_status = "unknown"
         try:
             async with AsyncSessionLocal() as session:
                 await session.execute(text("SELECT 1"))
                 db_status = "connected"
-                db_error = None
         except Exception as e:
-            db_status = "disconnected"
-            db_error = str(e)
+            db_status = f"error: {str(e)}"
 
         user_table = "unknown"
-        if db_status == "connected":
+        if "connected" in db_status:
             try:
                 async with AsyncSessionLocal() as session:
                     await session.execute(text("SELECT 1 FROM users LIMIT 1"))
@@ -209,7 +130,6 @@ def create_app() -> FastAPI:
         return {
             "status": "online",
             "database": db_status,
-            "database_error": db_error,
             "user_table": user_table,
             "seed_status": seed_msg,
             "message": "Skylytics Backend is operational"
@@ -242,96 +162,7 @@ def create_app() -> FastAPI:
 
     @app.on_event("startup")
     async def on_startup():
-        from app.db.session import AsyncSessionLocal
-        from sqlalchemy import text
-        try:
-            async with AsyncSessionLocal() as db:
-                # 1. Create Airports (ATL, JFK, LAX, DEN, ORD, DFW, MIA, SFO, SEA)
-                await db.execute(text("""
-                    INSERT INTO airports (id, iata, icao, name, city, country, latitude, longitude, timezone)
-                    VALUES 
-                        (gen_random_uuid(), 'ATL', 'KATL', 'Hartsfield-Jackson Atlanta', 'Atlanta', 'USA', 33.64, -84.43, 'America/New_York'),
-                        (gen_random_uuid(), 'JFK', 'KJFK', 'John F. Kennedy', 'New York', 'USA', 40.64, -73.78, 'America/New_York'),
-                        (gen_random_uuid(), 'LAX', 'KLAX', 'Los Angeles Intl', 'Los Angeles', 'USA', 33.94, -118.41, 'America/Los_Angeles'),
-                        (gen_random_uuid(), 'DEN', 'KDEN', 'Denver Intl', 'Denver', 'USA', 39.86, -104.67, 'America/Denver'),
-                        (gen_random_uuid(), 'ORD', 'KORD', 'OHare Intl', 'Chicago', 'USA', 41.98, -87.91, 'America/Chicago'),
-                        (gen_random_uuid(), 'DFW', 'KDFW', 'Dallas/Fort Worth', 'Dallas', 'USA', 32.90, -97.04, 'America/Chicago'),
-                        (gen_random_uuid(), 'MIA', 'KMIA', 'Miami Intl', 'Miami', 'USA', 25.79, -80.29, 'America/New_York'),
-                        (gen_random_uuid(), 'SFO', 'KSFO', 'San Francisco Intl', 'San Francisco', 'USA', 37.62, -122.37, 'America/Los_Angeles'),
-                        (gen_random_uuid(), 'SEA', 'KSEA', 'Seattle-Tacoma', 'Seattle', 'USA', 47.45, -122.31, 'America/Los_Angeles')
-                    ON CONFLICT (iata) DO NOTHING
-                """))
-                
-                # 2. Create Airlines (DL, AA, UA, WN, AS, B6)
-                await db.execute(text("""
-                    INSERT INTO airlines (id, iata, name, country)
-                    VALUES 
-                        (gen_random_uuid(), 'DL', 'Delta Air Lines', 'USA'),
-                        (gen_random_uuid(), 'AA', 'American Airlines', 'USA'),
-                        (gen_random_uuid(), 'UA', 'United Airlines', 'USA'),
-                        (gen_random_uuid(), 'WN', 'Southwest Airlines', 'USA'),
-                        (gen_random_uuid(), 'AS', 'Alaska Airlines', 'USA'),
-                        (gen_random_uuid(), 'B6', 'JetBlue Airways', 'USA')
-                    ON CONFLICT (iata) DO NOTHING
-                """))
-                
-                # 3. Create Flights for EVERY airport for TODAY
-                await db.execute(text("""
-                    INSERT INTO flights (id, flight_number, airline_id, origin_id, dest_id, scheduled_dep, scheduled_arr, status, gate, terminal)
-                    SELECT
-                        gen_random_uuid(),
-                        al.iata || (100 + i + (row_number() OVER ())),
-                        al.id,
-                        ao.id,
-                        (SELECT id FROM airports WHERE iata != ao.iata LIMIT 1),
-                        (CURRENT_DATE + ((6 + (i % 15)) || ' hours')::interval),
-                        (CURRENT_DATE + ((6 + (i % 15) + 3) || ' hours')::interval),
-                        'SCHEDULED',
-                        'G' || i,
-                        'T'
-                    FROM airports ao
-                    CROSS JOIN airlines al
-                    CROSS JOIN generate_series(1, 5) AS i
-                    WHERE al.iata IN ('DL', 'AA', 'UA')
-                    ON CONFLICT DO NOTHING
-                """))
-                # 4. Seed ML model registry (required FK for predictions)
-                await db.execute(text("""
-                    INSERT INTO ml_models (id, name, version, algorithm, metrics, artifact_path, status)
-                    VALUES (
-                        gen_random_uuid(),
-                        'XGBoost Delay Classifier',
-                        'v1.0',
-                        'XGBOOST',
-                        '{"accuracy": 0.918, "f1": 0.891, "rmse": 14.2}'::jsonb,
-                        'models/xgb_classifier_v1.pkl',
-                        'PRODUCTION'
-                    )
-                    ON CONFLICT DO NOTHING
-                """))
-
-                # 5. Seed predictions for every flight that has none yet
-                await db.execute(text("""
-                    INSERT INTO predictions (id, flight_id, model_id, delay_probability, predicted_delay_min, confidence_lower, confidence_upper)
-                    SELECT
-                        gen_random_uuid(),
-                        f.id,
-                        (SELECT id FROM ml_models WHERE status = 'PRODUCTION' LIMIT 1),
-                        ROUND((0.1 + random() * 0.8)::numeric, 4),
-                        (5 + floor(random() * 85))::int,
-                        5,
-                        90
-                    FROM flights f
-                    WHERE NOT EXISTS (
-                        SELECT 1 FROM predictions p WHERE p.flight_id = f.id
-                    )
-                """))
-
-                await db.commit()
-                print("[Skylytics] Production data seeded successfully.")
-        except Exception as e:
-            print(f"[Skylytics] Startup seeding skipped or failed: {e}")
-
+        # Background loop for notification checks
         from app.modules.notifications.watcher import start_watcher_loop
         import asyncio
         asyncio.create_task(start_watcher_loop(interval_minutes=5))
