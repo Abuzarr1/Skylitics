@@ -12,7 +12,13 @@ def create_app() -> FastAPI:
 
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=["*"],
+        allow_origins=[
+            "http://localhost:3000",
+            "http://127.0.0.1:3000",
+            "https://skylitics-m51s.vercel.app",
+            "https://skylitics-m51s-etnmxbbtd-abuzars-projects-59bb7991.vercel.app",
+            "https://skylitics-m51s-2yaf9riys-abuzars-projects-59bb7991.vercel.app"
+        ],
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],
