@@ -17,13 +17,12 @@ import uuid as uuid_lib
 from app.db.session import get_db
 from datetime import datetime, timezone
 
-# ML modules
-from app.ml.inference.predictor import run_inference
-from app.ml.models.xgboost_clf import ENGINE
-from app.ml.explain.shap_explainer import explain_prediction as shap_explain, explain_simple as shap_simple
-from app.ml.pipeline.clean import clean_input
-import os, sys
-from app.ml.adapters.skylytics_adapters import from_legacy_input
+# ML modules (Lazy loaded in endpoints)
+# from app.ml.inference.predictor import run_inference
+# from app.ml.models.xgboost_clf import ENGINE
+# from app.ml.explain.shap_explainer import explain_prediction
+# from app.ml.pipeline.clean import clean_input
+# from app.ml.adapters.skylytics_adapters import from_legacy_input
 
 import asyncio
 import json
@@ -124,6 +123,9 @@ async def predict_realtime(
             h_dict = from_legacy_input(h_legacy, tail_number=tail_number, tail_delay_lag=lag)
             history_list.append(h_dict)
 
+    from app.ml.inference.predictor import run_inference
+    from app.ml.adapters.skylytics_adapters import from_legacy_input
+    
     loop = asyncio.get_running_loop()
     result = await loop.run_in_executor(
         executor, 
@@ -149,6 +151,7 @@ async def run_whatif(request: WhatIfRequest) -> Any:
     What-if simulator. Pass overrides object (e.g. {"weather_severity": 0.8}).
     Runs calculations securely via ThreadPoolExecutor.
     """
+    from app.ml.inference.predictor import run_inference
     loop = asyncio.get_running_loop()
     
     original = await loop.run_in_executor(
@@ -219,6 +222,7 @@ async def get_heatmap(db: AsyncSession = Depends(get_db)) -> Any:
     
     async def get_hub_risk(iata: str, data: Dict):
         inf_tasks = []
+        from app.ml.inference.predictor import run_inference
         for f in data["flights"]:
             # Parallel inference for the sample
             inf_tasks.append(loop.run_in_executor(
@@ -362,6 +366,7 @@ async def list_models() -> Any:
     """
     Registry of loaded models.
     """
+    from app.ml.models.xgboost_clf import ENGINE
     if ENGINE == "xgboost":
         return [
             {"id": "xgb-cls-1.0", "name": "XGBoost Classifier", "version": "v1.0.0", "status": "PRODUCTION"},
@@ -528,6 +533,7 @@ async def _fetch_flight_cleaned(flight_id: str, db: AsyncSession) -> dict:
     if not row:
         raise HTTPException(status_code=404, detail="Flight not found")
 
+    from app.ml.pipeline.clean import clean_input
     dep: datetime = row["scheduled_dep"]
     return clean_input(
         airline=row["airline"],
@@ -549,6 +555,7 @@ async def explain_prediction_endpoint(
     Full SHAP breakdown for a flight's delay prediction.
     Returns per-feature SHAP values and top-5 ranked factors.
     """
+    from app.ml.explain.shap_explainer import explain_prediction as shap_explain
     cleaned = await _fetch_flight_cleaned(flight_id, db)
     return shap_explain(cleaned)
 
@@ -562,6 +569,7 @@ async def explain_prediction_simple(
     """
     Plain-language one-paragraph explanation of the top delay driver.
     """
+    from app.ml.explain.shap_explainer import explain_simple as shap_simple
     cleaned = await _fetch_flight_cleaned(flight_id, db)
     return shap_simple(cleaned)
 
