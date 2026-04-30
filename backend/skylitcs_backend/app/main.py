@@ -129,14 +129,15 @@ def create_app() -> FastAPI:
                 
                 # 3. Create Flights
                 await db.execute(text("""
-                    INSERT INTO flights (id, flight_number, airline_id, origin_id, dest_id, scheduled_dep, status, gate, terminal)
-                    SELECT 
+                    INSERT INTO flights (id, flight_number, airline_id, origin_id, dest_id, scheduled_dep, scheduled_arr, status, gate, terminal)
+                    SELECT
                         gen_random_uuid(),
                         al.iata || (100 + i + (row_number() OVER ())),
                         al.id,
                         ao.id,
                         (SELECT id FROM airports WHERE iata != ao.iata LIMIT 1),
                         (CURRENT_DATE + ((6 + (i % 15)) || ' hours')::interval),
+                        (CURRENT_DATE + ((6 + (i % 15) + 3) || ' hours')::interval),
                         'SCHEDULED',
                         'G' || i,
                         'T'
@@ -146,7 +147,42 @@ def create_app() -> FastAPI:
                     WHERE al.iata IN ('DL', 'AA', 'UA')
                     ON CONFLICT DO NOTHING
                 """))
+
+                # 4. Seed ML model registry
+                await db.execute(text("""
+                    INSERT INTO ml_models (id, name, version, algorithm, metrics, artifact_path, status)
+                    VALUES (
+                        gen_random_uuid(),
+                        'XGBoost Delay Classifier',
+                        'v1.0',
+                        'XGBOOST',
+                        '{"accuracy": 0.918, "f1": 0.891, "rmse": 14.2}'::jsonb,
+                        'models/xgb_classifier_v1.pkl',
+                        'PRODUCTION'
+                    )
+                    ON CONFLICT DO NOTHING
+                """))
                 await db.commit()
+
+                # 5. Seed predictions (after commit so model_id FK resolves)
+                async with AsyncSessionLocal() as db2:
+                    await db2.execute(text("""
+                        INSERT INTO predictions (id, flight_id, model_id, delay_probability, predicted_delay_min, confidence_lower, confidence_upper)
+                        SELECT
+                            gen_random_uuid(),
+                            f.id,
+                            (SELECT id FROM ml_models WHERE status = 'PRODUCTION' LIMIT 1),
+                            ROUND((0.1 + random() * 0.8)::numeric, 4),
+                            (5 + floor(random() * 85))::int,
+                            5,
+                            90
+                        FROM flights f
+                        WHERE NOT EXISTS (
+                            SELECT 1 FROM predictions p WHERE p.flight_id = f.id
+                        )
+                    """))
+                    await db2.commit()
+
                 seed_msg = "Seeding successful"
             except Exception as e:
                 seed_msg = f"Seeding failed: {e}"
