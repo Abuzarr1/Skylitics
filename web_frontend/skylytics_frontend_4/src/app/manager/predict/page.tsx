@@ -220,8 +220,7 @@ export default function PredictPage() {
                 shap: responseData.explainability_tags || [],
                 engine: responseData.data.prediction_type
             });
-        } catch (err: any) {
-            console.error("Backend refine failed:", err);
+        } catch {
             setResult((prev: any) => ({ ...prev, engine: "Heuristic Archive" }));
         } finally {
             setIsPredicting(false);

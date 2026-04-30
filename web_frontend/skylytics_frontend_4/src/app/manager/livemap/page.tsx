@@ -49,8 +49,7 @@ export default function LiveMapPage() {
             const data = await getLiveFlights();
             setFlights(data?.length ? data : MOCK_FLIGHTS);
             setLastUpdated(new Date());
-        } catch (e) {
-            console.error("Failed to fetch live flights:", e);
+        } catch {
             setFlights(MOCK_FLIGHTS);
         } finally {
             setLoading(false);
