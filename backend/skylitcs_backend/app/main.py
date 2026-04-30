@@ -16,9 +16,8 @@ def create_app() -> FastAPI:
             "http://localhost:3000",
             "http://127.0.0.1:3000",
             "https://skylitics-m51s.vercel.app",
-            "https://skylitics-m51s-etnmxbbtd-abuzars-projects-59bb7991.vercel.app",
-            "https://skylitics-m51s-2yaf9riys-abuzars-projects-59bb7991.vercel.app"
         ],
+        allow_origin_regex=r"https://skylitics-m51s.*\.vercel\.app", # Matches all preview/branch URLs
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],
@@ -26,9 +25,24 @@ def create_app() -> FastAPI:
 
     @app.get("/health", tags=["system"])
     async def health_check():
+        from app.db.session import AsyncSessionLocal
+        from sqlalchemy import text
+        db_status = "unknown"
+        db_error = None
+        
+        try:
+            async with AsyncSessionLocal() as db:
+                await db.execute(text("SELECT 1"))
+                db_status = "connected"
+        except Exception as e:
+            db_status = "error"
+            db_error = str(e)
+
         return {
             "status": "online",
-            "message": "Skylytics Backend is operational (Modular Monolith)"
+            "database": db_status,
+            "database_error": db_error,
+            "message": "Skylytics Backend is operational"
         }
 
     # Import and register module routers

@@ -215,7 +215,8 @@ async def get_active_airlines(
     Return distinct airline IATA codes operating from this airport today.
     Falls back to a deterministic demo list if no flights are scheduled today.
     """
-    today = date.today().isoformat()
+    today_obj = date.today()
+    today_str = today_obj.isoformat()
     airport = airport_code.upper()
 
     result = await db.execute(text("""
@@ -227,7 +228,7 @@ async def get_active_airlines(
           AND DATE(f.scheduled_dep AT TIME ZONE 'UTC') = :today
           AND f.status IN ('BOARDING','DELAYED','SCHEDULED','PUSHBACK')
         ORDER BY al.iata
-    """), {"airport": airport, "today": today})
+    """), {"airport": airport, "today": today_obj})
 
     rows = result.mappings().all()
     airlines = [r["airline_code"] for r in rows]
@@ -236,7 +237,7 @@ async def get_active_airlines(
     if not airlines:
         airlines = _DEMO_AIRLINES.get(airport, ["DL", "AA", "UA", "WN"])
 
-    return {"airport": airport, "airlines": airlines, "date": today}
+    return {"airport": airport, "airlines": airlines, "date": today_str}
 
 
 @router.get("/active-flights")
@@ -250,7 +251,7 @@ async def get_active_flights(
     Return today's active flights for an airline from the manager's airport.
     Falls back to deterministic demo data when no real flights exist for today.
     """
-    today   = date.today().isoformat()
+    today_obj = date.today()
     airport = airport_code.upper()
     al_code = airline.upper()
 
@@ -276,7 +277,7 @@ async def get_active_flights(
           AND f.status IN ('BOARDING','DELAYED','SCHEDULED','PUSHBACK')
         ORDER BY f.scheduled_dep ASC
         LIMIT 50
-    """), {"airport": airport, "airline": al_code, "today": today})
+    """), {"airport": airport, "airline": al_code, "today": today_obj})
 
     rows = result.mappings().all()
 
