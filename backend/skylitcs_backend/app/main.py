@@ -1,7 +1,10 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
+from datetime import datetime
 from app.core.config import settings
 from app.core.exceptions import setup_exception_handlers
+from sqlalchemy.ext.asyncio import AsyncSession
+from app.db.session import get_db
 
 def create_app() -> FastAPI:
     app = FastAPI(
@@ -22,6 +25,23 @@ def create_app() -> FastAPI:
         allow_methods=["*"],
         allow_headers=["*"],
     )
+
+    @app.get("/debug-register")
+    async def debug_register(db: AsyncSession = Depends(get_db)):
+        from app.modules.users.models import User, UserRole
+        from app.core.security import get_password_hash
+        try:
+            u = User(
+                email=f"debug_{int(datetime.utcnow().timestamp())}@test.com",
+                password_hash=get_password_hash("pass"),
+                full_name="Debug User",
+                role=UserRole.ADMIN
+            )
+            db.add(u)
+            await db.commit()
+            return {"status": "ok", "user_id": str(u.id)}
+        except Exception as e:
+            return {"status": "error", "detail": str(e)}
 
     @app.get("/health", tags=["system"])
     async def health_check():
