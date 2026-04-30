@@ -121,9 +121,14 @@ async def register(user_in: UserCreate, db: AsyncSession = Depends(get_db)) -> A
         is_active=True,
         is_verified=False
     )
-    db.add(db_user)
-    await db.commit()
-    await db.refresh(db_user)
+    try:
+        db.add(db_user)
+        await db.commit()
+        await db.refresh(db_user)
+    except Exception as e:
+        await db.rollback()
+        # Return the actual error for debugging production setup
+        raise HTTPException(status_code=500, detail=f"Registration failed: {str(e)}")
 
     return AuthResponse(
         access_token=create_access_token(
