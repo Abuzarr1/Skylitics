@@ -241,14 +241,15 @@ def create_app() -> FastAPI:
                 
                 # 3. Create Flights for EVERY airport for TODAY
                 await db.execute(text("""
-                    INSERT INTO flights (id, flight_number, airline_id, origin_id, dest_id, scheduled_dep, status, gate, terminal)
-                    SELECT 
+                    INSERT INTO flights (id, flight_number, airline_id, origin_id, dest_id, scheduled_dep, scheduled_arr, status, gate, terminal)
+                    SELECT
                         gen_random_uuid(),
                         al.iata || (100 + i + (row_number() OVER ())),
                         al.id,
                         ao.id,
                         (SELECT id FROM airports WHERE iata != ao.iata LIMIT 1),
                         (CURRENT_DATE + ((6 + (i % 15)) || ' hours')::interval),
+                        (CURRENT_DATE + ((6 + (i % 15) + 3) || ' hours')::interval),
                         'SCHEDULED',
                         'G' || i,
                         'T'
