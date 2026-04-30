@@ -1,5 +1,12 @@
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "https://skylytics-backend-25gp.onrender.com/api/v1";
+const TIMEOUT_MS = 15000;
 import * as Mocks from "./mocks";
+
+function fetchWithTimeout(url: string, options: RequestInit = {}): Promise<Response> {
+    const controller = new AbortController();
+    const id = setTimeout(() => controller.abort(), TIMEOUT_MS);
+    return fetch(url, { ...options, signal: controller.signal }).finally(() => clearTimeout(id));
+}
 
 // --- Token + user helpers ---
 
@@ -51,7 +58,7 @@ function parseDetail(detail: unknown): string {
 async function post(endpoint: string, data: unknown) {
     const token = getToken();
     try {
-        const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+        const response = await fetchWithTimeout(`${API_BASE_URL}${endpoint}`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -96,7 +103,7 @@ async function post(endpoint: string, data: unknown) {
 
 async function del(endpoint: string) {
     const token = getToken();
-    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+    const response = await fetchWithTimeout(`${API_BASE_URL}${endpoint}`, {
         method: "DELETE",
         headers: {
             "Content-Type": "application/json",
@@ -112,7 +119,7 @@ async function del(endpoint: string) {
 
 async function patch(endpoint: string, data: unknown = {}) {
     const token = getToken();
-    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+    const response = await fetchWithTimeout(`${API_BASE_URL}${endpoint}`, {
         method: "PATCH",
         headers: {
             "Content-Type": "application/json",
@@ -129,7 +136,7 @@ async function patch(endpoint: string, data: unknown = {}) {
 
 async function put(endpoint: string, data: unknown) {
     const token = getToken();
-    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+    const response = await fetchWithTimeout(`${API_BASE_URL}${endpoint}`, {
         method: "PUT",
         headers: {
             "Content-Type": "application/json",
@@ -147,7 +154,7 @@ async function put(endpoint: string, data: unknown) {
 async function get(endpoint: string) {
     const token = getToken();
     try {
-        const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+        const response = await fetchWithTimeout(`${API_BASE_URL}${endpoint}`, {
             method: "GET",
             headers: {
                 "Content-Type": "application/json",
@@ -176,7 +183,7 @@ async function get(endpoint: string) {
 export async function loginUser(email: string, password: string): Promise<any> {
     // FastAPI OAuth2 expects form-encoded username/password
     const body = new URLSearchParams({ username: email, password });
-    const response = await fetch(`${API_BASE_URL}/auth/login`, {
+    const response = await fetchWithTimeout(`${API_BASE_URL}/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
         body: body.toString(),
@@ -189,7 +196,7 @@ export async function loginUser(email: string, password: string): Promise<any> {
     if (data.access_token) {
         // Fetch the actual user profile now that we have a valid token
         const token = data.access_token;
-        const userResponse = await fetch(`${API_BASE_URL}/auth/me`, {
+        const userResponse = await fetchWithTimeout(`${API_BASE_URL}/auth/me`, {
             headers: { Authorization: `Bearer ${token}` },
         });
         const user = await userResponse.json();
@@ -222,7 +229,7 @@ export async function registerUser(payload: {
 
 export async function resetPassword(email: string, newPassword: string): Promise<void> {
     const params = new URLSearchParams({ email, new_password: newPassword });
-    const response = await fetch(`${API_BASE_URL}/auth/reset-password?${params.toString()}`, {
+    const response = await fetchWithTimeout(`${API_BASE_URL}/auth/reset-password?${params.toString()}`, {
         method: "POST",
     });
     if (!response.ok) {
