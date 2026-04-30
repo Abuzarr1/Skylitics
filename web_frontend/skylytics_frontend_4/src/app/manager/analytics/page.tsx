@@ -6,7 +6,7 @@ import {
     Tooltip, ResponsiveContainer, Cell,
 } from "recharts";
 import { Zap, Activity, Compass, ShieldAlert, ChevronUp } from "lucide-react";
-import { getRouteAnalytics, getAirportAnalytics, getDelayTrend } from "@/lib/api";
+import { getRouteAnalytics, getAirportAnalytics, getDelayTrend, getSystemStatus } from "@/lib/api";
 import { LoadingRadar } from "@/components/ui/LoadingRadar";
 import { useAuth } from "@/hooks/useAuth";
 
@@ -20,14 +20,6 @@ const FEATURE_IMPORTANCE = [
     { name: "Day of Week",       value: 11 },
     { name: "Month",             value: 9  },
 ];
-
-// Real model metrics from DB (ml_models table: accuracy 0.918, f1 0.891, rmse 14.2)
-const MODEL_METRICS = {
-    accuracy: "91.8%",
-    f1:       "0.891",
-    rmse:     "14.2 min",
-    flights:  "100K",
-};
 
 const PerformanceMetric = ({ label, value, sub, trend }: { label: string; value: string; sub: string; trend?: string }) => (
     <div className="p-6 bg-[var(--bg-card)]/40 border border-[var(--border-ui)] group hover:border-accent-neon transition-colors">
@@ -52,15 +44,38 @@ export default function AnalyticsPage() {
     const [airports, setAirports]   = useState<any[]>(Mocks.MOCK_ANALYTICS_AIRPORTS);
     const [isLive, setIsLive]       = useState(false);
     const [loading, setLoading]     = useState(false);
+    const [modelMetrics, setModelMetrics] = useState({
+        accuracy: "91.8%",
+        f1:       "0.891",
+        rmse:     "14.2 min",
+        flights:  "100K",
+        name:     "XGBoost Classifier",
+        version:  "v1.0",
+    });
 
     useEffect(() => {
         const load = async () => {
             try {
-                const [r, a] = await Promise.all([getRouteAnalytics(), getAirportAnalytics()]);
+                const [r, a, sys] = await Promise.all([
+                    getRouteAnalytics(),
+                    getAirportAnalytics(),
+                    getSystemStatus(),
+                ]);
                 if (r && a) {
                     setRoutes(r.slice(0, 8));
                     setAirports(a.slice(0, 8));
                     setIsLive(true);
+                }
+                if (sys?.model_metrics) {
+                    const m = sys.model_metrics;
+                    setModelMetrics({
+                        accuracy: `${m.accuracy}%`,
+                        f1:       String(m.f1),
+                        rmse:     `${m.rmse} min`,
+                        flights:  m.flights >= 1000 ? `${Math.round(m.flights / 1000)}K` : String(m.flights),
+                        name:     sys.model_name ?? "XGBoost Classifier",
+                        version:  sys.model_version ?? "v1.0",
+                    });
                 }
             } catch (err) {
                 console.warn("Analytics Sync Failed, using archive.");
@@ -99,10 +114,10 @@ export default function AnalyticsPage() {
 
             {/* Metrics Row — real DB values */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-                <PerformanceMetric label="Training Accuracy"  value={MODEL_METRICS.accuracy} sub="XGBoost Classifier v1.0" trend="↑" />
-                <PerformanceMetric label="RMSE (Regression)"  value={MODEL_METRICS.rmse}     sub="Avg prediction error" />
-                <PerformanceMetric label="F1 Score"           value={MODEL_METRICS.f1}        sub="Classifier performance" />
-                <PerformanceMetric label="Flights in DB"      value={MODEL_METRICS.flights}   sub="Training corpus size" trend="↑" />
+                <PerformanceMetric label="Training Accuracy"  value={modelMetrics.accuracy} sub={`${modelMetrics.name} ${modelMetrics.version}`} trend="↑" />
+                <PerformanceMetric label="RMSE (Regression)"  value={modelMetrics.rmse}     sub="Avg prediction error" />
+                <PerformanceMetric label="F1 Score"           value={modelMetrics.f1}        sub="Classifier performance" />
+                <PerformanceMetric label="Flights in DB"      value={modelMetrics.flights}   sub="Training corpus size" trend="↑" />
             </div>
 
             {/* Main Charts */}
@@ -252,10 +267,10 @@ export default function AnalyticsPage() {
                     </p>
                     <div className="flex gap-4">
                         <div className="px-3 py-1.5 border border-[var(--border-ui)] bg-[var(--bg-surface)] font-mono text-[9px] uppercase tracking-widest text-brand-300">
-                            F1 Score: {MODEL_METRICS.f1}
+                            F1 Score: {modelMetrics.f1}
                         </div>
                         <div className="px-3 py-1.5 border border-[var(--border-ui)] bg-[var(--bg-surface)] font-mono text-[9px] uppercase tracking-widest text-brand-300">
-                            RMSE: {MODEL_METRICS.rmse}
+                            RMSE: {modelMetrics.rmse}
                         </div>
                     </div>
                 </div>

@@ -177,10 +177,32 @@ function GlobalNetwork({ hubs, routes }: { hubs: any[], routes: any[] }) {
 
 import * as Mocks from "@/lib/mocks";
 
+const AIRPORT_COORDS: Record<string, { lat: number; lon: number }> = {
+    ATL: { lat: 33.6367, lon: -84.4281 },
+    LAX: { lat: 33.9425, lon: -118.4081 },
+    ORD: { lat: 41.9742, lon: -87.9073 },
+    DFW: { lat: 32.8998, lon: -97.0403 },
+    DEN: { lat: 39.8561, lon: -104.6737 },
+    JFK: { lat: 40.6413, lon: -73.7781 },
+    SFO: { lat: 37.6213, lon: -122.3790 },
+    SEA: { lat: 47.4502, lon: -122.3088 },
+    MIA: { lat: 25.7959, lon: -80.2870 },
+};
+
+const INITIAL_HUBS = [
+    { airport: "ATL", lat: 33.6367, lon: -84.4281, risk: 0.45, color: "#DFFF00" },
+    { airport: "ORD", lat: 41.9742, lon: -87.9073, risk: 0.62, color: "#FF3B30" },
+    { airport: "DFW", lat: 32.8998, lon: -97.0403, risk: 0.35, color: "#DFFF00" },
+    { airport: "DEN", lat: 39.8561, lon: -104.6737, risk: 0.28, color: "#DFFF00" },
+    { airport: "LAX", lat: 33.9425, lon: -118.4081, risk: 0.52, color: "#FBBF24" },
+    { airport: "JFK", lat: 40.6413, lon: -73.7781,  risk: 0.48, color: "#FBBF24" },
+    { airport: "SFO", lat: 37.6213, lon: -122.3790, risk: 0.38, color: "#DFFF00" },
+    { airport: "SEA", lat: 47.4502, lon: -122.3088, risk: 0.30, color: "#DFFF00" },
+    { airport: "MIA", lat: 25.7959, lon: -80.2870,  risk: 0.55, color: "#FBBF24" },
+];
+
 export default function RouteNetworkGraph() {
-    const [hubs, setHubs] = useState<any[]>(Mocks.MOCK_FLIGHTS.slice(0, 5).map(f => ({
-        airport: f.origin, lat: 40.7128, lon: -74.0060, risk: f.delay_probability / 100, color: "#DFFF00"
-    })));
+    const [hubs, setHubs] = useState<any[]>(INITIAL_HUBS);
     const [routes, setRoutes] = useState<any[]>([]);
     const [timestamp, setTimestamp] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(false); // No skeleton if we have mocks!
@@ -193,8 +215,17 @@ export default function RouteNetworkGraph() {
                     getHeatmapData(),
                     getLiveFlights()
                 ]);
-                if (hubResponse.nodes) {
-                    setHubs(hubResponse.nodes);
+                if (hubResponse.nodes && hubResponse.nodes.length > 0) {
+                    // Ensure each node has valid lat/lon; fall back to known coords if missing
+                    const nodes = hubResponse.nodes.map((n: any) => {
+                        const coords = AIRPORT_COORDS[n.airport];
+                        return {
+                            ...n,
+                            lat: (n.lat && n.lat !== 40.7128) ? n.lat : (coords?.lat ?? n.lat),
+                            lon: (n.lon && n.lon !== -74.0060) ? n.lon : (coords?.lon ?? n.lon),
+                        };
+                    });
+                    setHubs(nodes);
                     setTimestamp(hubResponse.timestamp);
                     setRoutes(routeData || []);
                     setIsLive(true);
