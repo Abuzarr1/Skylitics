@@ -135,15 +135,24 @@ function LoginForm({ onSwitch }: { onSwitch: () => void }) {
 
             if (redirectTo) {
                 window.location.href = redirectTo;
-            } else if (userRole === "MANAGER") {
-                window.location.href = "/manager/select-airport";
             } else if (userRole === "ADMIN") {
                 window.location.href = "/manager";
+            } else if (userRole === "MANAGER") {
+                window.location.href = "/manager/select-airport";
             } else {
                 window.location.href = "/passenger";
             }
         } catch (err: any) {
-            setError(err.message || "Invalid credentials.");
+            const msg: string = err?.message ?? "";
+            if (err?.name === "AbortError" || msg === "Failed to fetch") {
+                setError("Server is starting up — please wait a moment and try again.");
+            } else if (msg.toLowerCase().includes("incorrect") || msg.includes("401")) {
+                setError("Incorrect email or password.");
+            } else if (msg.includes("deactivated")) {
+                setError("This account has been deactivated.");
+            } else {
+                setError(msg || "Login failed. Please try again.");
+            }
         } finally {
             setLoading(false);
         }
@@ -312,20 +321,71 @@ function RegisterForm({ onSwitch }: { onSwitch: () => void }) {
         setStep(2);
     };
 
+    const [statusMsg, setStatusMsg] = useState<string | null>(null);
+
+    function friendlyError(err: any): string {
+        const msg: string = err?.message ?? "";
+        if (err?.name === "AbortError" || msg === "Failed to fetch" || msg.toLowerCase().includes("network")) {
+            return "Cannot reach server. Please try again in a moment.";
+        }
+        if (msg.toLowerCase().includes("already exists")) {
+            return "Email already registered — sign in instead.";
+        }
+        if (msg.includes("422") || msg.toLowerCase().includes("validation")) {
+            return "Please check your details and try again.";
+        }
+        if (msg.includes("500")) {
+            return "Server error. Please try again in a moment.";
+        }
+        return msg || "Registration failed. Please try again.";
+    }
+
+    const isNetworkError = (err: any) =>
+        err?.name === "AbortError" || err?.message === "Failed to fetch";
+
     const handleRegister = async (airport?: string) => {
         setError(null);
+        setStatusMsg(null);
         setLoading(true);
-        try {
-            const data = await registerUser({ ...form });
-            const code = airport ?? selectedAirport ?? "ATL";
-            setSelectedAirport(code);
-            window.location.href = "/manager";
-        } catch (err: any) {
-            setError(err.message || "Registration failed.");
-            setStep(1);
-        } finally {
-            setLoading(false);
+
+        let data: any = null;
+
+        for (let attempt = 1; attempt <= 2; attempt++) {
+            try {
+                if (attempt === 2) setStatusMsg("Server is waking up, retrying...");
+                data = await registerUser({ ...form });
+                break;
+            } catch (err: any) {
+                if (isNetworkError(err) && attempt === 1) {
+                    // Render cold-start — wait 4s and retry once
+                    setStatusMsg("Connecting to server...");
+                    await new Promise(r => setTimeout(r, 4000));
+                    continue;
+                }
+                // Non-retryable or second failure — show error on step 2, stay there
+                setError(friendlyError(err));
+                setStatusMsg(null);
+                setLoading(false);
+                return;
+            }
         }
+
+        setStatusMsg(null);
+
+        if (data) {
+            const code = airport ?? selectedAirport ?? null;
+            if (code) setSelectedAirport(code);
+            const role = (data.user?.role ?? "").toUpperCase();
+            if (role === "ADMIN") {
+                window.location.href = "/manager";
+            } else if (role === "MANAGER") {
+                window.location.href = code ? "/manager" : "/manager/select-airport";
+            } else {
+                window.location.href = "/passenger";
+            }
+        }
+
+        setLoading(false);
     };
 
     return (
@@ -521,7 +581,13 @@ function RegisterForm({ onSwitch }: { onSwitch: () => void }) {
                             })}
                         </div>
 
-                        {error && (
+                        {statusMsg && (
+                            <p className="font-mono text-xs text-yellow-400 uppercase tracking-widest border border-yellow-400/20 bg-yellow-400/5 px-4 py-3 mb-4 animate-pulse">
+                                ⟳ {statusMsg}
+                            </p>
+                        )}
+
+                        {error && !statusMsg && (
                             <p className="font-mono text-xs text-accent-alert uppercase tracking-widest border border-accent-alert/20 bg-accent-alert/5 px-4 py-3 mb-4">
                                 ⚠ {error}
                             </p>
@@ -533,7 +599,7 @@ function RegisterForm({ onSwitch }: { onSwitch: () => void }) {
                             className="w-full bg-accent-neon text-brand-900 font-bold font-mono tracking-widest uppercase py-4 hover:bg-white transition-all disabled:opacity-30 flex items-center justify-center gap-3"
                         >
                             {loading
-                                ? "Establishing Nexus..."
+                                ? <span className="animate-pulse">{statusMsg ? "Please wait..." : "Establishing Nexus..."}</span>
                                 : selectedAirport
                                 ? `Activate ${selectedAirport} Console →`
                                 : "Awaiting Selection"}
