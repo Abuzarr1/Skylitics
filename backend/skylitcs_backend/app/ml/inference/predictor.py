@@ -18,18 +18,8 @@ pipeline = None
 ENGINE = "hybrid_ensemble"
 
 def get_pipeline():
-    global pipeline
-    if pipeline is not None:
-        return pipeline
-    
-    print(f"[Skylytics] Initializing Production Pipeline from {MODEL_DIR}...")
-    try:
-        from skylytics_predict import SkylyticsPipeline
-        pipeline = SkylyticsPipeline(model_dir=MODEL_DIR)
-        return pipeline
-    except Exception as e:
-        print(f"[Skylytics] CRITICAL: Failed to load production pipeline: {e}")
-        return None
+    # Force disabled for Render Free Tier (512MB RAM) to prevent OOM crashes
+    return None
 
 
 # ─── Mock fallback ────────────────────────────────────────────────────────────
