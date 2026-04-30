@@ -119,6 +119,7 @@ async def register(user_in: UserCreate, db: AsyncSession = Depends(get_db)) -> A
             full_name=user_in.full_name,
             password_hash=get_password_hash(user_in.password),
             role=user_in.role,
+            airport_code=user_in.airport_code,
             is_active=True,
             is_verified=False
         )
