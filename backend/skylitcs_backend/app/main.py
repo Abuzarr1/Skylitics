@@ -26,6 +26,53 @@ def create_app() -> FastAPI:
         allow_headers=["*"],
     )
 
+    @app.get("/seed-data")
+    async def seed_data(db: AsyncSession = Depends(get_db)):
+        from sqlalchemy import text
+        try:
+            # 1. Create Airports (ATL, JFK, LAX)
+            await db.execute(text("""
+                INSERT INTO airports (id, iata, name, city, country, latitude, longitude)
+                VALUES 
+                    (gen_random_uuid(), 'ATL', 'Hartsfield-Jackson Atlanta', 'Atlanta', 'USA', 33.64, -84.43),
+                    (gen_random_uuid(), 'JFK', 'John F. Kennedy', 'New York', 'USA', 40.64, -73.78),
+                    (gen_random_uuid(), 'LAX', 'Los Angeles Intl', 'Los Angeles', 'USA', 33.94, -118.41)
+                ON CONFLICT (iata) DO NOTHING
+            """))
+            
+            # 2. Create Airlines (DL, AA, UA)
+            await db.execute(text("""
+                INSERT INTO airlines (id, iata, name, country)
+                VALUES 
+                    (gen_random_uuid(), 'DL', 'Delta Air Lines', 'USA'),
+                    (gen_random_uuid(), 'AA', 'American Airlines', 'USA'),
+                    (gen_random_uuid(), 'UA', 'United Airlines', 'USA')
+                ON CONFLICT (iata) DO NOTHING
+            """))
+            
+            # 3. Create Flights for TODAY
+            await db.execute(text("""
+                INSERT INTO flights (id, flight_number, airline_id, origin_id, dest_id, scheduled_dep, status, gate, terminal)
+                SELECT 
+                    gen_random_uuid(),
+                    'DL' || (100 + i),
+                    (SELECT id FROM airlines WHERE iata = 'DL'),
+                    (SELECT id FROM airports WHERE iata = 'ATL'),
+                    (SELECT id FROM airports WHERE iata = 'JFK'),
+                    (CURRENT_DATE + (i || ' hours')::interval),
+                    'SCHEDULED',
+                    'A' || i,
+                    'T'
+                FROM generate_series(1, 10) AS i
+                ON CONFLICT DO NOTHING
+            """))
+            
+            await db.commit()
+            return {"status": "ok", "message": "Production data seeded successfully"}
+        except Exception as e:
+            await db.rollback()
+            return {"status": "error", "detail": str(e)}
+
     @app.get("/debug-register")
     async def debug_register(db: AsyncSession = Depends(get_db)):
         from app.modules.users.models import User, UserRole
