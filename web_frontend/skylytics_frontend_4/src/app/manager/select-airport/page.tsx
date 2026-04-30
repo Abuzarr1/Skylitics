@@ -1,36 +1,56 @@
 "use client";
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { Plane, CheckCircle2 } from "lucide-react";
 import { setSelectedAirport } from "@/hooks/useAuth";
 
 const AIRPORTS = [
-    { code: "ATL", name: "Hartsfield-Jackson", city: "Atlanta, GA",       region: "US-SE" },
-    { code: "JFK", name: "John F. Kennedy",    city: "New York, NY",      region: "US-NE" },
-    { code: "ORD", name: "O'Hare International", city: "Chicago, IL",     region: "US-MW" },
-    { code: "LAX", name: "Los Angeles Intl",   city: "Los Angeles, CA",   region: "US-W"  },
-    { code: "DFW", name: "Dallas/Fort Worth",  city: "Dallas, TX",        region: "US-S"  },
-    { code: "MIA", name: "Miami International", city: "Miami, FL",        region: "US-SE" },
-    { code: "SFO", name: "San Francisco Intl", city: "San Francisco, CA", region: "US-W"  },
-    { code: "DEN", name: "Denver International", city: "Denver, CO",      region: "US-MW" },
-    { code: "SEA", name: "Seattle-Tacoma",     city: "Seattle, WA",       region: "US-NW" },
+    { code: "ATL", name: "Hartsfield-Jackson",   city: "Atlanta, GA",        region: "US-SE" },
+    { code: "JFK", name: "John F. Kennedy",       city: "New York, NY",       region: "US-NE" },
+    { code: "ORD", name: "O'Hare International",  city: "Chicago, IL",        region: "US-MW" },
+    { code: "LAX", name: "Los Angeles Intl",      city: "Los Angeles, CA",    region: "US-W"  },
+    { code: "DFW", name: "Dallas/Fort Worth",     city: "Dallas, TX",         region: "US-S"  },
+    { code: "MIA", name: "Miami International",   city: "Miami, FL",          region: "US-SE" },
+    { code: "SFO", name: "San Francisco Intl",    city: "San Francisco, CA",  region: "US-W"  },
+    { code: "DEN", name: "Denver International",  city: "Denver, CO",         region: "US-MW" },
+    { code: "SEA", name: "Seattle-Tacoma",        city: "Seattle, WA",        region: "US-NW" },
 ];
 
 export default function SelectAirportPage() {
-    const router = useRouter();
     const [selected, setSelected] = useState<string | null>(null);
     const [confirming, setConfirming] = useState(false);
+    const [failed, setFailed] = useState(false);
 
     function handleSelect(code: string) {
         setSelected(code);
+        setFailed(false);
     }
 
     function handleConfirm() {
-        if (!selected) return;
+        if (!selected || confirming) return;
         setConfirming(true);
-        setSelectedAirport(selected);
-        router.push("/manager");
+        setFailed(false);
+
+        try {
+            // Write to localStorage + set cookie synchronously BEFORE navigation
+            setSelectedAirport(selected);
+        } catch (e) {
+            console.error("[SelectAirport] Failed to persist airport:", e);
+        }
+
+        // Use full-page navigation so the browser sends the freshly-set cookie
+        // to the Next.js middleware — router.push() can use a stale prefetch
+        // cache that was built before the cookie existed, causing an infinite
+        // redirect loop back to this page.
+        console.log(`[SelectAirport] Navigating to /manager with airport=${selected}`);
+        window.location.href = "/manager";
+
+        // Safety valve: if window.location.href somehow stalls (rare), reset
+        // after 5s so the user can try again instead of being stuck forever.
+        setTimeout(() => {
+            setConfirming(false);
+            setFailed(true);
+        }, 5000);
     }
 
     return (
@@ -105,13 +125,27 @@ export default function SelectAirportPage() {
                 className="bg-yellow-400 text-black font-mono font-black uppercase tracking-widest px-16 py-4 text-sm hover:bg-yellow-300 active:bg-yellow-500 transition-colors disabled:cursor-not-allowed"
             >
                 {confirming
-                    ? "LOADING..."
+                    ? "REDIRECTING..."
                     : selected
                         ? `MANAGE ${selected} →`
                         : "SELECT AN AIRPORT"}
             </motion.button>
 
-            {selected && !confirming && (
+            {failed && (
+                <div className="mt-4 flex flex-col items-center gap-3">
+                    <p className="font-mono text-[10px] uppercase tracking-widest text-accent-alert">
+                        Navigation failed — please try again
+                    </p>
+                    <button
+                        onClick={handleConfirm}
+                        className="font-mono text-[10px] uppercase tracking-widest border border-yellow-400 text-yellow-400 px-8 py-2 hover:bg-yellow-400 hover:text-black transition-colors"
+                    >
+                        Try Again
+                    </button>
+                </div>
+            )}
+
+            {selected && !confirming && !failed && (
                 <p className="mt-4 font-mono text-[10px] uppercase tracking-widest text-brand-500">
                     You can switch airports anytime from the sidebar
                 </p>
