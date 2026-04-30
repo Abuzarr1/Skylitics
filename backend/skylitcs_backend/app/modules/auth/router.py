@@ -113,22 +113,22 @@ async def register(user_in: UserCreate, db: AsyncSession = Depends(get_db)) -> A
             detail=f"Account with email '{user_in.email}' already exists."
         )
 
-    db_user = User(
-        email=user_in.email.lower(),
-        full_name=user_in.full_name,
-        password_hash=get_password_hash(user_in.password),
-        role=user_in.role,
-        is_active=True,
-        is_verified=False
-    )
     try:
+        db_user = User(
+            email=user_in.email.lower(),
+            full_name=user_in.full_name,
+            password_hash=get_password_hash(user_in.password),
+            role=user_in.role,
+            is_active=True,
+            is_verified=False
+        )
         db.add(db_user)
         await db.commit()
         await db.refresh(db_user)
     except Exception as e:
-        await db.rollback()
-        # Return the actual error for debugging production setup
-        raise HTTPException(status_code=500, detail=f"Registration failed: {str(e)}")
+        if db:
+            await db.rollback()
+        raise HTTPException(status_code=500, detail=f"Registration crash: {str(e)}")
 
     return AuthResponse(
         access_token=create_access_token(
