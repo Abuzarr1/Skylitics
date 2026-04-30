@@ -37,10 +37,14 @@ class Settings(BaseSettings):
 
     @property
     def DB_CONNECT_ARGS(self) -> Dict[str, Any]:
-        # Render's PostgreSQL requires SSL; asyncpg needs it passed explicitly
+        # Render's PostgreSQL requires SSL with a self-signed cert.
+        # asyncpg needs SSL passed explicitly, and cert verification must be
+        # disabled because Render uses self-signed certificates.
         if self.DATABASE_URL:
             import ssl
             ctx = ssl.create_default_context()
+            ctx.check_hostname = False
+            ctx.verify_mode = ssl.CERT_NONE
             return {"ssl": ctx}
         return {}
     
