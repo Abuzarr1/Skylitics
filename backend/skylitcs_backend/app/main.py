@@ -32,11 +32,11 @@ def create_app() -> FastAPI:
         try:
             # 1. Create Airports (ATL, JFK, LAX)
             await db.execute(text("""
-                INSERT INTO airports (id, iata, name, city, country, latitude, longitude)
+                INSERT INTO airports (id, iata, icao, name, city, country, latitude, longitude, timezone)
                 VALUES 
-                    (gen_random_uuid(), 'ATL', 'Hartsfield-Jackson Atlanta', 'Atlanta', 'USA', 33.64, -84.43),
-                    (gen_random_uuid(), 'JFK', 'John F. Kennedy', 'New York', 'USA', 40.64, -73.78),
-                    (gen_random_uuid(), 'LAX', 'Los Angeles Intl', 'Los Angeles', 'USA', 33.94, -118.41)
+                    (gen_random_uuid(), 'ATL', 'KATL', 'Hartsfield-Jackson Atlanta', 'Atlanta', 'USA', 33.64, -84.43, 'America/New_York'),
+                    (gen_random_uuid(), 'JFK', 'KJFK', 'John F. Kennedy', 'New York', 'USA', 40.64, -73.78, 'America/New_York'),
+                    (gen_random_uuid(), 'LAX', 'KLAX', 'Los Angeles Intl', 'Los Angeles', 'USA', 33.94, -118.41, 'America/Los_Angeles')
                 ON CONFLICT (iata) DO NOTHING
             """))
             
