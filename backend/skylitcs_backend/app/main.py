@@ -27,13 +27,24 @@ def create_app() -> FastAPI:
     async def health_check():
         from app.db.session import AsyncSessionLocal
         from sqlalchemy import text
+        from app.modules.users.models import User
+        from sqlalchemy.future import select
+        
         db_status = "unknown"
         db_error = None
+        user_table = "unknown"
         
         try:
             async with AsyncSessionLocal() as db:
                 await db.execute(text("SELECT 1"))
                 db_status = "connected"
+                
+                try:
+                    # Check if users table exists and has all columns
+                    await db.execute(select(User).limit(1))
+                    user_table = "ok"
+                except Exception as ue:
+                    user_table = f"error: {str(ue)}"
         except Exception as e:
             db_status = "error"
             db_error = str(e)
@@ -42,6 +53,7 @@ def create_app() -> FastAPI:
             "status": "online",
             "database": db_status,
             "database_error": db_error,
+            "user_table": user_table,
             "message": "Skylytics Backend is operational"
         }
 
