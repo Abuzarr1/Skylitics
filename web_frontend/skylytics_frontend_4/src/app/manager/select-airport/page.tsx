@@ -34,15 +34,13 @@ export default function SelectAirportPage() {
         try {
             // Write to localStorage + set cookie synchronously BEFORE navigation
             setSelectedAirport(selected);
-        } catch (e) {
-            console.error("[SelectAirport] Failed to persist airport:", e);
+        } catch {
+            // Non-fatal: localStorage unavailable in some private-browsing modes
         }
 
         // Use full-page navigation so the browser sends the freshly-set cookie
-        // to the Next.js middleware — router.push() can use a stale prefetch
-        // cache that was built before the cookie existed, causing an infinite
-        // redirect loop back to this page.
-        console.log(`[SelectAirport] Navigating to /manager with airport=${selected}`);
+        // to the Next.js middleware — router.push() uses a stale prefetch cache
+        // built before the cookie existed, causing an infinite redirect loop.
         window.location.href = "/manager";
 
         // Safety valve: if window.location.href somehow stalls (rare), reset

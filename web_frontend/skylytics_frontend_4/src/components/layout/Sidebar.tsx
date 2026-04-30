@@ -23,14 +23,15 @@ export default function Sidebar() {
     ];
 
     async function handleLogout() {
+        const API = process.env.NEXT_PUBLIC_API_URL || "https://skylytics-backend-25gp.onrender.com/api/v1";
+        const token = typeof window !== "undefined" ? localStorage.getItem("skylytics_token") : null;
         try {
-            // Tell backend to blacklist the current token
-            await fetch(`http://localhost:8000/api/v1/auth/logout`, {
+            await fetch(`${API}/auth/logout`, {
                 method: "POST",
-                headers: { Authorization: `Bearer ${localStorage.getItem("skylytics_token")}` },
+                headers: token ? { Authorization: `Bearer ${token}` } : {},
             }).catch(() => {});
         } finally {
-            logoutUser(); // Clear localStorage + cookie
+            logoutUser();
             router.push("/login");
         }
     }

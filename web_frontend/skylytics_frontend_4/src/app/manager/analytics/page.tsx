@@ -77,8 +77,7 @@ export default function AnalyticsPage() {
                         version:  sys.model_version ?? "v1.0",
                     });
                 }
-            } catch (err) {
-                console.warn("Analytics Sync Failed, using archive.");
+            } catch {
                 setIsLive(false);
             } finally {
                 setLoading(false);

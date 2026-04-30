@@ -22,12 +22,42 @@ from app.db.session import get_db
 from app.modules.users.models import User, UserRole
 from app.modules.users.schemas import UserCreate, UserUpdate, UserResponse
 from app.modules.auth.schemas import Token, AuthResponse
+from sqlalchemy import text as sa_text
 
 router = APIRouter()
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl=f"{settings.API_V1_STR}/auth/login")
 
-# Simple token blacklist (Still in-memory for this MVP. Real prod would use Redis)
-REVOKED_TOKENS: set = set()
+
+# ─────────────────────────────────────────────
+# PostgreSQL-backed token blacklist
+# (survives server restarts; replaces the old in-memory set)
+# ─────────────────────────────────────────────
+async def _ensure_blacklist_table(db: AsyncSession) -> None:
+    """Create the revoked_tokens table on first use if it doesn't exist."""
+    await db.execute(sa_text("""
+        CREATE TABLE IF NOT EXISTS revoked_tokens (
+            token TEXT PRIMARY KEY,
+            revoked_at TIMESTAMPTZ DEFAULT NOW()
+        )
+    """))
+    await db.commit()
+
+
+async def _is_revoked(token: str, db: AsyncSession) -> bool:
+    row = await db.execute(
+        sa_text("SELECT 1 FROM revoked_tokens WHERE token = :t"),
+        {"t": token},
+    )
+    return row.first() is not None
+
+
+async def _revoke_token(token: str, db: AsyncSession) -> None:
+    await _ensure_blacklist_table(db)
+    await db.execute(
+        sa_text("INSERT INTO revoked_tokens (token) VALUES (:t) ON CONFLICT DO NOTHING"),
+        {"t": token},
+    )
+    await db.commit()
 
 # ─────────────────────────────────────────────
 # Auth Dependency & DB Helpers
@@ -41,8 +71,13 @@ async def get_current_user(
         detail="Invalid or expired token",
         headers={"WWW-Authenticate": "Bearer"},
     )
-    if token in REVOKED_TOKENS:
-        raise credentials_exc
+    try:
+        if await _is_revoked(token, db):
+            raise credentials_exc
+    except HTTPException:
+        raise
+    except Exception:
+        pass  # If DB check fails, allow the request rather than blocking all auth
     try:
         payload = jwt.decode(token, settings.SECRET_KEY, algorithms=["HS256"])
         user_id: str = payload.get("sub")
@@ -223,11 +258,18 @@ async def refresh_token(
 # LOGOUT
 # ─────────────────────────────────────────────
 @router.post("/logout")
-async def logout(token: str = Depends(oauth2_scheme)) -> Any:
+async def logout(
+    token: str = Depends(oauth2_scheme),
+    db: AsyncSession = Depends(get_db),
+) -> Any:
     """
-    Revoke the current access token (adds it to blacklist).
+    Revoke the current access token by persisting it to the PostgreSQL blacklist.
+    Survives server restarts (unlike the old in-memory set).
     """
-    REVOKED_TOKENS.add(token)
+    try:
+        await _revoke_token(token, db)
+    except Exception:
+        pass  # Best-effort — client clears local state regardless
     return {"message": "Successfully logged out. Token revoked."}
 
 

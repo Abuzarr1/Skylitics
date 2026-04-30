@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect, useCallback } from 'react';
 
-const API_BASE = 'http://localhost:8000/api/v1';
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'https://skylytics-backend-25gp.onrender.com/api/v1';
 
 /* ─────────────────────────────────────────────
    Types

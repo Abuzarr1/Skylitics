@@ -34,8 +34,6 @@ export default function ManagerDashboard() {
                     getDelayTrend().catch(() => []),
                 ]);
 
-                console.log("[Dashboard] Raw API response:", { dashboardData, flightsData, trendData });
-
                 const hasRealData = dashboardData && Number(dashboardData.total_tracked) > 0;
                 if (hasRealData) {
                     setStats(dashboardData);
@@ -44,14 +42,13 @@ export default function ManagerDashboard() {
                     setIsLive(true);
                     setError(null);
                 } else {
-                    console.warn("[Dashboard] API returned empty data — using demo fallback.");
                     setStats(Mocks.MOCK_DASHBOARD_STATS);
                     setFlights(Mocks.MOCK_AT_RISK_FLIGHTS);
                     setTrend(Mocks.MOCK_DELAY_TREND);
                     setIsLive(false);
                 }
-            } catch (err) {
-                console.warn("[Dashboard] Live sync failed, keeping archive view.", err);
+            } catch {
+                setIsLive(false);
                 setIsLive(false);
             }
         }

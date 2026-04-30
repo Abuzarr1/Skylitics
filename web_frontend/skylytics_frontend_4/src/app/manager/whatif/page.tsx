@@ -299,38 +299,44 @@ export default function WhatIfSimulator() {
         const startTime = Date.now();
 
         try {
-            const data = await runWhatIfSimulate({
-                flight_number:  form.flightNumber || "DEMO001",
-                airline:        form.airline,
-                origin:         form.origin,
-                destination:    form.destination || "JFK",
-                date:           form.date,
-                departure_time: form.time,
-                distance_miles: form.distance,
-                aircraft_type:  form.aircraftType,
-                overrides: {
-                    weather_severity:          activeOv.weather_severity / 10, // normalize 0-10 → 0-1
-                    incoming_flight_delay_min: activeOv.incoming_flight_delay_min,
-                    gate_status:               activeOv.gate_status,
-                    weather_type:              activeOv.weather_type,
-                    visibility_miles:          activeOv.visibility_miles,
-                    crew_availability:         activeOv.crew_availability,
-                    passenger_load_pct:        activeOv.passenger_load_pct,
-                    origin_traffic:            activeOv.origin_traffic,
-                    dest_traffic:              activeOv.dest_traffic,
-                },
-            });
-            
-            // Artificial "minimum" feel of 500ms so it doesn't flicker too much
+            // Hard 10-second timeout — Render cold starts can stall indefinitely
+            const timeoutPromise = new Promise<never>((_, reject) =>
+                setTimeout(() => reject(new Error("Request timed out")), 10_000)
+            );
+            const data = await Promise.race([
+                runWhatIfSimulate({
+                    flight_number:  form.flightNumber || "DEMO001",
+                    airline:        form.airline,
+                    origin:         form.origin,
+                    destination:    form.destination || "JFK",
+                    date:           form.date,
+                    departure_time: form.time,
+                    distance_miles: form.distance,
+                    aircraft_type:  form.aircraftType,
+                    overrides: {
+                        weather_severity:          activeOv.weather_severity / 10,
+                        incoming_flight_delay_min: activeOv.incoming_flight_delay_min,
+                        gate_status:               activeOv.gate_status,
+                        weather_type:              activeOv.weather_type,
+                        visibility_miles:          activeOv.visibility_miles,
+                        crew_availability:         activeOv.crew_availability,
+                        passenger_load_pct:        activeOv.passenger_load_pct,
+                        origin_traffic:            activeOv.origin_traffic,
+                        dest_traffic:              activeOv.dest_traffic,
+                    },
+                }),
+                timeoutPromise,
+            ]);
+
+            // Minimum 500ms so result doesn't flicker
             const elapsed = Date.now() - startTime;
             if (elapsed < 500) await new Promise(r => setTimeout(r, 500 - elapsed));
 
             setResult(data);
             setOffline(false);
-            // No need to trigger AI logic again unless data is significantly different
         } catch {
             setOffline(true);
-            // Mock is already set
+            setError("Simulation timed out — showing local estimate. Try again.");
         } finally {
             setLoading(false);
         }

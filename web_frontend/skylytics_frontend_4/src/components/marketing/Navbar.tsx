@@ -21,11 +21,17 @@ export default function Navbar() {
     const auth = useAuth();
 
     const handleLogout = async () => {
+        const API = process.env.NEXT_PUBLIC_API_URL || "https://skylytics-backend-25gp.onrender.com/api/v1";
+        const token = typeof window !== "undefined" ? localStorage.getItem("skylytics_token") : null;
         try {
-            await fetch(`http://localhost:8000/api/v1/auth/logout`, { method: "POST" });
-        } catch (e) {}
-        logoutUser();
-        window.location.href = "/";
+            await fetch(`${API}/auth/logout`, {
+                method: "POST",
+                headers: token ? { Authorization: `Bearer ${token}` } : {},
+            }).catch(() => {});
+        } finally {
+            logoutUser();
+            window.location.href = "/";
+        }
     };
 
     return (

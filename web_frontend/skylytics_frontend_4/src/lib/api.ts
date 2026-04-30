@@ -74,7 +74,6 @@ async function post(endpoint: string, data: unknown) {
 
         return await response.json();
     } catch (err) {
-        console.warn(`[Skylytics API] POST failure at ${endpoint}. Loading archive fallback...`);
         if (endpoint.includes("/predictions/realtime")) {
             return {
                 status: "success",
@@ -169,7 +168,6 @@ async function get(endpoint: string) {
 
         return await response.json();
     } catch (err) {
-        console.warn(`[Skylytics API] Connection failure at ${endpoint}. Loading archive fallback...`);
         if (endpoint.includes("/system/status")) return Mocks.MOCK_SYSTEM_STATUS;
         if (endpoint.includes("/live-predictions")) return Mocks.MOCK_FLIGHTS;
         if (endpoint.includes("/flights/live")) return Mocks.MOCK_FLIGHTS.map(f => ({...f, destination: f.dest}));
