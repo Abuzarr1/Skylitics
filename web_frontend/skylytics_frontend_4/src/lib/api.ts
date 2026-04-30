@@ -1,5 +1,5 @@
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "https://skylytics-backend-25gp.onrender.com/api/v1";
-const TIMEOUT_MS = 15000;
+const TIMEOUT_MS = 35000; // Render free tier cold start can take up to 30s
 import * as Mocks from "./mocks";
 
 function fetchWithTimeout(url: string, options: RequestInit = {}): Promise<Response> {

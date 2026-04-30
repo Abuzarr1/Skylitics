@@ -13,9 +13,14 @@ def create_app() -> FastAPI:
         openapi_url=f"{settings.API_V1_STR}/openapi.json",
     )
 
-    # Dynamic CORS for Vercel Preview Deployments
+    # CORS — explicit origins + regex for Vercel preview deployments
     app.add_middleware(
         CORSMiddleware,
+        allow_origins=[
+            "http://localhost:3000",
+            "http://127.0.0.1:3000",
+            "https://skylitics-m51s.vercel.app",
+        ],
         allow_origin_regex=r"https://skylitics-m51s.*\.vercel\.app",
         allow_credentials=True,
         allow_methods=["*"],
