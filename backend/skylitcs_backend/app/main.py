@@ -258,6 +258,38 @@ def create_app() -> FastAPI:
                     WHERE al.iata IN ('DL', 'AA', 'UA')
                     ON CONFLICT DO NOTHING
                 """))
+                # 4. Seed ML model registry (required FK for predictions)
+                await db.execute(text("""
+                    INSERT INTO ml_models (id, name, version, algorithm, metrics, artifact_path, status)
+                    VALUES (
+                        gen_random_uuid(),
+                        'XGBoost Delay Classifier',
+                        'v1.0',
+                        'XGBOOST',
+                        '{"accuracy": 0.918, "f1": 0.891, "rmse": 14.2}'::jsonb,
+                        'models/xgb_classifier_v1.pkl',
+                        'PRODUCTION'
+                    )
+                    ON CONFLICT DO NOTHING
+                """))
+
+                # 5. Seed predictions for every flight that has none yet
+                await db.execute(text("""
+                    INSERT INTO predictions (id, flight_id, model_id, delay_probability, predicted_delay_min, confidence_lower, confidence_upper)
+                    SELECT
+                        gen_random_uuid(),
+                        f.id,
+                        (SELECT id FROM ml_models WHERE status = 'PRODUCTION' LIMIT 1),
+                        ROUND((0.1 + random() * 0.8)::numeric, 4),
+                        (5 + floor(random() * 85))::int,
+                        5,
+                        90
+                    FROM flights f
+                    WHERE NOT EXISTS (
+                        SELECT 1 FROM predictions p WHERE p.flight_id = f.id
+                    )
+                """))
+
                 await db.commit()
                 print("[Skylytics] Production data seeded successfully.")
         except Exception as e:
