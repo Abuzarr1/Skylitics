@@ -155,40 +155,52 @@ def create_app() -> FastAPI:
         from sqlalchemy import text
         try:
             async with AsyncSessionLocal() as db:
-                # 1. Create Airports (ATL, JFK, LAX)
+                # 1. Create Airports (ATL, JFK, LAX, DEN, ORD, DFW, MIA, SFO, SEA)
                 await db.execute(text("""
                     INSERT INTO airports (id, iata, icao, name, city, country, latitude, longitude, timezone)
                     VALUES 
                         (gen_random_uuid(), 'ATL', 'KATL', 'Hartsfield-Jackson Atlanta', 'Atlanta', 'USA', 33.64, -84.43, 'America/New_York'),
                         (gen_random_uuid(), 'JFK', 'KJFK', 'John F. Kennedy', 'New York', 'USA', 40.64, -73.78, 'America/New_York'),
-                        (gen_random_uuid(), 'LAX', 'KLAX', 'Los Angeles Intl', 'Los Angeles', 'USA', 33.94, -118.41, 'America/Los_Angeles')
+                        (gen_random_uuid(), 'LAX', 'KLAX', 'Los Angeles Intl', 'Los Angeles', 'USA', 33.94, -118.41, 'America/Los_Angeles'),
+                        (gen_random_uuid(), 'DEN', 'KDEN', 'Denver Intl', 'Denver', 'USA', 39.86, -104.67, 'America/Denver'),
+                        (gen_random_uuid(), 'ORD', 'KORD', 'OHare Intl', 'Chicago', 'USA', 41.98, -87.91, 'America/Chicago'),
+                        (gen_random_uuid(), 'DFW', 'KDFW', 'Dallas/Fort Worth', 'Dallas', 'USA', 32.90, -97.04, 'America/Chicago'),
+                        (gen_random_uuid(), 'MIA', 'KMIA', 'Miami Intl', 'Miami', 'USA', 25.79, -80.29, 'America/New_York'),
+                        (gen_random_uuid(), 'SFO', 'KSFO', 'San Francisco Intl', 'San Francisco', 'USA', 37.62, -122.37, 'America/Los_Angeles'),
+                        (gen_random_uuid(), 'SEA', 'KSEA', 'Seattle-Tacoma', 'Seattle', 'USA', 47.45, -122.31, 'America/Los_Angeles')
                     ON CONFLICT (iata) DO NOTHING
                 """))
                 
-                # 2. Create Airlines (DL, AA, UA)
+                # 2. Create Airlines (DL, AA, UA, WN, AS, B6)
                 await db.execute(text("""
                     INSERT INTO airlines (id, iata, name, country)
                     VALUES 
                         (gen_random_uuid(), 'DL', 'Delta Air Lines', 'USA'),
                         (gen_random_uuid(), 'AA', 'American Airlines', 'USA'),
-                        (gen_random_uuid(), 'UA', 'United Airlines', 'USA')
+                        (gen_random_uuid(), 'UA', 'United Airlines', 'USA'),
+                        (gen_random_uuid(), 'WN', 'Southwest Airlines', 'USA'),
+                        (gen_random_uuid(), 'AS', 'Alaska Airlines', 'USA'),
+                        (gen_random_uuid(), 'B6', 'JetBlue Airways', 'USA')
                     ON CONFLICT (iata) DO NOTHING
                 """))
                 
-                # 3. Create Flights for TODAY
+                # 3. Create Flights for EVERY airport for TODAY
                 await db.execute(text("""
                     INSERT INTO flights (id, flight_number, airline_id, origin_id, dest_id, scheduled_dep, status, gate, terminal)
                     SELECT 
                         gen_random_uuid(),
-                        'DL' || (100 + i),
-                        (SELECT id FROM airlines WHERE iata = 'DL'),
-                        (SELECT id FROM airports WHERE iata = 'ATL'),
-                        (SELECT id FROM airports WHERE iata = 'JFK'),
-                        (CURRENT_DATE + (i || ' hours')::interval),
+                        al.iata || (100 + i + (row_number() OVER ())),
+                        al.id,
+                        ao.id,
+                        (SELECT id FROM airports WHERE iata != ao.iata LIMIT 1),
+                        (CURRENT_DATE + ((6 + (i % 15)) || ' hours')::interval),
                         'SCHEDULED',
-                        'A' || i,
+                        'G' || i,
                         'T'
-                    FROM generate_series(1, 10) AS i
+                    FROM airports ao
+                    CROSS JOIN airlines al
+                    CROSS JOIN generate_series(1, 5) AS i
+                    WHERE al.iata IN ('DL', 'AA', 'UA')
                     ON CONFLICT DO NOTHING
                 """))
                 await db.commit()
