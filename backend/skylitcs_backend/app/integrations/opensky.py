@@ -114,69 +114,70 @@ def fetch_live_flights(limit: int = 20) -> list[dict]:
     for sv in states:
         if len(results) >= limit:
             break
-
-        # Skip ground traffic or missing position
-        if sv[_IDX["on_ground"]]:
-            continue
-        lat = sv[_IDX["latitude"]]
-        lon = sv[_IDX["longitude"]]
-        if lat is None or lon is None:
-            continue
-
-        raw_cs  = (sv[_IDX["callsign"]] or "").strip()
-        if len(raw_cs) < 3:
-            continue
-
-        # Extract IATA prefix (2-letter for most US airlines)
-        prefix = raw_cs[:2].upper()
-        if prefix not in AIRLINE_NAMES:
-            # try 3-letter regional codes
-            prefix3 = raw_cs[:3].upper()
-            if prefix3 not in AIRLINE_NAMES:
+        try:
+            # Skip ground traffic or missing position
+            if sv[_IDX["on_ground"]]:
                 continue
-            prefix = prefix3
+            lat = sv[_IDX["latitude"]]
+            lon = sv[_IDX["longitude"]]
+            if lat is None or lon is None:
+                continue
 
-        airline_name = AIRLINE_NAMES[prefix]
-        callsign     = raw_cs.upper()
-        altitude_ft  = int((sv[_IDX["baro_altitude"]] or 0) * 3.281)
-        speed_kts    = int((sv[_IDX["velocity"]] or 0) * 1.944)
-        heading      = float(sv[_IDX["true_track"]] or 0)
+            raw_cs  = (sv[_IDX["callsign"]] or "").strip()
+            if len(raw_cs) < 3:
+                continue
 
-        origin = _nearest_airport(lat, lon)
-        dest   = _opposite_airport(origin, heading)
+            # Extract IATA prefix (2-letter for most US airlines)
+            prefix = raw_cs[:2].upper()
+            if prefix not in AIRLINE_NAMES:
+                prefix3 = raw_cs[:3].upper()
+                if prefix3 not in AIRLINE_NAMES:
+                    continue
+                prefix = prefix3
 
-        o_lat, o_lon = AIRPORT_COORDS[origin]
-        d_lat, d_lon = AIRPORT_COORDS[dest]
+            airline_name = AIRLINE_NAMES[prefix]
+            callsign     = raw_cs.upper()
+            altitude_ft  = int((sv[_IDX["baro_altitude"]] or 0) * 3.281)
+            speed_kts    = int((sv[_IDX["velocity"]] or 0) * 1.944)
+            heading      = float(sv[_IDX["true_track"]] or 0)
 
-        # Estimate progress: 0 = at origin, 1 = at dest
-        total_d = math.hypot(d_lat - o_lat, d_lon - o_lon) or 1
-        curr_d  = math.hypot(lat - o_lat, lon - o_lon)
-        progress = min(max(round(curr_d / total_d, 2), 0.0), 1.0)
+            origin = _nearest_airport(lat, lon)
+            dest   = _opposite_airport(origin, heading)
 
-        delay_prob = _delay_prob(callsign)
-        status = (
-            "delayed"  if delay_prob > 0.70 else
-            "at_risk"  if delay_prob > 0.45 else
-            "on_time"
-        )
+            o_lat, o_lon = AIRPORT_COORDS[origin]
+            d_lat, d_lon = AIRPORT_COORDS[dest]
 
-        results.append({
-            "id":               f"OS-{callsign}",
-            "callsign":         callsign,
-            "airline":          airline_name,
-            "origin":           origin,
-            "destination":      dest,
-            "origin_lat":       o_lat,
-            "origin_lon":       o_lon,
-            "dest_lat":         d_lat,
-            "dest_lon":         d_lon,
-            "current_lat":      round(lat, 4),
-            "current_lon":      round(lon, 4),
-            "altitude_ft":      altitude_ft,
-            "speed_kts":        speed_kts,
-            "delay_probability": delay_prob,
-            "status":           status,
-            "progress":         progress,
-        })
+            total_d = math.hypot(d_lat - o_lat, d_lon - o_lon) or 1
+            curr_d  = math.hypot(lat - o_lat, lon - o_lon)
+            progress = min(max(round(curr_d / total_d, 2), 0.0), 1.0)
+
+            delay_prob = _delay_prob(callsign)
+            status = (
+                "delayed"  if delay_prob > 0.70 else
+                "at_risk"  if delay_prob > 0.45 else
+                "on_time"
+            )
+
+            results.append({
+                "id":                f"OS-{callsign}",
+                "callsign":          callsign,
+                "airline":           airline_name,
+                "origin":            origin,
+                "destination":       dest,
+                "origin_lat":        o_lat,
+                "origin_lon":        o_lon,
+                "dest_lat":          d_lat,
+                "dest_lon":          d_lon,
+                "current_lat":       round(lat, 4),
+                "current_lon":       round(lon, 4),
+                "altitude_ft":       altitude_ft,
+                "speed_kts":         speed_kts,
+                "delay_probability": delay_prob,
+                "status":            status,
+                "progress":          progress,
+            })
+        except Exception as exc:
+            log.warning("opensky: skipping malformed state vector: %s", exc)
+            continue
 
     return results
