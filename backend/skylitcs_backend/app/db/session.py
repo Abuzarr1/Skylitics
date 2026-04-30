@@ -8,6 +8,7 @@ engine = create_async_engine(
     settings.SQLALCHEMY_DATABASE_URI,
     echo=False,
     future=True,
+    connect_args=settings.DB_CONNECT_ARGS,
 )
 
 # Create sessionmaker

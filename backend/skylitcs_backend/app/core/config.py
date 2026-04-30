@@ -1,5 +1,5 @@
 from pydantic_settings import BaseSettings, SettingsConfigDict
-from typing import List
+from typing import List, Dict, Any
 
 class Settings(BaseSettings):
     PROJECT_NAME: str = "Skylytics API"
@@ -34,6 +34,15 @@ class Settings(BaseSettings):
             return uri
         # Construct async PostgreSQL URI from components (local dev)
         return f"postgresql+asyncpg://{self.POSTGRES_USER}:{self.POSTGRES_PASSWORD}@{self.POSTGRES_SERVER}:{self.POSTGRES_PORT}/{self.POSTGRES_DB}"
+
+    @property
+    def DB_CONNECT_ARGS(self) -> Dict[str, Any]:
+        # Render's PostgreSQL requires SSL; asyncpg needs it passed explicitly
+        if self.DATABASE_URL:
+            import ssl
+            ctx = ssl.create_default_context()
+            return {"ssl": ctx}
+        return {}
     
     # Redis
     REDIS_URL: str = "redis://localhost:6379/0"

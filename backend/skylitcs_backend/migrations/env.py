@@ -90,6 +90,7 @@ async def run_async_migrations() -> None:
     connectable = create_async_engine(
         uri,
         poolclass=pool.NullPool,
+        connect_args=settings.DB_CONNECT_ARGS,
     )
 
     async with connectable.connect() as connection:
