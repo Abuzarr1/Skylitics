@@ -86,13 +86,20 @@ async def get_at_risk(
     """), params)
 
     rows = result.mappings().all()
+    def _risk_status(prob: float) -> str:
+        if prob > 0.70:
+            return "delayed"
+        if prob > 0.40:
+            return "at_risk"
+        return "on_time"
+
     return [
         {
             "flight_id":       r["flight_id"],
             "callsign":        r["callsign"],
             "route":           r["route"],
             "risk":            round(float(r["risk"]), 4),
-            "status":          r["status"].lower(),
+            "status":          _risk_status(float(r["risk"])),
             "predicted_delay": int(r["predicted_delay"]),
         }
         for r in rows

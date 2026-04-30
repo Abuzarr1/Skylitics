@@ -36,7 +36,6 @@ export default function ManagerDashboard() {
 
                 console.log("[Dashboard] Raw API response:", { dashboardData, flightsData, trendData });
 
-                // Only switch to live if the API returned real data (total_tracked > 0)
                 const hasRealData = dashboardData && Number(dashboardData.total_tracked) > 0;
                 if (hasRealData) {
                     setStats(dashboardData);
@@ -59,7 +58,7 @@ export default function ManagerDashboard() {
         loadData();
         const interval = setInterval(loadData, 30000);
         return () => clearInterval(interval);
-    }, []);
+    }, [auth?.airportCode]);
 
     return (
         <div className="max-w-[1600px] mx-auto px-4 md:px-12 py-10">
@@ -211,14 +210,25 @@ export default function ManagerDashboard() {
                         <div className="p-5 text-center text-brand-500 font-mono text-xs">No active anomalies detected.</div>
                     ) : (
                         flights.map((flight, idx) => {
-                            const isAlert = flight.status === "delayed";
-                            const isRisk = flight.status === "at_risk";
-                            const colorClass = isAlert 
-                                ? "text-accent-alert border-accent-alert" 
-                                : isRisk 
-                                    ? (isDark ? "text-accent-neon border-accent-neon" : "text-[#7c9100] border-[#7c9100]") 
+                            // Derive visual status from risk score (delay_probability) since
+                            // the DB status field is "SCHEDULED"/"DELAYED" not "at_risk"
+                            const riskScore = flight.risk ?? flight.delay_probability ?? 0;
+                            const visualStatus = (flight.status === "delayed" || riskScore > 0.7)
+                                ? "delayed"
+                                : riskScore > 0.4
+                                    ? "at_risk"
+                                    : "on_time";
+                            const isAlert = visualStatus === "delayed";
+                            const isRisk  = visualStatus === "at_risk";
+                            const colorClass = isAlert
+                                ? "text-accent-alert border-accent-alert"
+                                : isRisk
+                                    ? (isDark ? "text-accent-neon border-accent-neon" : "text-[#7c9100] border-[#7c9100]")
                                     : "text-white border-[var(--border-ui)]";
-                            const threat = isAlert ? "Critical" : isRisk ? "Elevated" : "Low";
+                            // Threat level by predicted delay minutes (user requirement)
+                            const delayMin = flight.predicted_delay ?? 0;
+                            const threat = delayMin > 30 ? "Critical" : delayMin >= 15 ? "Elevated" : "At Risk";
+                            const badgeLabel = isAlert ? "DELAYED" : isRisk ? "AT RISK" : "ON TIME";
 
                             return (
                                 <motion.div 
@@ -231,7 +241,7 @@ export default function ManagerDashboard() {
                                     <div className="flex justify-between items-start mb-4 border-b border-[var(--border-ui)]/30 pb-3">
                                         <h4 className="font-heading font-black text-white text-lg tracking-tight uppercase group-hover:text-accent-neon transition-colors">{flight.callsign}</h4>
                                         <div className={`text-[10px] uppercase font-mono tracking-widest px-2 py-1 border ${colorClass}`}>
-                                            {flight.status.replace("_", " ")}
+                                            {badgeLabel}
                                         </div>
                                     </div>
 
