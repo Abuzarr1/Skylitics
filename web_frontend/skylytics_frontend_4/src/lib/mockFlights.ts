@@ -42,7 +42,7 @@ export const MOCK_FLIGHTS_BY_AIRPORT: Record<string, MockFlight[]> = {
         { flight: "AA312", route: "ORD → LAX", delay: 24, status: "DELAYED", hour: "09:00" },
         { flight: "UA409", route: "ORD → SFO", delay: 19, status: "AT RISK", hour: "10:00" },
         { flight: "AA701", route: "ORD → MIA", delay: 31, status: "DELAYED", hour: "11:00" },
-        { flight: "UA141", ORD: "→ DEN", delay: 11, status: "AT RISK", route: "ORD → DEN", hour: "12:00" },
+        { flight: "UA141", route: "ORD → DEN", delay: 11, status: "AT RISK", hour: "12:00" },
         { flight: "DL882", route: "ORD → ATL", delay: 8, status: "ON TIME", hour: "13:00" },
         { flight: "UA627", route: "ORD → SEA", delay: 27, status: "DELAYED", hour: "14:00" },
         { flight: "AA2341", route: "ORD → DFW", delay: 15, status: "AT RISK", hour: "15:00" },
