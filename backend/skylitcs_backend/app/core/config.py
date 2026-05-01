@@ -58,6 +58,9 @@ class Settings(BaseSettings):
     # AI
     GEMINI_API_KEY: str = ""
     
+    # Security Keys
+    MANAGER_ACCESS_KEY: str = "SKY-2026-MGR" # Default key for manager registration
+    
     model_config = SettingsConfigDict(env_file=".env", case_sensitive=True, extra="ignore")
 
 settings = Settings()

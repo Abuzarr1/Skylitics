@@ -300,6 +300,7 @@ function LoginForm({ onSwitch }: { onSwitch: () => void }) {
 function RegisterForm({ onSwitch }: { onSwitch: () => void }) {
     const [form, setForm] = useState({
         first_name: "", last_name: "", email: "", password: "", role: "MANAGER",
+        manager_key: "",
     });
     const [confirmPassword, setConfirmPassword] = useState("");
     const [step, setStep] = useState<1 | 2>(1);
@@ -321,11 +322,15 @@ function RegisterForm({ onSwitch }: { onSwitch: () => void }) {
             return;
         }
         if (form.password.length < 8) {
-            setError("Access key must be at least 8 characters.");
+            setError("Password must be at least 8 characters.");
             return;
         }
         if (form.password !== confirmPassword) {
-            setError("Access keys do not match. Please re-enter.");
+            setError("Passwords do not match.");
+            return;
+        }
+        if (!form.manager_key.trim()) {
+            setError("Manager Access Key is required.");
             return;
         }
 
@@ -445,55 +450,42 @@ function RegisterForm({ onSwitch }: { onSwitch: () => void }) {
                             <div className="grid grid-cols-2 gap-3">
                                 <div className="space-y-1.5">
                                     <label className="text-brand-400 font-mono text-[10px] uppercase tracking-[0.2em] flex items-center gap-2">
-                                        <User className="w-3 h-3" /> First
+                                        <User className="w-3 h-3" /> Full Name <span className="text-accent-neon text-[8px]">REQ</span>
                                     </label>
                                     <input
                                         type="text"
                                         value={form.first_name}
+                                        placeholder="Jane Smith"
                                         onChange={(e) => setForm({ ...form, first_name: e.target.value })}
                                         className="w-full bg-[var(--bg-card)] border border-brand-700 text-white px-4 py-3 font-mono text-sm focus:outline-none focus:border-accent-neon transition-colors rounded-none"
                                         required
-                                        maxLength={50}
+                                        maxLength={100}
                                     />
                                 </div>
                                 <div className="space-y-1.5">
                                     <label className="text-brand-400 font-mono text-[10px] uppercase tracking-[0.2em] flex items-center gap-2">
-                                        <User className="w-3 h-3" /> Last
+                                        <Mail className="w-3 h-3" /> Email Address <span className="text-accent-neon text-[8px]">REQ</span>
                                     </label>
                                     <input
-                                        type="text"
-                                        value={form.last_name}
-                                        onChange={(e) => setForm({ ...form, last_name: e.target.value })}
+                                        type="email"
+                                        value={form.email}
+                                        placeholder="manager@airline.com"
+                                        onChange={(e) => setForm({ ...form, email: e.target.value })}
                                         className="w-full bg-[var(--bg-card)] border border-brand-700 text-white px-4 py-3 font-mono text-sm focus:outline-none focus:border-accent-neon transition-colors rounded-none"
                                         required
-                                        maxLength={50}
+                                        maxLength={100}
                                     />
                                 </div>
                             </div>
 
                             <div className="space-y-1.5">
                                 <label className="text-brand-400 font-mono text-[10px] uppercase tracking-[0.2em] flex items-center gap-2">
-                                    <Mail className="w-3 h-3" /> Email
-                                </label>
-                                <input
-                                    type="email"
-                                    value={form.email}
-                                    onChange={(e) => setForm({ ...form, email: e.target.value })}
-                                    placeholder="agent@skylytics.local"
-                                    className="w-full bg-[var(--bg-card)] border border-brand-700 text-white px-4 py-3 font-mono text-sm focus:outline-none focus:border-accent-neon transition-colors rounded-none"
-                                    required
-                                    maxLength={100}
-                                />
-                            </div>
-
-                            <div className="space-y-1.5">
-                                <label className="text-brand-400 font-mono text-[10px] uppercase tracking-[0.2em] flex items-center gap-2">
-                                    <Lock className="w-3 h-3" /> Access Key
+                                    <Lock className="w-3 h-3" /> Password <span className="text-brand-600 text-[8px]">(MIN 8 CHARS)</span>
                                 </label>
                                 <input
                                     type="password"
                                     value={form.password}
-                                    placeholder="Min. 8 characters"
+                                    placeholder="Strong password"
                                     onChange={(e) => setForm({ ...form, password: e.target.value })}
                                     className={`w-full bg-[var(--bg-card)] border ${form.password && confirmPassword && form.password !== confirmPassword ? 'border-accent-alert' : 'border-brand-700'} text-white px-4 py-3 font-mono text-sm focus:outline-none focus:border-accent-neon transition-colors rounded-none`}
                                     required
@@ -504,16 +496,31 @@ function RegisterForm({ onSwitch }: { onSwitch: () => void }) {
 
                             <div className="space-y-1.5">
                                 <label className="text-brand-400 font-mono text-[10px] uppercase tracking-[0.2em] flex items-center gap-2">
-                                    <Lock className="w-3 h-3" /> Confirm Key
+                                    <Lock className="w-3 h-3" /> Confirm Password
                                 </label>
                                 <input
                                     type="password"
                                     value={confirmPassword}
+                                    placeholder="Repeat password"
                                     onChange={(e) => setConfirmPassword(e.target.value)}
                                     className={`w-full bg-[var(--bg-card)] border ${form.password && confirmPassword && form.password !== confirmPassword ? 'border-accent-alert' : 'border-brand-700'} text-white px-4 py-3 font-mono text-sm focus:outline-none focus:border-accent-neon transition-colors rounded-none`}
                                     required
                                     minLength={8}
                                     maxLength={100}
+                                />
+                            </div>
+
+                            <div className="space-y-1.5">
+                                <label className="text-brand-400 font-mono text-[10px] uppercase tracking-[0.2em] flex items-center gap-2">
+                                    <Fingerprint className="w-3 h-3" /> Manager Access Key <span className="text-accent-neon text-[8px]">REQ</span>
+                                </label>
+                                <input
+                                    type="text"
+                                    value={form.manager_key}
+                                    placeholder="Enter manager key"
+                                    onChange={(e) => setForm({ ...form, manager_key: e.target.value })}
+                                    className="w-full bg-[var(--bg-card)] border border-brand-700 text-white px-4 py-3 font-mono text-sm focus:outline-none focus:border-accent-neon transition-colors rounded-none"
+                                    required
                                 />
                             </div>
 

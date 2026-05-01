@@ -9,16 +9,17 @@ export interface FeedItem {
     status: string;
     timestamp: string;
     type: "delay" | "cleared" | "board";
+    airport?: string;
 }
 
 export function useLiveFeed(airportCode: string | null) {
     const filterMock = (code: string | null): FeedItem[] => {
         if (!code) return MOCK_FEED as FeedItem[];
-        return MOCK_FEED.filter((f: any) => f.route.includes(code)) as FeedItem[];
+        return MOCK_FEED.filter((f: any) => f.airport === code) as FeedItem[];
     };
 
     const [feed, setFeed] = useState<FeedItem[]>(filterMock(airportCode));
-    const [isLive, setIsLive] = useState(false);
+    const [dataSource, setDataSource] = useState<"LIVE" | "DEMO">("DEMO");
     const [loading, setLoading] = useState(true);
 
     const fetchFeed = useCallback(async () => {
@@ -26,29 +27,29 @@ export function useLiveFeed(airportCode: string | null) {
         try {
             const data: FeedItem[] = await getLiveFeed();
             if (data && data.length > 0) {
-                const filtered = data.filter(f => f.route.includes(airportCode));
-                setFeed(filtered);
-                setIsLive(true);
-            } else {
-                setFeed(filterMock(airportCode));
-                setIsLive(false);
+                const filtered = data.filter(f => f.route.includes(airportCode) || f.airport === airportCode);
+                if (filtered.length > 0) {
+                    setFeed(filtered);
+                    setDataSource("LIVE");
+                    return;
+                }
             }
-        } catch {
-            setFeed(filterMock(airportCode));
-            setIsLive(false);
-        } finally {
-            setLoading(false);
+        } catch (err) {
+            // Silently fail to Demo
         }
+        
+        setFeed(filterMock(airportCode));
+        setDataSource("DEMO");
     }, [airportCode]);
 
     useEffect(() => {
         setFeed(filterMock(airportCode));
-        setIsLive(false);
+        setDataSource("DEMO");
         fetchFeed();
         
         const interval = setInterval(fetchFeed, 30_000);
         return () => clearInterval(interval);
     }, [fetchFeed, airportCode]);
 
-    return { feed, isLive, loading, refetch: fetchFeed };
+    return { feed, dataSource, isLive: dataSource === "LIVE", loading, refetch: fetchFeed };
 }

@@ -27,6 +27,7 @@ class User(Base):
     is_verified = Column(Boolean, default=False)
     is_active = Column(Boolean, default=True)
     airport_code = Column(String(5), nullable=True, index=True)  # NULL = admin; "ATL" etc = manager scope
+    manager_key = Column(String, nullable=True) # key used during registration
     apple_sub = Column(String, unique=True, nullable=True)
     google_sub = Column(String, unique=True, nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())

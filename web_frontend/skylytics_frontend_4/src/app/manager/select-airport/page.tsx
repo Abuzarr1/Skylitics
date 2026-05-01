@@ -18,37 +18,18 @@ const AIRPORTS = [
 
 export default function SelectAirportPage() {
     const [selected, setSelected] = useState<string | null>(null);
-    const [confirming, setConfirming] = useState(false);
-    const [failed, setFailed] = useState(false);
 
     function handleSelect(code: string) {
         setSelected(code);
-        setFailed(false);
-    }
-
-    function handleConfirm() {
-        if (!selected || confirming) return;
-        setConfirming(true);
-        setFailed(false);
-
+        
         try {
-            // Write to localStorage + set cookie synchronously BEFORE navigation
-            setSelectedAirport(selected);
+            setSelectedAirport(code);
         } catch {
-            // Non-fatal: localStorage unavailable in some private-browsing modes
+            // Ignore
         }
-
-        // Use full-page navigation so the browser sends the freshly-set cookie
-        // to the Next.js middleware — router.push() uses a stale prefetch cache
-        // built before the cookie existed, causing an infinite redirect loop.
+        
+        // Immediate redirect
         window.location.href = "/manager";
-
-        // Safety valve: if window.location.href somehow stalls (rare), reset
-        // after 5s so the user can try again instead of being stuck forever.
-        setTimeout(() => {
-            setConfirming(false);
-            setFailed(true);
-        }, 5000);
     }
 
     return (
@@ -113,39 +94,9 @@ export default function SelectAirportPage() {
                 })}
             </div>
 
-            {/* Confirm Button */}
-            <motion.button
-                initial={{ opacity: 0 }}
-                animate={{ opacity: selected ? 1 : 0.4 }}
-                transition={{ duration: 0.2 }}
-                onClick={handleConfirm}
-                disabled={!selected || confirming}
-                className="bg-yellow-400 text-black font-mono font-black uppercase tracking-widest px-16 py-4 text-sm hover:bg-yellow-300 active:bg-yellow-500 transition-colors disabled:cursor-not-allowed"
-            >
-                {confirming
-                    ? "REDIRECTING..."
-                    : selected
-                        ? `MANAGE ${selected} →`
-                        : "SELECT AN AIRPORT"}
-            </motion.button>
-
-            {failed && (
-                <div className="mt-4 flex flex-col items-center gap-3">
-                    <p className="font-mono text-[10px] uppercase tracking-widest text-accent-alert">
-                        Navigation failed — please try again
-                    </p>
-                    <button
-                        onClick={handleConfirm}
-                        className="font-mono text-[10px] uppercase tracking-widest border border-yellow-400 text-yellow-400 px-8 py-2 hover:bg-yellow-400 hover:text-black transition-colors"
-                    >
-                        Try Again
-                    </button>
-                </div>
-            )}
-
-            {selected && !confirming && !failed && (
-                <p className="mt-4 font-mono text-[10px] uppercase tracking-widest text-brand-500">
-                    You can switch airports anytime from the sidebar
+            {selected && (
+                <p className="mt-4 font-mono text-[10px] uppercase tracking-widest text-brand-500 animate-pulse">
+                    REDIRECTING TO COMMAND CENTER...
                 </p>
             )}
         </div>

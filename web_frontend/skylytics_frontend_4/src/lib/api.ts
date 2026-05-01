@@ -209,6 +209,7 @@ export async function registerOnly(payload: {
     password: string;
     role?: string;
     airport_code?: string | null;
+    manager_key?: string;
 }): Promise<void> {
     const full_name = `${payload.first_name} ${payload.last_name}`.trim();
     await post("/auth/register", {
@@ -217,6 +218,7 @@ export async function registerOnly(payload: {
         full_name,
         role: payload.role ?? "PASSENGER",
         airport_code: payload.airport_code ?? null,
+        manager_key: payload.manager_key ?? null,
     });
 }
 
@@ -321,7 +323,9 @@ export async function getAtRiskFlights(limit: number = 5): Promise<any> {
 }
 
 export async function getDelayTrend(): Promise<{ label: string; probability: number }[]> {
-    const data = await get("/predictions/trends");
+    const airport = getSelectedAirport();
+    const q = airport ? `?airport_code=${encodeURIComponent(airport)}` : "";
+    const data = await get(`/predictions/trends${q}`);
     // Backend returns { by_hour: [{hour, avg_delay}], by_airline: [...] }
     // Map to the shape the dashboard chart expects
     return (data.by_hour ?? []).map((item: any) => ({
@@ -337,12 +341,16 @@ export async function getFlightInfo(flightId: string): Promise<any> {
 }
 
 export async function getLiveFeed(): Promise<any> {
-    return get("/flights/feed");
+    const airport = getSelectedAirport();
+    const q = airport ? `?airport_code=${encodeURIComponent(airport)}` : "";
+    return get(`/flights/feed${q}`);
 }
 
 export async function getLiveFlights(): Promise<any[]> {
+    const airport = getSelectedAirport();
+    const q = airport ? `?airport_code=${encodeURIComponent(airport)}` : "";
     try {
-        return await get("/flights/live");
+        return await get(`/flights/live${q}`);
     } catch {
         return [];
     }

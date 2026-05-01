@@ -18,6 +18,7 @@ class UserCreate(BaseModel):
     last_name: Optional[str] = None
     role: UserRole = UserRole.PASSENGER
     airport_code: Optional[str] = None  # set when creating a manager account
+    manager_key: Optional[str] = None  # key used for authorization during registration
 
     @model_validator(mode="after")
     def build_full_name(self) -> "UserCreate":

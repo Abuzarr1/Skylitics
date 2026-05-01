@@ -152,6 +152,15 @@ async def register(user_in: UserCreate, db: AsyncSession = Depends(get_db)) -> A
             detail=f"Account with email '{user_in.email}' already exists."
         )
 
+    # 1. Validate Manager Access Key if role is MANAGER
+    if user_in.role == UserRole.MANAGER:
+        if user_in.manager_key != settings.MANAGER_ACCESS_KEY:
+            print(f"[AUTH] Invalid Manager Key attempt: {user_in.manager_key}")
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Invalid Manager Access Key. Please contact system administrator."
+            )
+
     try:
         db_user = User(
             email=user_in.email.lower(),
@@ -159,6 +168,7 @@ async def register(user_in: UserCreate, db: AsyncSession = Depends(get_db)) -> A
             password_hash=get_password_hash(user_in.password),
             role=user_in.role,
             airport_code=user_in.airport_code,
+            manager_key=user_in.manager_key,
             is_active=True,
             is_verified=False
         )

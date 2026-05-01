@@ -17,7 +17,7 @@ interface FeedItem {
 
 export default function FlightFeedPage() {
     const auth = useAuth();
-    const { feed, isLive, loading } = useLiveFeed(auth?.airportCode || null);
+    const { feed, dataSource, loading } = useLiveFeed(auth?.airportCode || null);
 
     return (
         <div className="max-w-[1600px] mx-auto px-4 md:px-12 py-10">
@@ -31,9 +31,9 @@ export default function FlightFeedPage() {
                             : "Real-time synchronized flight anomalies and resolutions"}
                     </p>
                 </div>
-                <div className={`font-mono text-xs flex items-center gap-2 px-3 py-1.5 border ${isLive ? "border-accent-neon/30 text-accent-neon bg-accent-neon/5" : "border-yellow-400/30 text-yellow-400 bg-yellow-400/5"}`}>
-                    <span className={`w-2 h-2 rounded-sm animate-pulse ${isLive ? "bg-accent-neon" : "bg-yellow-400"}`} />
-                    {isLive ? "LIVE SYNC ACTIVE" : "LOCAL DEMO MODE"}
+                <div className={`font-mono text-xs flex items-center gap-2 px-3 py-1.5 border ${dataSource === "LIVE" ? "border-accent-neon/30 text-accent-neon bg-accent-neon/5" : "border-yellow-400/30 text-yellow-400 bg-yellow-400/5"}`}>
+                    <span className={`w-2 h-2 rounded-sm animate-pulse ${dataSource === "LIVE" ? "bg-accent-neon" : "bg-yellow-400"}`} />
+                    {dataSource === "LIVE" ? "LIVE SYNC ACTIVE" : "LOCAL DEMO MODE"}
                 </div>
             </div>
 

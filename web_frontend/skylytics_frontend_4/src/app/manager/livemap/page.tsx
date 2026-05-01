@@ -12,7 +12,7 @@ const FlightMap = dynamic(() => import("@/components/map/FlightMap"), { ssr: fal
 
 export default function LiveMapPage() {
     const auth = useAuth();
-    const { flights, isLive, loading, lastUpdated, refetch } = useFlights(auth?.airportCode || null);
+    const { flights, dataSource, loading, lastUpdated, refetch } = useFlights(auth?.airportCode || null);
     
     const [selected, setSelected] = useState<LiveFlight | null>(null);
     const [filter, setFilter] = useState<"all" | "at_risk" | "delayed">("all");
@@ -60,12 +60,16 @@ export default function LiveMapPage() {
                         </div>
                     )}
                     <div className={`mt-3 flex items-center gap-2 font-mono text-[10px] uppercase tracking-widest px-3 py-1.5 border ${
-                        isLive 
+                        dataSource === "LIVE" 
                         ? "border-accent-neon/30 bg-accent-neon/5 text-accent-neon" 
+                        : dataSource === "EXTERNAL"
+                        ? "border-blue-400/30 bg-blue-400/5 text-blue-400"
                         : "border-yellow-400/30 bg-yellow-400/5 text-yellow-400"
                     }`}>
-                        <div className={`w-1.5 h-1.5 rounded-full ${isLive ? "bg-accent-neon" : "bg-yellow-400"} animate-pulse`} />
-                        {isLive ? "LIVE SYNC ACTIVE" : "LOCAL DEMO MODE"}
+                        <div className={`w-1.5 h-1.5 rounded-full ${
+                            dataSource === "LIVE" ? "bg-accent-neon" : dataSource === "EXTERNAL" ? "bg-blue-400" : "bg-yellow-400"
+                        } animate-pulse`} />
+                        {dataSource === "LIVE" ? "LIVE SYNC ACTIVE" : dataSource === "EXTERNAL" ? "EXTERNAL API SYNC" : "LOCAL DEMO MODE"}
                     </div>
                 </div>
 

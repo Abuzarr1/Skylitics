@@ -18,7 +18,7 @@ export default function ManagerDashboard() {
     const [flights, setFlights] = useState<any[]>(Mocks.MOCK_AT_RISK_FLIGHTS);
     const [trend, setTrend] = useState<any[]>(Mocks.MOCK_DELAY_TREND);
     const [isLoading, setIsLoading] = useState(false); // No skeleton if we have mocks!
-    const [isLive, setIsLive] = useState(false);
+    const [dataSource, setDataSource] = useState<"LIVE" | "DEMO">("DEMO");
     const [error, setError] = useState<string | null>(null);
     const { theme } = useTheme();
     const [mounted, setMounted] = useState(false);
@@ -37,23 +37,27 @@ export default function ManagerDashboard() {
                 const hasRealData = dashboardData && dashboardData.total_tracked !== undefined;
                 if (hasRealData) {
                     setStats(dashboardData);
-                    // If the backend returns an empty array, it means 0 flights are at risk.
-                    // We should respect the empty array on live data, not force mocks!
                     setFlights(flightsData || []);
                     setTrend(trendData || []);
-                    setIsLive(true);
+                    setDataSource("LIVE");
                     setError(null);
                 } else {
                     setStats(Mocks.MOCK_DASHBOARD_STATS);
-                    setFlights(Mocks.MOCK_AT_RISK_FLIGHTS);
+                    const filteredFlights = Mocks.MOCK_AT_RISK_FLIGHTS.filter((f: any) => 
+                        !auth?.airportCode || f.route.includes(auth.airportCode)
+                    );
+                    setFlights(filteredFlights);
                     setTrend(Mocks.MOCK_DELAY_TREND);
-                    setIsLive(false);
+                    setDataSource("DEMO");
                 }
             } catch {
                 setStats(Mocks.MOCK_DASHBOARD_STATS);
-                setFlights(Mocks.MOCK_AT_RISK_FLIGHTS);
+                const filteredFlights = Mocks.MOCK_AT_RISK_FLIGHTS.filter((f: any) => 
+                    !auth?.airportCode || f.route.includes(auth.airportCode)
+                );
+                setFlights(filteredFlights);
                 setTrend(Mocks.MOCK_DELAY_TREND);
-                setIsLive(false);
+                setDataSource("DEMO");
             }
         }
         loadData();
@@ -129,8 +133,10 @@ export default function ManagerDashboard() {
                                     <p className="text-brand-500 font-mono text-[10px] uppercase tracking-widest mt-1">Avg delay (min) by hour of day</p>
                                 </div>
                                 <div className="flex items-center gap-2">
-                                    <span className="w-2 h-2 rounded-sm bg-accent-neon animate-pulse" />
-                                    <span className="text-xs font-mono text-brand-400 uppercase tracking-widest">Live Sync</span>
+                                    <span className={`w-2 h-2 rounded-sm animate-pulse ${dataSource === "LIVE" ? "bg-accent-neon" : "bg-yellow-400"}`} />
+                                    <span className={`text-xs font-mono uppercase tracking-widest ${dataSource === "LIVE" ? "text-brand-400" : "text-yellow-400"}`}>
+                                        {dataSource === "LIVE" ? "Live Sync" : "Local Demo"}
+                                    </span>
                                 </div>
                             </div>
 
