@@ -72,7 +72,7 @@ export default function ManagerDashboard() {
                 <h1 className="font-mono font-black text-2xl uppercase tracking-widest text-white">
                     {auth?.airportCode ? `${auth.airportCode} AIRPORT DASHBOARD` : "OPERATIONS DASHBOARD"}
                 </h1>
-                {isLive ? (
+                {dataSource === "LIVE" ? (
                     <span className="font-mono text-[9px] uppercase tracking-widest text-accent-neon animate-pulse flex items-center gap-2 px-3 py-1 bg-accent-neon/5 border border-accent-neon/20">
                         <div className="w-1.5 h-1.5 rounded-full bg-accent-neon shadow-[0_0_8px_var(--accent-neon)]" /> 
                         Live Sync Active
