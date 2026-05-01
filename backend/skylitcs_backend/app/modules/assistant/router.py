@@ -20,7 +20,7 @@ router = APIRouter()
 _CALLSIGN_RE = re.compile(r'\b([A-Z]{2,3}\d{1,4})\b')
 _IATA_RE     = re.compile(r'\b([A-Z]{3})\b')
 
-WEATHER_KW  = {"weather", "storm", "rain", "snow", "wind", "fog", "ice", "visibility", "conditions"}
+WEATHER_KW  = {"weather", "storm", "rain", "snow", "wind", "fog", "ice", "visibility", "conditions", "status"}
 RISK_KW     = {"risk", "delay", "delayed", "worst", "at-risk", "atrisk", "critical", "alert"}
 STATS_KW    = {"dashboard", "stats", "statistics", "overview", "total", "summary", "accuracy", "model"}
 
@@ -177,7 +177,7 @@ async def _fetch_at_risk_flights(db: AsyncSession) -> str:
     
     return header + "\n".join(lines)
 
-GREETING_KW = {"hi", "hello", "hey", "help", "what", "who", "how", "can", "commands", "start", "intro"}
+GREETING_KW = {"hi", "hello", "hey", "help", "commands", "start", "intro"}
 ADVICE_KW   = {"do", "solution", "advice", "handle", "mitigate", "action", "why"}
 
 async def _run_rule_engine(db: AsyncSession, msg: str) -> QueryResponse:

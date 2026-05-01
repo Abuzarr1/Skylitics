@@ -34,11 +34,13 @@ export default function ManagerDashboard() {
                     getDelayTrend().catch(() => []),
                 ]);
 
-                const hasRealData = dashboardData && Number(dashboardData.total_tracked) > 0;
+                const hasRealData = dashboardData && dashboardData.total_tracked !== undefined;
                 if (hasRealData) {
                     setStats(dashboardData);
-                    setFlights(flightsData && flightsData.length > 0 ? flightsData : Mocks.MOCK_AT_RISK_FLIGHTS);
-                    setTrend(trendData && trendData.length > 0 ? trendData : Mocks.MOCK_DELAY_TREND);
+                    // If the backend returns an empty array, it means 0 flights are at risk.
+                    // We should respect the empty array on live data, not force mocks!
+                    setFlights(flightsData || []);
+                    setTrend(trendData || []);
                     setIsLive(true);
                     setError(null);
                 } else {
@@ -48,7 +50,9 @@ export default function ManagerDashboard() {
                     setIsLive(false);
                 }
             } catch {
-                setIsLive(false);
+                setStats(Mocks.MOCK_DASHBOARD_STATS);
+                setFlights(Mocks.MOCK_AT_RISK_FLIGHTS);
+                setTrend(Mocks.MOCK_DELAY_TREND);
                 setIsLive(false);
             }
         }

@@ -66,7 +66,7 @@ export default function AssistantPage() {
                 ...prev,
                 { 
                     role: 'assistant', 
-                    content: data.response, 
+                    content: data?.response || "> [SYSTEM_ERROR]: Unrecognizable telemetry received from Neural Core. Diagnostics initiated.", 
                     timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false }) 
                 }
             ]);

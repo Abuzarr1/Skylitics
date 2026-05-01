@@ -78,6 +78,8 @@ export default function AnalyticsPage() {
                     });
                 }
             } catch {
+                setRoutes(Mocks.MOCK_ANALYTICS_ROUTES);
+                setAirports(Mocks.MOCK_ANALYTICS_AIRPORTS);
                 setIsLive(false);
             } finally {
                 setLoading(false);
@@ -132,6 +134,16 @@ export default function AnalyticsPage() {
                     {loading ? (
                         <div className="h-[380px] flex items-center justify-center">
                             <LoadingRadar text="LOADING ROUTES..." />
+                        </div>
+                    ) : routes.length === 0 ? (
+                        <div className="h-[380px] flex flex-col items-center justify-center border border-white/5 bg-[var(--ch-brand-900)]/30">
+                            <Compass className="w-8 h-8 text-brand-600 mb-4" />
+                            <p className="font-mono text-xs text-brand-500 uppercase tracking-widest text-center">
+                                No active risk routes detected.
+                            </p>
+                            <p className="font-mono text-[10px] text-brand-600 uppercase tracking-widest text-center mt-2">
+                                All routes operating nominally.
+                            </p>
                         </div>
                     ) : (
                         <div className="h-[380px]">

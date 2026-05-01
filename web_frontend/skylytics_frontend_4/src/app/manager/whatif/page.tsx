@@ -224,6 +224,8 @@ export default function WhatIfSimulator() {
                 const first = data.airlines[0];
                 setForm(f => ({ ...f, airline: first }));
                 loadFlights(first, airport);
+            } else {
+                throw new Error("empty_live_airlines");
             }
         } catch {
             setOffline(true);
@@ -244,8 +246,12 @@ export default function WhatIfSimulator() {
         try {
             if (useMock) throw new Error("offline");
             const data = await getWhatIfFlights(airline, airport);
-            setFlightList(data.flights);
-            if (data.flights.length > 0) autoFillFlight(data.flights[0]);
+            if (data.flights.length > 0) {
+                setFlightList(data.flights);
+                autoFillFlight(data.flights[0]);
+            } else {
+                throw new Error("empty_live_flights");
+            }
         } catch {
             setOffline(true);
             // Client-side demo flights
