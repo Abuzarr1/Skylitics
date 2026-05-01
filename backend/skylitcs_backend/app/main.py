@@ -182,10 +182,16 @@ def create_app() -> FastAPI:
     @app.on_event("startup")
     async def on_startup():
         # 1. Automatic Table Creation (Self-Healing)
-        from app.db.base import Base
+        from app.db.base_class import Base
         from app.db.session import engine
+        # Import all models so Base.metadata knows about them
+        import app.modules.users.models
+        import app.modules.flights.models
+        import app.modules.predictions.models
+        import app.modules.notifications.models
+        import app.modules.saved.models
+        
         async with engine.begin() as conn:
-            # This creates all tables defined in models if they don't exist
             await conn.run_sync(Base.metadata.create_all)
         
         # 2. Background loop for notification checks
