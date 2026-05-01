@@ -16,12 +16,7 @@ def create_app() -> FastAPI:
     # CORS — explicit origins + regex for Vercel preview deployments
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=[
-            "http://localhost:3000",
-            "http://127.0.0.1:3000",
-            "https://skylitics-m51s.vercel.app",
-        ],
-        allow_origin_regex=r"https://skylitics-m51s.*\.vercel\.app",
+        allow_origins=["*"],
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],
