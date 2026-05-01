@@ -206,6 +206,24 @@ export async function loginUser(email: string, password: string): Promise<any> {
     return data;
 }
 
+export async function registerOnly(payload: {
+    first_name: string;
+    last_name: string;
+    email: string;
+    password: string;
+    role?: string;
+    airport_code?: string | null;
+}): Promise<void> {
+    const full_name = `${payload.first_name} ${payload.last_name}`.trim();
+    await post("/auth/register", {
+        email: payload.email,
+        password: payload.password,
+        full_name,
+        role: payload.role ?? "PASSENGER",
+        airport_code: payload.airport_code ?? null,
+    });
+}
+
 export async function registerUser(payload: {
     first_name: string;
     last_name: string;
@@ -213,15 +231,7 @@ export async function registerUser(payload: {
     password: string;
     role?: string;
 }): Promise<any> {
-    const full_name = `${payload.first_name} ${payload.last_name}`.trim();
-    await post("/auth/register", {
-        email: payload.email,
-        password: payload.password,
-        full_name,
-        role: payload.role ?? "PASSENGER",
-    });
-    // After register the backend returns user info but no token yet.
-    // Log them in immediately.
+    await registerOnly(payload);
     return loginUser(payload.email, payload.password);
 }
 

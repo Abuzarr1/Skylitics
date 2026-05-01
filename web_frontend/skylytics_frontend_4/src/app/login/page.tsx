@@ -8,7 +8,7 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ThemeToggle } from "@/components/ThemeToggle";
-import { loginUser, registerUser } from "@/lib/api";
+import { loginUser, registerOnly } from "@/lib/api";
 import { setSelectedAirport } from "@/hooks/useAuth";
 
 // ── Airports ──
@@ -310,14 +310,26 @@ function RegisterForm({ onSwitch }: { onSwitch: () => void }) {
     const handleStep1 = (e: React.FormEvent) => {
         e.preventDefault();
         setError(null);
+        
+        // 1. Validate form fields locally
         if (!form.first_name.trim() || !form.last_name.trim()) {
             setError("Name fields cannot be blank.");
+            return;
+        }
+        if (!form.email.includes("@")) {
+            setError("Please enter a valid agent email.");
+            return;
+        }
+        if (form.password.length < 8) {
+            setError("Access key must be at least 8 characters.");
             return;
         }
         if (form.password !== confirmPassword) {
             setError("Access keys do not match. Please re-enter.");
             return;
         }
+
+        // 2. Simply navigate to Step 2 (No API call)
         setStep(2);
     };
 
@@ -344,48 +356,58 @@ function RegisterForm({ onSwitch }: { onSwitch: () => void }) {
         err?.name === "AbortError" || err?.message === "Failed to fetch";
 
     const handleRegister = async (airport?: string) => {
+        const emailLower = form.email.toLowerCase().trim();
+        const code = airport ?? selectedAirport ?? null;
+        const payload = {
+            ...form,
+            email: emailLower,
+            airport_code: code,
+        };
+
         setError(null);
         setStatusMsg(null);
         setLoading(true);
 
-        let data: any = null;
-
-        for (let attempt = 1; attempt <= 2; attempt++) {
+        try {
+            // 1. Registration — if 409, the account was already created (prior timed-out attempt)
+            setStatusMsg("Establishing Identity...");
+            let alreadyExisted = false;
             try {
-                if (attempt === 2) setStatusMsg("Server is waking up, retrying...");
-                data = await registerUser({ ...form });
-                break;
-            } catch (err: any) {
-                if (isNetworkError(err) && attempt === 1) {
-                    // Render cold-start — wait 4s and retry once
-                    setStatusMsg("Connecting to server...");
-                    await new Promise(r => setTimeout(r, 4000));
-                    continue;
+                await registerOnly(payload);
+            } catch (regErr: any) {
+                const regMsg = (regErr?.message ?? "").toLowerCase();
+                if (regMsg.includes("already exists") || regMsg.includes("409")) {
+                    // Previous attempt created the account but timed out before redirect
+                    alreadyExisted = true;
+                } else {
+                    throw regErr;
                 }
-                // Non-retryable or second failure — show error on step 2, stay there
-                setError(friendlyError(err));
-                setStatusMsg(null);
-                setLoading(false);
-                return;
             }
-        }
 
-        setStatusMsg(null);
+            // 2. Automatic Authentication
+            setStatusMsg(alreadyExisted ? "Account found — authenticating..." : "Identity Verified! Authenticating...");
+            const data = await loginUser(emailLower, form.password);
 
-        if (data) {
-            const code = airport ?? selectedAirport ?? null;
-            if (code) setSelectedAirport(code);
-            const role = (data.user?.role ?? "").toUpperCase();
-            if (role === "ADMIN") {
-                window.location.href = "/manager";
-            } else if (role === "MANAGER") {
-                window.location.href = code ? "/manager" : "/manager/select-airport";
-            } else {
-                window.location.href = "/passenger";
+            if (data) {
+                if (code) setSelectedAirport(code);
+
+                const role = (data.user?.role ?? "").toUpperCase();
+                setStatusMsg("Clearing local buffer...");
+
+                if (role === "ADMIN") {
+                    window.location.href = "/manager";
+                } else if (role === "MANAGER") {
+                    window.location.href = code ? "/manager" : "/manager/select-airport";
+                } else {
+                    window.location.href = "/passenger";
+                }
             }
+        } catch (err: any) {
+            setError(friendlyError(err));
+            setStatusMsg(null);
+        } finally {
+            setLoading(false);
         }
-
-        setLoading(false);
     };
 
     return (
@@ -535,7 +557,10 @@ function RegisterForm({ onSwitch }: { onSwitch: () => void }) {
                         transition={{ duration: 0.35 }}
                     >
                         <button
-                            onClick={() => setStep(1)}
+                            onClick={() => {
+                                setStep(1);
+                                setError(null); // Clear errors when going back
+                            }}
                             className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.2em] text-brand-500 hover:text-white transition-colors mb-5"
                         >
                             <ChevronLeft className="w-3 h-3" /> Back
