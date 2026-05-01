@@ -168,14 +168,6 @@ async function get(endpoint: string) {
 
         return await response.json();
     } catch (err) {
-        if (endpoint.includes("/system/status")) return Mocks.MOCK_SYSTEM_STATUS;
-        if (endpoint.includes("/live-predictions")) return Mocks.MOCK_FLIGHTS;
-        if (endpoint.includes("/flights/live")) return Mocks.MOCK_FLIGHTS.map(f => ({...f, destination: f.dest}));
-        if (endpoint.includes("/ops/dashboard")) return Mocks.MOCK_DASHBOARD_STATS;
-        if (endpoint.includes("/ops/at-risk")) return Mocks.MOCK_AT_RISK_FLIGHTS;
-        if (endpoint.includes("/predictions/trends")) return { by_hour: Mocks.MOCK_DELAY_TREND.map(t => ({ hour: t.label, avg_delay: t.probability })), by_airline: [] };
-        if (endpoint.includes("/ops/analytics/routes")) return Mocks.MOCK_ANALYTICS_ROUTES;
-        if (endpoint.includes("/ops/analytics/airports")) return Mocks.MOCK_ANALYTICS_AIRPORTS;
         throw err;
     }
 }
