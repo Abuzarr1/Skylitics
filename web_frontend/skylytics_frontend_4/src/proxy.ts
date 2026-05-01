@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 const protectedRoutes = ["/manager"];
 const authRoutes = ["/login", "/register"];
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
     const path = request.nextUrl.pathname;
     const session = request.cookies.get("skylytics_session")?.value;
     const role = request.cookies.get("skylytics_role")?.value;

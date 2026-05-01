@@ -9,6 +9,7 @@ import { Zap, Activity, Compass, ShieldAlert, ChevronUp } from "lucide-react";
 import { getRouteAnalytics, getAirportAnalytics, getDelayTrend, getSystemStatus } from "@/lib/api";
 import { LoadingRadar } from "@/components/ui/LoadingRadar";
 import { useAuth } from "@/hooks/useAuth";
+import * as Mocks from "@/lib/mocks";
 
 // Real SHAP-derived feature importance from trained XGBoost model
 const FEATURE_IMPORTANCE = [
