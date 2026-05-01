@@ -135,6 +135,25 @@ def create_app() -> FastAPI:
             "message": "Skylytics Backend is operational"
         }
 
+    @app.post("/system/reset-everything", tags=["system"])
+    async def reset_everything(db: AsyncSession = Depends(get_db)):
+        from sqlalchemy import text
+        try:
+            # Drop everything (PostgreSQL specific)
+            await db.execute(text("DROP SCHEMA public CASCADE;"))
+            await db.execute(text("CREATE SCHEMA public;"))
+            await db.execute(text("GRANT ALL ON SCHEMA public TO postgres;"))
+            await db.execute(text("GRANT ALL ON SCHEMA public TO public;"))
+            await db.commit()
+            
+            # Now trigger the health check with seed=True to re-create tables and data
+            # Note: Alembic migrations will be skipped here, we rely on the app's models 
+            # or the user running alembic upgrade again. 
+            # Actually, let's just use the seed logic.
+            return {"message": "Database wiped. Please wait for Render to restart or visit /health?seed=true to re-initialize."}
+        except Exception as e:
+            return {"error": str(e)}
+
     # Import and register module routers
     from app.modules.auth.router import router as auth_router
     from app.modules.flights.router import router as flights_router
