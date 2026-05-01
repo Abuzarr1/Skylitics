@@ -44,11 +44,18 @@ async def _ensure_blacklist_table(db: AsyncSession) -> None:
 
 
 async def _is_revoked(token: str, db: AsyncSession) -> bool:
-    row = await db.execute(
-        sa_text("SELECT 1 FROM revoked_tokens WHERE token = :t"),
-        {"t": token},
-    )
-    return row.first() is not None
+    try:
+        await _ensure_blacklist_table(db)
+        row = await db.execute(
+            sa_text("SELECT 1 FROM revoked_tokens WHERE token = :t"),
+            {"t": token},
+        )
+        return row.first() is not None
+    except Exception:
+        # If the table doesn't exist or query fails, rollback to prevent
+        # the session from being stuck in an aborted transaction state.
+        await db.rollback()
+        return False
 
 
 async def _revoke_token(token: str, db: AsyncSession) -> None:
@@ -71,13 +78,8 @@ async def get_current_user(
         detail="Invalid or expired token",
         headers={"WWW-Authenticate": "Bearer"},
     )
-    try:
-        if await _is_revoked(token, db):
-            raise credentials_exc
-    except HTTPException:
-        raise
-    except Exception:
-        pass  # If DB check fails, allow the request rather than blocking all auth
+    if await _is_revoked(token, db):
+        raise credentials_exc
     try:
         payload = jwt.decode(token, settings.SECRET_KEY, algorithms=["HS256"])
         user_id: str = payload.get("sub")
@@ -141,8 +143,10 @@ async def register(user_in: UserCreate, db: AsyncSession = Depends(get_db)) -> A
     """
     Create a passenger account in PostgreSQL and return tokens + user profile.
     """
+    print(f"[AUTH] Register attempt for email: {user_in.email}")
     existing_user = await _get_user_by_email(user_in.email, db)
     if existing_user:
+        print(f"[AUTH] Register conflict: {user_in.email} already exists")
         raise HTTPException(
             status_code=409,
             detail=f"Account with email '{user_in.email}' already exists."
