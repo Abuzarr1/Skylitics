@@ -1,8 +1,8 @@
 "use client";
-import React, { useState, useEffect, useCallback } from "react";
+import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { getLiveFeed } from "@/lib/api";
 import { useAuth } from "@/hooks/useAuth";
+import { useLiveFeed } from "@/hooks/useLiveFeed";
 
 interface FeedItem {
     id: string;
@@ -13,40 +13,11 @@ interface FeedItem {
     type: "delay" | "cleared" | "board";
 }
 
-const POLL_INTERVAL = 30_000;
 
-const MOCK_FEED: FeedItem[] = [
-    { id: "m1", flight: "DL192", route: "ATL → JFK", status: "DELAYED +34 MIN",  timestamp: "08:14", type: "delay"   },
-    { id: "m2", flight: "AA505", route: "ORD → LAX", status: "AT RISK",           timestamp: "08:21", type: "delay"   },
-    { id: "m3", flight: "UA301", route: "DFW → SFO", status: "BOARDING",          timestamp: "08:35", type: "board"   },
-    { id: "m4", flight: "B6112", route: "JFK → MIA", status: "CLEARED",           timestamp: "08:47", type: "cleared" },
-    { id: "m5", flight: "SW640", route: "DEN → SEA", status: "DELAYED +18 MIN",   timestamp: "09:02", type: "delay"   },
-    { id: "m6", flight: "WN210", route: "LAS → PHX", status: "ON TIME",           timestamp: "09:11", type: "board"   },
-    { id: "m7", flight: "DL788", route: "SEA → ATL", status: "CLEARED",           timestamp: "09:23", type: "cleared" },
-    { id: "m8", flight: "AA122", route: "MIA → ORD", status: "AT RISK",           timestamp: "09:37", type: "delay"   },
-];
 
 export default function FlightFeedPage() {
     const auth = useAuth();
-    const [feed, setFeed] = useState<FeedItem[]>(MOCK_FEED);
-    const [connected, setConnected] = useState(false);
-
-    const fetchFeed = useCallback(async () => {
-        try {
-            const data: FeedItem[] = await getLiveFeed();
-            setFeed(data?.length ? data : MOCK_FEED);
-            setConnected(true);
-        } catch {
-            setFeed(MOCK_FEED);
-            setConnected(false);
-        }
-    }, []);
-
-    useEffect(() => {
-        fetchFeed();
-        const interval = setInterval(fetchFeed, POLL_INTERVAL);
-        return () => clearInterval(interval);
-    }, [fetchFeed]);
+    const { feed, isLive, loading } = useLiveFeed(auth?.airportCode || null);
 
     return (
         <div className="max-w-[1600px] mx-auto px-4 md:px-12 py-10">
@@ -60,9 +31,9 @@ export default function FlightFeedPage() {
                             : "Real-time synchronized flight anomalies and resolutions"}
                     </p>
                 </div>
-                <div className={`font-mono text-xs flex items-center gap-2 ${connected ? "text-accent-neon" : "text-accent-alert"}`}>
-                    <span className={`w-2 h-2 rounded-sm animate-pulse ${connected ? "bg-accent-neon" : "bg-accent-alert"}`} />
-                    {connected ? "connected" : "reconnecting..."}
+                <div className={`font-mono text-xs flex items-center gap-2 px-3 py-1.5 border ${isLive ? "border-accent-neon/30 text-accent-neon bg-accent-neon/5" : "border-yellow-400/30 text-yellow-400 bg-yellow-400/5"}`}>
+                    <span className={`w-2 h-2 rounded-sm animate-pulse ${isLive ? "bg-accent-neon" : "bg-yellow-400"}`} />
+                    {isLive ? "LIVE SYNC ACTIVE" : "LOCAL DEMO MODE"}
                 </div>
             </div>
 

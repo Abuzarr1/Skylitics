@@ -2,66 +2,20 @@
 import React, { useEffect, useState, useCallback } from "react";
 import dynamic from "next/dynamic";
 import { Activity, RefreshCw, Plane, AlertTriangle, CheckCircle, Clock } from "lucide-react";
-import { getLiveFlights } from "@/lib/api";
+import { useAuth } from "@/hooks/useAuth";
+import { useFlights, LiveFlight } from "@/hooks/useFlights";
 
-interface LiveFlight {
-    id: string;
-    callsign: string;
-    airline: string;
-    origin: string;
-    destination: string;
-    origin_lat: number;
-    origin_lon: number;
-    dest_lat: number;
-    dest_lon: number;
-    current_lat: number;
-    current_lon: number;
-    altitude_ft: number;
-    speed_kts: number;
-    delay_probability: number;
-    status: string;
-    progress: number;
-}
+
 
 // Dynamically import the map to avoid SSR issues with Leaflet
 const FlightMap = dynamic(() => import("@/components/map/FlightMap"), { ssr: false });
 
-const MOCK_FLIGHTS: LiveFlight[] = [
-    { id: "m1", callsign: "DL192", airline: "Delta Air Lines",    origin: "ATL", destination: "JFK", origin_lat: 33.64, origin_lon: -84.43, dest_lat: 40.64, dest_lon: -73.78, current_lat: 37.20, current_lon: -79.30, altitude_ft: 35000, speed_kts: 478, delay_probability: 0.72, status: "delayed",  progress: 0.55 },
-    { id: "m2", callsign: "AA505", airline: "American Airlines",  origin: "ORD", destination: "LAX", origin_lat: 41.98, origin_lon: -87.91, dest_lat: 33.94, dest_lon: -118.41, current_lat: 38.50, current_lon: -104.00, altitude_ft: 37000, speed_kts: 492, delay_probability: 0.48, status: "at_risk",  progress: 0.42 },
-    { id: "m3", callsign: "UA301", airline: "United Airlines",    origin: "DFW", destination: "SFO", origin_lat: 32.90, origin_lon: -97.04, dest_lat: 37.62, dest_lon: -122.38, current_lat: 35.10, current_lon: -110.50, altitude_ft: 36000, speed_kts: 465, delay_probability: 0.38, status: "at_risk",  progress: 0.33 },
-    { id: "m4", callsign: "B6112", airline: "JetBlue Airways",   origin: "JFK", destination: "MIA", origin_lat: 40.64, origin_lon: -73.78, dest_lat: 25.80, dest_lon: -80.28, current_lat: 33.40, current_lon: -77.10, altitude_ft: 34000, speed_kts: 445, delay_probability: 0.09, status: "on_time",  progress: 0.68 },
-    { id: "m5", callsign: "SW640", airline: "Southwest Airlines", origin: "DEN", destination: "SEA", origin_lat: 39.86, origin_lon: -104.67, dest_lat: 47.45, dest_lon: -122.31, current_lat: 44.20, current_lon: -113.50, altitude_ft: 35000, speed_kts: 458, delay_probability: 0.55, status: "at_risk",  progress: 0.48 },
-    { id: "m6", callsign: "WN210", airline: "Southwest Airlines", origin: "LAS", destination: "PHX", origin_lat: 36.08, origin_lon: -115.15, dest_lat: 33.44, dest_lon: -112.01, current_lat: 34.80, current_lon: -113.60, altitude_ft: 28000, speed_kts: 420, delay_probability: 0.11, status: "on_time",  progress: 0.71 },
-    { id: "m7", callsign: "DL788", airline: "Delta Air Lines",    origin: "SEA", destination: "ATL", origin_lat: 47.45, origin_lon: -122.31, dest_lat: 33.64, dest_lon: -84.43, current_lat: 41.50, current_lon: -103.20, altitude_ft: 38000, speed_kts: 501, delay_probability: 0.14, status: "on_time",  progress: 0.38 },
-    { id: "m8", callsign: "AA122", airline: "American Airlines",  origin: "MIA", destination: "ORD", origin_lat: 25.80, origin_lon: -80.28, dest_lat: 41.98, dest_lon: -87.91, current_lat: 32.50, current_lon: -84.50, altitude_ft: 33000, speed_kts: 462, delay_probability: 0.61, status: "delayed",  progress: 0.22 },
-];
-
 export default function LiveMapPage() {
-    const [flights, setFlights] = useState<LiveFlight[]>(MOCK_FLIGHTS);
+    const auth = useAuth();
+    const { flights, isLive, loading, lastUpdated, refetch } = useFlights(auth?.airportCode || null);
+    
     const [selected, setSelected] = useState<LiveFlight | null>(null);
-    const [loading, setLoading] = useState(false);
-    const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
     const [filter, setFilter] = useState<"all" | "at_risk" | "delayed">("all");
-
-    const fetchFlights = useCallback(async () => {
-        try {
-            const data = await getLiveFlights();
-            setFlights(data?.length ? data : MOCK_FLIGHTS);
-            setLastUpdated(new Date());
-        } catch {
-            setFlights(MOCK_FLIGHTS);
-        } finally {
-            setLoading(false);
-        }
-    }, []);
-
-    useEffect(() => {
-        fetchFlights();
-        // Auto-refresh every 30 seconds
-        const interval = setInterval(fetchFlights, 30000);
-        return () => clearInterval(interval);
-    }, [fetchFlights]);
 
     const filtered = filter === "all" ? flights : flights.filter(f => f.status === filter);
     const atRisk = flights.filter(f => f.status === "at_risk").length;
@@ -89,7 +43,7 @@ export default function LiveMapPage() {
                     <div className="flex items-center justify-between mb-1">
                         <h1 className="text-xl font-heading font-black uppercase text-white tracking-tight">Live Flight Map</h1>
                         <button
-                            onClick={fetchFlights}
+                            onClick={refetch}
                             className="text-brand-400 hover:text-[#DFFF00] transition-colors"
                             title="Refresh"
                         >
@@ -99,6 +53,20 @@ export default function LiveMapPage() {
                     <p className="text-brand-500 font-mono text-[9px] uppercase tracking-[0.2em]">
                         {lastUpdated ? `Last sync: ${lastUpdated.toLocaleTimeString()}` : "Connecting..."}
                     </p>
+                    {auth?.airportCode && (
+                        <div className="mt-3 flex items-center justify-between px-3 py-1.5 border border-white/5 bg-white/[0.02]">
+                            <span className="font-mono text-[10px] text-brand-400 uppercase tracking-widest">Selected Node:</span>
+                            <span className="font-mono font-bold text-yellow-400 tracking-tighter">{auth.airportCode}</span>
+                        </div>
+                    )}
+                    <div className={`mt-3 flex items-center gap-2 font-mono text-[10px] uppercase tracking-widest px-3 py-1.5 border ${
+                        isLive 
+                        ? "border-accent-neon/30 bg-accent-neon/5 text-accent-neon" 
+                        : "border-yellow-400/30 bg-yellow-400/5 text-yellow-400"
+                    }`}>
+                        <div className={`w-1.5 h-1.5 rounded-full ${isLive ? "bg-accent-neon" : "bg-yellow-400"} animate-pulse`} />
+                        {isLive ? "LIVE SYNC ACTIVE" : "LOCAL DEMO MODE"}
+                    </div>
                 </div>
 
                 {/* Stats */}
