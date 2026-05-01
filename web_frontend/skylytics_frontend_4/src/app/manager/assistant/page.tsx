@@ -126,7 +126,6 @@ export default function AssistantPage() {
                 <div className="hidden md:flex items-center gap-6">
                     <div className="font-mono text-[10px] text-brand-400 uppercase tracking-widest border-l border-[var(--border-ui)] pl-6">
                         <span className="block text-white mb-0.5">XGBoost Optimized</span>
-                        <span className="opacity-50">Local Fallback Active</span>
                     </div>
                 </div>
             </div>

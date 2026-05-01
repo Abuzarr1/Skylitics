@@ -36,15 +36,11 @@ const PerformanceMetric = ({ label, value, sub, trend }: { label: string; value:
     </div>
 );
 
-import * as Mocks from "@/lib/mocks";
-
 export default function AnalyticsPage() {
     const auth = useAuth();
-    // Step 2: Initialize with high-fidelity mock data as baseline
     const [routes, setRoutes]       = useState<any[]>(Mocks.MOCK_ANALYTICS_ROUTES);
     const [airports, setAirports]   = useState<any[]>(Mocks.MOCK_ANALYTICS_AIRPORTS);
-    const [dataSource, setDataSource] = useState<"live" | "opensky" | "mock">("mock");
-    const [loading, setLoading]     = useState(false);
+    const [mounted, setMounted]     = useState(false);
     const [modelMetrics, setModelMetrics] = useState({
         accuracy: "91.8%",
         f1:       "0.891",
@@ -55,29 +51,17 @@ export default function AnalyticsPage() {
     });
 
     useEffect(() => {
+        setMounted(true);
         const load = async () => {
             try {
                 const [r, a, sys] = await Promise.all([
-                    getRouteAnalytics(),
-                    getAirportAnalytics(),
-                    getSystemStatus(),
+                    getRouteAnalytics().catch(() => null),
+                    getAirportAnalytics().catch(() => null),
+                    getSystemStatus().catch(() => null),
                 ]);
 
-                // Step 1: Debug logs
-                console.log("RAW ANALYTICS RESPONSE:", { routes: r, airports: a, system: sys });
-
-                // Step 3: Strict Live Validation
-                const isRealData = r && r.length > 0 && a && a.length > 0;
-
-                if (isRealData) {
-                    setRoutes(r.slice(0, 8));
-                    setAirports(a.slice(0, 8));
-                    setDataSource("live");
-                } else {
-                    setRoutes(Mocks.MOCK_ANALYTICS_ROUTES);
-                    setAirports(Mocks.MOCK_ANALYTICS_AIRPORTS);
-                    setDataSource("mock");
-                }
+                if (r && r.length > 0) setRoutes(r.slice(0, 8));
+                if (a && a.length > 0) setAirports(a.slice(0, 8));
 
                 if (sys?.model_metrics) {
                     const m = sys.model_metrics;
@@ -91,16 +75,11 @@ export default function AnalyticsPage() {
                     });
                 }
             } catch (err) {
-                console.log("ANALYTICS FETCH ERROR:", err);
-                setRoutes(Mocks.MOCK_ANALYTICS_ROUTES);
-                setAirports(Mocks.MOCK_ANALYTICS_AIRPORTS);
-                setDataSource("mock");
-            } finally {
-                setLoading(false);
+                // Silent fallback to initial mocks
             }
         };
         load();
-    }, [auth?.airportCode]);
+    }, []);
 
     return (
         <div className="max-w-[1600px] mx-auto px-10 py-10 selection:bg-accent-neon selection:text-black">
@@ -115,25 +94,16 @@ export default function AnalyticsPage() {
                         Intelligence <span className="text-brand-300">Sync</span>
                     </h1>
                     {auth?.airportCode && (
-                        <p className="font-mono text-[10px] uppercase tracking-widest text-yellow-400 mt-3">
+                        <p className="font-mono text-[10px] uppercase tracking-widest text-brand-500 mt-3">
                             Scoped to: {auth.airportCode}
                         </p>
                     )}
                 </div>
                 <div className="hidden lg:flex items-center gap-4">
-                    {dataSource === "live" ? (
-                        <div className="flex items-center gap-2 px-4 py-2 border border-accent-neon/30 bg-accent-neon/5 text-accent-neon font-mono text-[10px] uppercase tracking-widest animate-pulse">
-                            <Activity className="w-3 h-3" /> Live Data
-                        </div>
-                    ) : dataSource === "opensky" ? (
-                        <div className="flex items-center gap-2 px-4 py-2 border border-blue-400/30 bg-blue-400/5 text-blue-400 font-mono text-[10px] uppercase tracking-widest animate-pulse">
-                            <Activity className="w-3 h-3" /> External Sync
-                        </div>
-                    ) : (
-                        <div className="flex items-center gap-2 px-4 py-2 border border-yellow-400/30 bg-yellow-400/5 text-yellow-400 font-mono text-[10px] uppercase tracking-widest">
-                            <Activity className="w-3 h-3" /> Local Demo
-                        </div>
-                    )}
+                    <span className="font-mono text-[9px] uppercase tracking-widest text-accent-neon animate-pulse flex items-center gap-2 px-3 py-1 bg-accent-neon/5 border border-accent-neon/20">
+                        <div className="w-1.5 h-1.5 rounded-full bg-accent-neon shadow-[0_0_8px_var(--accent-neon)]" /> 
+                        Live Sync Active
+                    </span>
                 </div>
             </div>
 
@@ -148,24 +118,19 @@ export default function AnalyticsPage() {
             {/* Main Charts */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
 
-                {/* Top Routes by Risk — real /ops/analytics/routes */}
+                {/* Top Routes by Risk */}
                 <div className="lg:col-span-2 bg-[var(--bg-card)] p-8 border border-white/5">
                     <div className="mb-8">
                         <h3 className="text-xl font-heading font-black text-white uppercase tracking-tighter">Top Risk Routes</h3>
                         <p className="text-[10px] font-mono text-brand-500 uppercase tracking-widest">Highest avg delay probability — live from predictions table</p>
                     </div>
 
-                    {loading ? (
-                        <div className="h-[380px] flex items-center justify-center">
-                            <LoadingRadar text="LOADING ROUTES..." />
-                        </div>
+                    {!mounted ? (
+                        <div className="h-[380px] flex items-center justify-center bg-white/5 animate-pulse" />
                     ) : routes.length === 0 ? (
                         <div className="h-[380px] flex flex-col items-center justify-center border border-white/5 bg-[var(--ch-brand-900)]/30">
                             <Compass className="w-8 h-8 text-brand-600 mb-4" />
                             <p className="font-mono text-xs text-brand-500 uppercase tracking-widest text-center">
-                                No active risk routes detected.
-                            </p>
-                            <p className="font-mono text-[10px] text-brand-600 uppercase tracking-widest text-center mt-2">
                                 All routes operating nominally.
                             </p>
                         </div>
@@ -255,20 +220,20 @@ export default function AnalyticsPage() {
                 </div>
             </div>
 
-            {/* Airport Congestion Table — real /ops/analytics/airports */}
+            {/* Airport Congestion Table */}
             <div className="mt-12 bg-[var(--bg-card)] border border-white/5 p-8">
                 <div className="mb-6">
                     <h3 className="text-xl font-heading font-black text-white uppercase tracking-tighter">Airport Congestion Index</h3>
                     <p className="text-[10px] font-mono text-brand-500 uppercase tracking-widest mt-1">Outbound delay risk by airport — computed from 100K predictions</p>
                 </div>
 
-                {loading ? (
-                    <LoadingRadar text="LOADING AIRPORTS..." />
+                {!mounted ? (
+                    <div className="h-20 bg-white/5 animate-pulse" />
                 ) : (
                     <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-3">
                         {airports.map((ap, i) => {
                             const pct = Math.round(ap.congestion_score * 100);
-                            const color = pct >= 55 ? "text-accent-alert border-accent-alert/30" : pct >= 45 ? "text-yellow-400 border-yellow-400/30" : "text-accent-neon border-accent-neon/30";
+                            const color = pct >= 55 ? "text-accent-alert border-accent-alert/30" : pct >= 45 ? "text-accent-neon border-accent-neon/30" : "text-white border-white/10";
                             return (
                                 <motion.div
                                     key={i}

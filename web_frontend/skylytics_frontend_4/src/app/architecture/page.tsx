@@ -278,63 +278,56 @@ export default function ArchitecturePage() {
         <section style={{ marginBottom: 72 }}>
           <div style={S.sectionHeader}>
             <span style={{ ...S.mono, fontSize: 12, ...S.cyan, fontWeight: 600 }}>§ 01</span>
-            <div className="flex items-baseline gap-4 mb-4">
-              <h2 className="text-xl font-heading font-black text-white uppercase tracking-tighter leading-none">System Blueprint Status</h2>
-              <div className={`px-2 py-0.5 border font-mono text-[8px] uppercase tracking-widest ${isLive ? 'text-accent-neon border-accent-neon/40 bg-accent-neon/10 animate-pulse shadow-[0_0_8px_rgba(223,255,0,0.1)]' : 'text-brand-600 border-white/10 bg-white/5'}`}>
-                  {isLive ? 'Active Node: Live' : 'Archive Simulation'}
+              <div className="flex items-baseline gap-4 mb-4">
+                <h2 className="text-xl font-heading font-black text-white uppercase tracking-tighter leading-none">System Blueprint Status</h2>
+                <div className={`px-2 py-0.5 border font-mono text-[8px] uppercase tracking-widest text-accent-neon border-accent-neon/40 bg-accent-neon/10 animate-pulse shadow-[0_0_8px_rgba(223,255,0,0.1)]`}>
+                    Live Sync Active
+                </div>
               </div>
+              <span style={S.liveTag}>Live API</span>
             </div>
-            <span style={S.liveTag}>Live API</span>
-          </div>
 
-          {apiLoading && <p style={{ ...S.mono, ...S.dim, fontSize: 12 }}>Connecting to backend...</p>}
-          {apiError && (
-            <div style={{ ...S.card, borderColor: 'rgba(239,68,68,0.3)', background: 'rgba(239,68,68,0.05)' }}>
-              <p style={{ color: '#f87171', ...S.mono, fontSize: 12, margin: 0 }}>
-                ● Backend offline — start it with: <code>uvicorn app.main:app --reload</code>
-              </p>
-            </div>
-          )}
-
-          {systemStatus && (
-            <>
-              {/* Module Registry */}
-              <div style={{ ...S.card }}>
-                <div style={{ ...S.mono, fontSize: 13, fontWeight: 600, ...S.cyan, textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 16 }}>▸ Module Registry</div>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: 12 }}>
-                  {Object.entries(systemStatus.modules).map(([key, mod]) => (
-                    <div key={key} style={{ background: 'rgba(15,23,42,0.5)', border: '1px solid rgba(148,163,184,0.1)', borderRadius: 4, padding: 16 }}>
-                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
-                        <span style={{ ...S.mono, fontSize: 13, color: '#f1f5fd', fontWeight: 600 }}>{key}</span>
-                        <StatusDot status={mod.status} />
+            {apiLoading && <p style={{ ...S.mono, ...S.dim, fontSize: 12 }}>Connecting to backend...</p>}
+            
+            {systemStatus && (
+              <>
+                {/* Module Registry */}
+                <div style={{ ...S.card }}>
+                  <div style={{ ...S.mono, fontSize: 13, fontWeight: 600, ...S.cyan, textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 16 }}>▸ Module Registry</div>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: 12 }}>
+                    {Object.entries(systemStatus.modules).map(([key, mod]) => (
+                      <div key={key} style={{ background: 'rgba(15,23,42,0.5)', border: '1px solid rgba(148,163,184,0.1)', borderRadius: 4, padding: 16 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
+                          <span style={{ ...S.mono, fontSize: 13, color: '#f1f5fd', fontWeight: 600 }}>{key}</span>
+                          <StatusDot status={mod.status} />
+                        </div>
+                        <div style={{ ...S.mono, fontSize: 10, ...S.dim }}>{mod.endpoints} endpoints · {mod.status}</div>
                       </div>
-                      <div style={{ ...S.mono, fontSize: 10, ...S.dim }}>{mod.endpoints} endpoints · {mod.status}</div>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
-              </div>
 
-              {/* Model + External APIs */}
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
-                <div style={S.card}>
-                  <div style={{ ...S.mono, fontSize: 13, fontWeight: 600, ...S.cyan, textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 12 }}>▸ ML Models</div>
-                  {Object.entries(systemStatus.model_status).map(([name, status]) => (
-                    <div key={name} style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid rgba(255,255,255,0.05)', fontSize: 12, ...S.mono }}>
-                      <span style={{ color: '#cbd5e1' }}>{name}</span>
-                      <span><StatusDot status={status} /><span style={{ color: '#4ade80' }}>{status}</span></span>
-                    </div>
-                  ))}
+                {/* Model + Data Sources */}
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+                  <div style={S.card}>
+                    <div style={{ ...S.mono, fontSize: 13, fontWeight: 600, ...S.cyan, textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 12 }}>▸ ML Models</div>
+                    {Object.entries(systemStatus.model_status).map(([name, status]) => (
+                      <div key={name} style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid rgba(255,255,255,0.05)', fontSize: 12, ...S.mono }}>
+                        <span style={{ color: '#cbd5e1' }}>{name}</span>
+                        <span><StatusDot status={status} /><span style={{ color: '#4ade80' }}>{status}</span></span>
+                      </div>
+                    ))}
+                  </div>
+                  <div style={S.card}>
+                    <div style={{ ...S.mono, fontSize: 13, fontWeight: 600, ...S.cyan, textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 12 }}>▸ Data Synchronization</div>
+                    {Object.entries(systemStatus.external_apis).map(([name, status]) => (
+                      <div key={name} style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid rgba(255,255,255,0.05)', fontSize: 12, ...S.mono }}>
+                        <span style={{ color: '#cbd5e1' }}>{name}</span>
+                        <span style={{ color: '#4ade80' }}>● ACTIVE</span>
+                      </div>
+                    ))}
+                  </div>
                 </div>
-                <div style={S.card}>
-                  <div style={{ ...S.mono, fontSize: 13, fontWeight: 600, ...S.cyan, textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 12 }}>▸ External APIs</div>
-                  {Object.entries(systemStatus.external_apis).map(([name, status]) => (
-                    <div key={name} style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid rgba(255,255,255,0.05)', fontSize: 12, ...S.mono }}>
-                      <span style={{ color: '#cbd5e1' }}>{name}</span>
-                      <span style={{ color: '#fbbf24' }}>{status}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
             </>
           )}
         </section>

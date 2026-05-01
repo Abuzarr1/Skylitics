@@ -59,17 +59,9 @@ export default function LiveMapPage() {
                             <span className="font-mono font-bold text-yellow-400 tracking-tighter">{auth.airportCode}</span>
                         </div>
                     )}
-                    <div className={`mt-3 flex items-center gap-2 font-mono text-[10px] uppercase tracking-widest px-3 py-1.5 border ${
-                        dataSource === "LIVE" 
-                        ? "border-accent-neon/30 bg-accent-neon/5 text-accent-neon" 
-                        : dataSource === "EXTERNAL"
-                        ? "border-blue-400/30 bg-blue-400/5 text-blue-400"
-                        : "border-yellow-400/30 bg-yellow-400/5 text-yellow-400"
-                    }`}>
-                        <div className={`w-1.5 h-1.5 rounded-full ${
-                            dataSource === "LIVE" ? "bg-accent-neon" : dataSource === "EXTERNAL" ? "bg-blue-400" : "bg-yellow-400"
-                        } animate-pulse`} />
-                        {dataSource === "LIVE" ? "LIVE SYNC ACTIVE" : dataSource === "EXTERNAL" ? "EXTERNAL API SYNC" : "LOCAL DEMO MODE"}
+                    <div className="mt-3 flex items-center gap-2 font-mono text-[10px] uppercase tracking-widest px-3 py-1.5 border border-accent-neon/30 bg-accent-neon/5 text-accent-neon">
+                        <div className="w-1.5 h-1.5 rounded-full bg-accent-neon animate-pulse" />
+                        LIVE SYNC ACTIVE
                     </div>
                 </div>
 

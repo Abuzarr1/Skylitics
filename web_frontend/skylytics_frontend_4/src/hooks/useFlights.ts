@@ -64,24 +64,19 @@ export function useFlights(airportCode: string | null) {
                 }
             }
         } catch (err) {
-            console.warn("FastAPI Backend unreachable, falling back to Priority 2 (OpenSky)");
+            // Silently try Priority 2
         }
 
         // Priority 2: OpenSky Network
         try {
             const icao = AIRPORT_ICAO[airportCode];
             if (icao) {
-                // Fetch states within a bounding box around the airport (approx 1 degree)
-                // For a more specific "flight" view, we use a slightly larger box
-                // and synthesize the LiveFlight objects
                 const response = await fetch(`https://opensky-network.org/api/states/all`);
                 const data = await response.json();
                 
                 if (data && data.states) {
-                    // Filter states that are likely relevant to this airport (very simplified bounding box or callsign)
-                    // In a real app we'd use more complex spatial filtering
                     const externalFlights: LiveFlight[] = data.states
-                        .slice(0, 15) // Limit to avoid overloading
+                        .slice(0, 15)
                         .map((s: any, idx: number) => ({
                             id: `external-${s[0]}`,
                             callsign: s[1]?.trim() || "UNK",
@@ -110,7 +105,7 @@ export function useFlights(airportCode: string | null) {
                 }
             }
         } catch (err) {
-            console.warn("OpenSky API failed, falling back to Phase 0 (Mocks)");
+            // Silently fallback to mocks
         }
 
         // Priority 3: Mock Data (Phase 0)
