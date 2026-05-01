@@ -89,9 +89,12 @@ async def get_live_flights():
     Falls back to deterministic simulation if OpenSky is unavailable.
     """
     # Try OpenSky first
-    live = opensky_fetch(limit=20)
-    if live:
-        return [LiveFlight(**f) for f in live]
+    try:
+        live = opensky_fetch(limit=20)
+        if live:
+            return [LiveFlight(**f) for f in live]
+    except Exception:
+        pass  # Fall through to deterministic simulation
 
     # Fallback: deterministic simulation (original logic, but stable probabilities)
     flights = []
