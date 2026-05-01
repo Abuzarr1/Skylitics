@@ -12,13 +12,55 @@ import { useTheme } from "next-themes";
 
 import * as Mocks from "@/lib/mocks";
 
+const ATL_MOCK = {
+  activeNodes: 164,
+  highRisk: 7,
+  estImpact: 28.3,
+  netSync: 89.4,
+  delayChart: [
+    { label: "06:00", value: 8 },
+    { label: "07:00", value: 12 },
+    { label: "08:00", value: 18 },
+    { label: "09:00", value: 22 },
+    { label: "10:00", value: 15 },
+    { label: "11:00", value: 19 },
+    { label: "12:00", value: 31 },
+    { label: "13:00", value: 38 },
+    { label: "14:00", value: 42 },
+    { label: "15:00", value: 35 },
+    { label: "16:00", value: 44 },
+    { label: "17:00", value: 48 },
+    { label: "18:00", value: 41 },
+    { label: "19:00", value: 33 },
+    { label: "20:00", value: 25 },
+    { label: "21:00", value: 18 },
+    { label: "22:00", value: 11 },
+    { label: "23:00", value: 7 },
+  ],
+  anomalies: [
+    { flight_number: "DL204",  route: "ATL → JFK", delay: 42, risk: "CRITICAL" },
+    { flight_number: "DL887",  route: "ATL → LAX", delay: 31, risk: "CRITICAL" },
+    { flight_number: "AA1023", route: "ATL → ORD", delay: 22, risk: "ELEVATED" },
+    { flight_number: "UA445",  route: "ATL → DEN", delay: 17, risk: "ELEVATED" },
+    { flight_number: "SW334",  route: "ATL → MIA", delay: 11, risk: "AT RISK"  },
+  ]
+};
+
 export default function ManagerDashboard() {
     const auth = useAuth();
-    const [stats, setStats] = useState<any>(Mocks.MOCK_DASHBOARD_STATS);
-    const [flights, setFlights] = useState<any[]>(Mocks.MOCK_AT_RISK_FLIGHTS);
-    const [trend, setTrend] = useState<any[]>(Mocks.MOCK_DELAY_TREND);
-    const [isLoading, setIsLoading] = useState(false); // No skeleton if we have mocks!
-    const [dataSource, setDataSource] = useState<"LIVE" | "DEMO">("DEMO");
+    
+    // Step 2: Initialize with ATL MOCK data immediately
+    const [stats, setStats] = useState<any>({
+        total_tracked: ATL_MOCK.activeNodes,
+        at_risk_count: ATL_MOCK.highRisk,
+        avg_delay_min: ATL_MOCK.estImpact,
+        on_time_pct: ATL_MOCK.netSync
+    });
+    const [flights, setFlights] = useState<any[]>(ATL_MOCK.anomalies);
+    const [trend, setTrend] = useState<any[]>(ATL_MOCK.delayChart);
+    
+    const [isLoading, setIsLoading] = useState(false);
+    const [dataSource, setDataSource] = useState<"live" | "opensky" | "mock">("mock");
     const [error, setError] = useState<string | null>(null);
     const { theme } = useTheme();
     const [mounted, setMounted] = useState(false);
@@ -34,30 +76,38 @@ export default function ManagerDashboard() {
                     getDelayTrend().catch(() => []),
                 ]);
 
-                const hasRealData = dashboardData && dashboardData.total_tracked !== undefined;
-                if (hasRealData) {
+                // Step 1: Detailed Debug Logging
+                console.log("RAW API RESPONSE:", { dashboardData, flightsData, trendData });
+                console.log("FLIGHTS COUNT:", flightsData?.length);
+                
+                // Step 3: Strict Validation for Live Badge
+                const isRealData = dashboardData && 
+                                  dashboardData.total_tracked > 0 && 
+                                  flightsData && 
+                                  flightsData.length > 0;
+
+                if (isRealData) {
                     setStats(dashboardData);
-                    setFlights(flightsData || []);
+                    setFlights(flightsData);
                     setTrend(trendData || []);
-                    setDataSource("LIVE");
+                    setDataSource("live");
                     setError(null);
                 } else {
-                    setStats(Mocks.MOCK_DASHBOARD_STATS);
-                    const filteredFlights = Mocks.MOCK_AT_RISK_FLIGHTS.filter((f: any) => 
-                        !auth?.airportCode || f.route.includes(auth.airportCode)
-                    );
-                    setFlights(filteredFlights);
-                    setTrend(Mocks.MOCK_DELAY_TREND);
-                    setDataSource("DEMO");
+                    // Fallback to OpenSky or Mock (OpenSky logic usually in useFlights, but here we just check if any data exists)
+                    setDataSource("mock");
                 }
-            } catch {
-                setStats(Mocks.MOCK_DASHBOARD_STATS);
-                const filteredFlights = Mocks.MOCK_AT_RISK_FLIGHTS.filter((f: any) => 
-                    !auth?.airportCode || f.route.includes(auth.airportCode)
-                );
-                setFlights(filteredFlights);
-                setTrend(Mocks.MOCK_DELAY_TREND);
-                setDataSource("DEMO");
+                
+                console.log("DATA SOURCE:", isRealData ? "live" : "mock");
+                console.log("STATS:", { 
+                    activeNodes: dashboardData?.total_tracked, 
+                    highRisk: dashboardData?.at_risk_count, 
+                    estImpact: dashboardData?.avg_delay_min, 
+                    netSync: dashboardData?.on_time_pct 
+                });
+
+            } catch (err) {
+                console.log("API FETCH ERROR:", err);
+                setDataSource("mock");
             }
         }
         loadData();
@@ -72,15 +122,20 @@ export default function ManagerDashboard() {
                 <h1 className="font-mono font-black text-2xl uppercase tracking-widest text-white">
                     {auth?.airportCode ? `${auth.airportCode} AIRPORT DASHBOARD` : "OPERATIONS DASHBOARD"}
                 </h1>
-                {dataSource === "LIVE" ? (
+                {dataSource === "live" && stats.total_tracked > 0 ? (
                     <span className="font-mono text-[9px] uppercase tracking-widest text-accent-neon animate-pulse flex items-center gap-2 px-3 py-1 bg-accent-neon/5 border border-accent-neon/20">
                         <div className="w-1.5 h-1.5 rounded-full bg-accent-neon shadow-[0_0_8px_var(--accent-neon)]" /> 
                         Live Sync Active
                     </span>
+                ) : dataSource === "opensky" && stats.total_tracked > 0 ? (
+                    <span className="font-mono text-[9px] uppercase tracking-widest text-blue-400 animate-pulse flex items-center gap-2 px-3 py-1 bg-blue-400/5 border border-blue-400/20">
+                        <div className="w-1.5 h-1.5 rounded-full bg-blue-400 shadow-[0_0_8px_var(--blue-400)]" /> 
+                        External API Sync
+                    </span>
                 ) : (
                     <span className="font-mono text-[9px] uppercase tracking-widest text-yellow-400 flex items-center gap-2 px-3 py-1 bg-yellow-400/5 border border-yellow-400/20">
                         <div className="w-1.5 h-1.5 rounded-full bg-yellow-400" />
-                        Demo Mode
+                        Local Demo Mode
                     </span>
                 )}
             </div>
@@ -133,9 +188,9 @@ export default function ManagerDashboard() {
                                     <p className="text-brand-500 font-mono text-[10px] uppercase tracking-widest mt-1">Avg delay (min) by hour of day</p>
                                 </div>
                                 <div className="flex items-center gap-2">
-                                    <span className={`w-2 h-2 rounded-sm animate-pulse ${dataSource === "LIVE" ? "bg-accent-neon" : "bg-yellow-400"}`} />
-                                    <span className={`text-xs font-mono uppercase tracking-widest ${dataSource === "LIVE" ? "text-brand-400" : "text-yellow-400"}`}>
-                                        {dataSource === "LIVE" ? "Live Sync" : "Local Demo"}
+                                    <span className={`w-2 h-2 rounded-sm animate-pulse ${dataSource === "live" ? "bg-accent-neon" : dataSource === "opensky" ? "bg-blue-400" : "bg-yellow-400"}`} />
+                                    <span className={`text-xs font-mono uppercase tracking-widest ${dataSource === "live" ? "text-brand-400" : dataSource === "opensky" ? "text-blue-400" : "text-yellow-400"}`}>
+                                        {dataSource === "live" ? "Live Sync" : dataSource === "opensky" ? "External Sync" : "Local Demo"}
                                     </span>
                                 </div>
                             </div>
