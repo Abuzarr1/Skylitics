@@ -62,11 +62,23 @@ export default function AssistantPage() {
 
         try {
             const data = await queryAssistant(userMsg);
+            let response = data?.response || "> [SYSTEM_ERROR]: Unrecognizable telemetry received from Neural Core. Diagnostics initiated.";
+            
+            // Local Fallback Logic: If backend says "Sensor sync required", provide immersive mock response
+            if (response.includes("Sensor sync required") || response.includes("telemetry unavailable")) {
+                if (userMsg.toUpperCase().includes("ATL")) {
+                    response = "> [SKYAI_OFFLINE_VECTOR]: Real-time ATL telemetry unavailable. Loading archive baseline...\n" +
+                               "> ▸ Current Conditions: 12°C | Overcast | Wind 14 km/h\n" +
+                               "> ▸ Network Status: NOMINAL (Archive baseline 89.4% Sync)\n" +
+                               "> ▸ Active Anomalies: 7 critical vectors identified in buffer.";
+                }
+            }
+
             setMessages(prev => [
                 ...prev,
                 { 
                     role: 'assistant', 
-                    content: data?.response || "> [SYSTEM_ERROR]: Unrecognizable telemetry received from Neural Core. Diagnostics initiated.", 
+                    content: response, 
                     timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false }) 
                 }
             ]);

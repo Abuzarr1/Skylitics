@@ -40,9 +40,10 @@ import * as Mocks from "@/lib/mocks";
 
 export default function AnalyticsPage() {
     const auth = useAuth();
+    // Step 2: Initialize with high-fidelity mock data as baseline
     const [routes, setRoutes]       = useState<any[]>(Mocks.MOCK_ANALYTICS_ROUTES);
     const [airports, setAirports]   = useState<any[]>(Mocks.MOCK_ANALYTICS_AIRPORTS);
-    const [isLive, setIsLive]       = useState(false);
+    const [dataSource, setDataSource] = useState<"live" | "opensky" | "mock">("mock");
     const [loading, setLoading]     = useState(false);
     const [modelMetrics, setModelMetrics] = useState({
         accuracy: "91.8%",
@@ -61,11 +62,23 @@ export default function AnalyticsPage() {
                     getAirportAnalytics(),
                     getSystemStatus(),
                 ]);
-                if (r && a) {
+
+                // Step 1: Debug logs
+                console.log("RAW ANALYTICS RESPONSE:", { routes: r, airports: a, system: sys });
+
+                // Step 3: Strict Live Validation
+                const isRealData = r && r.length > 0 && a && a.length > 0;
+
+                if (isRealData) {
                     setRoutes(r.slice(0, 8));
                     setAirports(a.slice(0, 8));
-                    setIsLive(true);
+                    setDataSource("live");
+                } else {
+                    setRoutes(Mocks.MOCK_ANALYTICS_ROUTES);
+                    setAirports(Mocks.MOCK_ANALYTICS_AIRPORTS);
+                    setDataSource("mock");
                 }
+
                 if (sys?.model_metrics) {
                     const m = sys.model_metrics;
                     setModelMetrics({
@@ -77,10 +90,11 @@ export default function AnalyticsPage() {
                         version:  sys.model_version ?? "v1.0",
                     });
                 }
-            } catch {
+            } catch (err) {
+                console.log("ANALYTICS FETCH ERROR:", err);
                 setRoutes(Mocks.MOCK_ANALYTICS_ROUTES);
                 setAirports(Mocks.MOCK_ANALYTICS_AIRPORTS);
-                setIsLive(false);
+                setDataSource("mock");
             } finally {
                 setLoading(false);
             }
@@ -107,9 +121,19 @@ export default function AnalyticsPage() {
                     )}
                 </div>
                 <div className="hidden lg:flex items-center gap-4">
-                    <div className="flex items-center gap-2 px-4 py-2 border border-accent-neon/30 bg-accent-neon/5 text-accent-neon font-mono text-[10px] uppercase tracking-widest">
-                        <Activity className="w-3 h-3" /> Live Data
-                    </div>
+                    {dataSource === "live" ? (
+                        <div className="flex items-center gap-2 px-4 py-2 border border-accent-neon/30 bg-accent-neon/5 text-accent-neon font-mono text-[10px] uppercase tracking-widest animate-pulse">
+                            <Activity className="w-3 h-3" /> Live Data
+                        </div>
+                    ) : dataSource === "opensky" ? (
+                        <div className="flex items-center gap-2 px-4 py-2 border border-blue-400/30 bg-blue-400/5 text-blue-400 font-mono text-[10px] uppercase tracking-widest animate-pulse">
+                            <Activity className="w-3 h-3" /> External Sync
+                        </div>
+                    ) : (
+                        <div className="flex items-center gap-2 px-4 py-2 border border-yellow-400/30 bg-yellow-400/5 text-yellow-400 font-mono text-[10px] uppercase tracking-widest">
+                            <Activity className="w-3 h-3" /> Local Demo
+                        </div>
+                    )}
                 </div>
             </div>
 
