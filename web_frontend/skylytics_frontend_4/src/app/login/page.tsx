@@ -313,7 +313,7 @@ function RegisterForm({ onSwitch }: { onSwitch: () => void }) {
         setError(null);
         
         // 1. Validate form fields locally
-        if (!form.first_name.trim() || !form.last_name.trim()) {
+        if (!form.first_name.trim()) {
             setError("Name fields cannot be blank.");
             return;
         }
