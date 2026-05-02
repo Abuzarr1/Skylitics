@@ -148,7 +148,6 @@ export default function PassengerRoot() {
                 setSuggestions(mapped);
             })
             .catch(() => {
-                // fallback — empty suggestions, user just types callsign
                 setSuggestions([]);
             });
 
@@ -166,9 +165,40 @@ export default function PassengerRoot() {
             .catch(() => setNetworkAlert(null));
     }, []);
 
-    const handleSearch = (e: React.FormEvent) => {
-        e.preventDefault();
-        if (flightId) router.push(`/passenger/flight/${flightId.toUpperCase()}`);
+    const saveToRecent = (f: any) => {
+        const stored = localStorage.getItem("skylytics_recent_flights");
+        let recent = stored ? JSON.parse(stored) : [];
+        
+        const newEntry = {
+            flight: f.callsign || f,
+            route: f.route || (f.origin && f.destination ? `${f.origin} → ${f.destination}` : "Active Vector"),
+            status: (f.status || "ON TIME").toUpperCase(),
+            timestamp: Date.now()
+        };
+
+        // Remove duplicates
+        recent = recent.filter((r: any) => r.flight !== newEntry.flight);
+        // Add to top
+        recent.unshift(newEntry);
+        // Max 5
+        recent = recent.slice(0, 5);
+        
+        localStorage.setItem("skylytics_recent_flights", JSON.stringify(recent));
+    };
+
+    const handleSearch = (val: string) => {
+        const flightCode = val.toUpperCase();
+        if (flightCode) {
+            const flightDetail = suggestions.find(s => s.label === flightCode);
+            saveToRecent(flightDetail ? {
+                callsign: flightDetail.label,
+                route: flightDetail.meta?.split('|')[0].trim(),
+                status: flightDetail.meta?.includes('Delay') ? 'DELAYED' : 
+                        flightDetail.meta?.includes('Risk') ? 'AT RISK' : 'ON TIME'
+            } : flightCode);
+            
+            router.push(`/passenger/flight/${flightCode}`);
+        }
     };
 
     return (
@@ -222,22 +252,23 @@ export default function PassengerRoot() {
                         Access predictive AI delay models translated for passenger visibility. Enter your flight designator below.
                     </p>
 
-                    <form onSubmit={handleSearch} className="flex items-center w-full mt-10">
+                    <div className="flex items-center w-full mt-10">
                         <PredictiveSearch
                             placeholder="Enter Flight Designator (e.g. DL192)"
                             onSearch={setFlightId}
+                            onSubmit={handleSearch}
                             suggestions={suggestions}
                             className="flex-1"
                             required
                             pattern="[a-zA-Z]{2,3}\d+"
                         />
                         <button 
-                            type="submit"
+                            onClick={() => handleSearch(flightId)}
                             className="bg-foreground text-brand-900 px-8 py-[12px] font-bold uppercase hover:bg-accent-neon transition-colors group flex items-center justify-center h-full min-h-[46px]"
                         >
                             <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                         </button>
-                    </form>
+                    </div>
 
                     {/* Stats strip */}
                     <motion.div

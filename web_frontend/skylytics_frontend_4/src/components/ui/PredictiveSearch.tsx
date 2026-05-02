@@ -1,27 +1,56 @@
 "use client";
 import React, { useState, useEffect, useRef } from "react";
-import { Search, History, Sparkles, X, ChevronRight } from "lucide-react";
+import { Search, History, Sparkles, X, ChevronRight, TrendingUp } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+
+interface RecentFlight {
+    flight: string;
+    route: string;
+    status: "DELAYED" | "ON TIME" | "AT RISK";
+    timestamp: number;
+}
 
 interface Suggestion {
     id: string;
     label: string;
-    category: "Recent" | "Flight" | "Vector" | "Route";
+    category: "Recent" | "Flight" | "Vector" | "Route" | "Popular";
     meta?: string;
+    status?: "DELAYED" | "ON TIME" | "AT RISK";
+    timeAgo?: string;
 }
 
 interface PredictiveSearchProps {
     placeholder?: string;
     onSearch: (value: string) => void;
+    onSubmit?: (value: string) => void;
     suggestions: Suggestion[];
     className?: string;
     required?: boolean;
     pattern?: string;
 }
 
+const POPULAR_ROUTES: RecentFlight[] = [
+    { flight: "DL204", route: "ATL → JFK", status: "DELAYED", timestamp: Date.now() },
+    { flight: "AA100", route: "JFK → LAX", status: "ON TIME", timestamp: Date.now() },
+    { flight: "UA227", route: "ORD → JFK", status: "AT RISK", timestamp: Date.now() },
+    { flight: "AS11",  route: "SEA → LAX", status: "ON TIME", timestamp: Date.now() },
+    { flight: "B6507", route: "JFK → MIA", status: "DELAYED", timestamp: Date.now() },
+];
+
+function getTimeAgo(timestamp: number) {
+    const seconds = Math.floor((Date.now() - timestamp) / 1000);
+    if (seconds < 60) return "Just now";
+    const minutes = Math.floor(seconds / 60);
+    if (minutes < 60) return `${minutes}m ago`;
+    const hours = Math.floor(minutes / 60);
+    if (hours < 24) return `${hours}h ago`;
+    return `${Math.floor(hours / 24)}d ago`;
+}
+
 export function PredictiveSearch({ 
     placeholder = "Filter Ledger...", 
     onSearch, 
+    onSubmit,
     suggestions, 
     className,
     required,
@@ -33,6 +62,31 @@ export function PredictiveSearch({
     const [selectedIndex, setSelectedIndex] = useState(-1);
     const containerRef = useRef<HTMLDivElement>(null);
 
+    const getRecentAndPopular = () => {
+        const stored = localStorage.getItem("skylytics_recent_flights");
+        const recent: RecentFlight[] = stored ? JSON.parse(stored) : [];
+        
+        if (recent.length > 0) {
+            return recent.map((f, i) => ({
+                id: `recent-${i}`,
+                label: f.flight,
+                category: "Recent" as const,
+                meta: f.route,
+                status: f.status,
+                timeAgo: getTimeAgo(f.timestamp)
+            }));
+        }
+
+        return POPULAR_ROUTES.map((f, i) => ({
+            id: `popular-${i}`,
+            label: f.flight,
+            category: "Popular" as const,
+            meta: f.route,
+            status: f.status,
+            timeAgo: "Trending"
+        }));
+    };
+
     useEffect(() => {
         if (query.length > 0) {
             const filtered = suggestions.filter(s => 
@@ -42,11 +96,12 @@ export function PredictiveSearch({
             setFilteredNodes(filtered);
             setIsOpen(true);
             setSelectedIndex(-1);
+        } else if (isOpen) {
+            setFilteredNodes(getRecentAndPopular());
         } else {
             setFilteredNodes([]);
-            setIsOpen(false);
         }
-    }, [query, suggestions]);
+    }, [query, suggestions, isOpen]);
 
     useEffect(() => {
         const handleClickOutside = (e: MouseEvent) => {
@@ -76,6 +131,7 @@ export function PredictiveSearch({
         setQuery(item.label);
         onSearch(item.label);
         setIsOpen(false);
+        if (onSubmit) onSubmit(item.label);
     };
 
     return (
@@ -90,7 +146,7 @@ export function PredictiveSearch({
                         setQuery(val);
                         onSearch(val);
                     }}
-                    onFocus={() => query.length > 0 && setIsOpen(true)}
+                    onFocus={() => setIsOpen(true)}
                     onKeyDown={handleKeyDown}
                     placeholder={placeholder}
                     required={required}
@@ -100,7 +156,7 @@ export function PredictiveSearch({
                     className="w-full bg-transparent px-4 py-3 font-mono text-[11px] uppercase tracking-widest text-white outline-none placeholder:text-brand-700"
                 />
                 {query && (
-                    <button onClick={() => setQuery("")} className="mr-4 text-brand-700 hover:text-white transition-colors">
+                    <button onClick={() => { setQuery(""); onSearch(""); }} className="mr-4 text-brand-700 hover:text-white transition-colors">
                         <X className="w-3 h-3" />
                     </button>
                 ) }
@@ -119,12 +175,17 @@ export function PredictiveSearch({
                     >
                         <div className="p-2 border-b border-white/5 bg-brand-900/50 flex items-center justify-between">
                             <span className="font-mono text-[8px] uppercase tracking-[0.3em] text-brand-600 flex items-center gap-2">
-                                <Sparkles className="w-2.5 h-2.5 text-accent-neon" /> Intelligent Predictions
+                                {query.length === 0 && filteredNodes[0]?.category === "Popular" ? (
+                                    <TrendingUp className="w-2.5 h-2.5 text-accent-neon" />
+                                ) : (
+                                    <Sparkles className="w-2.5 h-2.5 text-accent-neon" />
+                                )}
+                                {query.length === 0 ? (filteredNodes[0]?.category === "Recent" ? "Recent Searches" : "Popular Routes") : "Intelligent Predictions"}
                             </span>
                             <span className="font-mono text-[8px] text-brand-700">ESC to close</span>
                         </div>
                         
-                        <div className="max-h-[300px] overflow-y-auto custom-scrollbar">
+                        <div className="max-h-[350px] overflow-y-auto custom-scrollbar">
                             {filteredNodes.map((item, idx) => (
                                 <button
                                     key={item.id}
@@ -135,17 +196,32 @@ export function PredictiveSearch({
                                     `}
                                 >
                                     <div className="flex items-center gap-4">
-                                        {item.category === "Recent" ? <History className="w-3 h-3 text-brand-600" /> : <div className="w-1 h-1 rounded-full bg-accent-neon/40" />}
+                                        {item.category === "Recent" ? (
+                                            <History className="w-3 h-3 text-brand-600" />
+                                        ) : (
+                                            <div className={`w-1 h-1 rounded-full ${item.category === "Popular" ? "bg-accent-ice" : "bg-accent-neon/40"}`} />
+                                        )}
                                         <div>
                                             <div className="text-[11px] font-mono text-white group-hover/item:text-accent-neon transition-colors uppercase tracking-widest">{item.label}</div>
                                             {item.meta && <div className="text-[9px] font-mono text-brand-600 uppercase tracking-tighter mt-0.5">{item.meta}</div>}
                                         </div>
                                     </div>
-                                    <div className="flex items-center gap-2">
-                                        <span className="text-[8px] font-mono text-brand-700 uppercase tracking-widest px-1.5 py-0.5 border border-white/5 bg-brand-900">
-                                            {item.category}
-                                        </span>
-                                        <ChevronRight className={`w-3 h-3 text-accent-neon transition-transform ${idx === selectedIndex ? "translate-x-0 opacity-100" : "-translate-x-2 opacity-0"}`} />
+                                    <div className="flex flex-col items-end gap-1.5">
+                                        <div className="flex items-center gap-2">
+                                            {item.status && (
+                                                <span className={`text-[7px] font-mono uppercase px-1.5 py-0.5 border ${
+                                                    item.status === "DELAYED" ? "border-accent-alert text-accent-alert bg-accent-alert/5" :
+                                                    item.status === "AT RISK" ? "border-yellow-400 text-yellow-400 bg-yellow-400/5" :
+                                                    "border-accent-neon text-accent-neon bg-accent-neon/5"
+                                                }`}>
+                                                    {item.status}
+                                                </span>
+                                            )}
+                                            <ChevronRight className={`w-3 h-3 text-accent-neon transition-transform ${idx === selectedIndex ? "translate-x-0 opacity-100" : "-translate-x-2 opacity-0"}`} />
+                                        </div>
+                                        {item.timeAgo && (
+                                            <span className="text-[7px] font-mono text-brand-700 uppercase tracking-widest">{item.timeAgo}</span>
+                                        )}
                                     </div>
                                     
                                     {/* Active selection indicator */}
@@ -170,3 +246,4 @@ export function PredictiveSearch({
         </div>
     );
 }
+
