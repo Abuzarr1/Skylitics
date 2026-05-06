@@ -1,0 +1,63 @@
+# ===== SKYLYTICS MOCK DATA — DEN (Denver International) =====
+# Matches ConnectedMockData.swift deterministic values
+
+## DASHBOARD STATS
+active_nodes,high_risk_count,est_impact_minutes,net_sync
+1756,378,4.7,0.65
+
+## HOURLY DELAY PATTERN (avg minutes per hour)
+01:00,03:00,05:00,07:00,09:00,11:00,13:00,15:00,17:00,19:00,21:00,23:00
+5,9,14,22,18,28,25,33,38,27,13,7
+
+## TOP RISK ROUTES
+origin,destination,risk_score,avg_delay_minutes
+DEN,SEA,0.36,33
+DEN,MIA,0.53,40
+DEN,BOS,0.7,47
+DEN,LGA,0.87,54
+DEN,PHX,0.44,21
+
+## FLIGHTS (42 departing + 14 arriving = 42 total)
+id,callsign,airline,airline_code,flight_direction,origin,destination,dep_time,status,delay_minutes,delay_probability_%,progress_%,altitude_ft,speed_kts,aircraft_type,tail_number,gate
+CM-254,HA354,Hawaiian,HA,departing,DEN,BOS,10:14,atRisk,64,63.0,15.0,30000,400,Boeing 777,N562SK,C3
+CM-255,AA355,American Airlines,AA,departing,DEN,LGA,12:21,delayed,71,64.0,20.0,31000,410,Airbus A321neo,N563SK,D4
+CM-258,DL358,Delta,DL,departing,DEN,MSP,18:42,delayed,92,67.0,35.0,34000,440,Boeing 737-800,N566SK,B7
+CM-260,NK360,Spirit,NK,departing,DEN,JFK,22:56,atRisk,21,69.0,45.0,36000,460,Boeing 777,N568SK,D9
+CM-263,AS363,Alaska Airlines,AS,departing,DEN,ORD,10:17,atRisk,42,72.0,60.0,39000,490,Embraer E175,N571SK,B12
+CM-265,AA365,American Airlines,AA,departing,DEN,DFW,14:31,delayed,56,74.0,70.0,41000,510,Airbus A320,N573SK,D14
+CM-269,WN369,Southwest,WN,departing,DEN,LGA,22:59,atRisk,84,78.0,90.0,30000,410,Embraer E175,N577SK,C18
+CM-270,NK370,Spirit,NK,departing,DEN,PHX,06:06,delayed,91,79.0,5.0,31000,420,Boeing 737-800,N578SK,D19
+CM-274,HA374,Hawaiian,HA,departing,DEN,JFK,14:34,delayed,34,83.0,25.0,35000,460,Boeing 737 MAX 8,N582SK,C23
+CM-276,B6376,JetBlue,B6,departing,DEN,ATL,18:48,atRisk,48,85.0,35.0,37000,480,Boeing 737-800,N584SK,E25
+CM-279,WN379,Southwest,WN,departing,DEN,DFW,06:09,delayed,69,88.0,50.0,40000,510,Airbus A321neo,N587SK,C28
+CM-281,G4381,Allegiant,G4,departing,DEN,MIA,10:23,atRisk,83,90.0,60.0,42000,390,Embraer E175,N589SK,E30
+CM-284,HA384,Hawaiian,HA,departing,DEN,PHX,16:44,atRisk,104,93.0,75.0,30000,420,Boeing 777,N592SK,C3
+CM-286,B6386,JetBlue,B6,departing,DEN,MSP,20:58,delayed,33,55.0,85.0,32000,440,Boeing 737 MAX 8,N594SK,E5
+CM-289,WN389,Southwest,WN,departing,DEN,LAX,08:19,atRisk,54,58.0,10.0,35000,470,Airbus A320,N597SK,C8
+CM-291,G4391,Allegiant,G4,departing,DEN,ORD,12:33,delayed,68,60.0,20.0,37000,490,Airbus A321neo,N599SK,E10
+CM-60,AA160,American Airlines,AA,arriving,LAX,DEN,06:06,delayed,66,74.0,5.0,31000,420,Boeing 737-800,N278SK,D19
+CM-74,WN174,Southwest,WN,arriving,LAX,DEN,16:44,atRisk,79,88.0,75.0,30000,420,Boeing 777,N292SK,C3
+CM-87,WN187,Southwest,WN,arriving,ATL,DEN,12:21,delayed,51,60.0,20.0,31000,410,Airbus A321neo,N323SK,D4
+CM-101,AS201,Alaska Airlines,AS,arriving,ATL,DEN,22:59,atRisk,64,74.0,90.0,30000,410,Embraer E175,N337SK,C18
+CM-128,F9228,Frontier,F9,arriving,ORD,DEN,10:14,atRisk,49,60.0,15.0,30000,400,Boeing 777,N382SK,C3
+CM-252,UA352,United,UA,departing,DEN,SEA,06:00,inAir,0,11.0,5.0,28000,380,Boeing 737-800,N560SK,A1
+CM-253,AS353,Alaska Airlines,AS,departing,DEN,MIA,08:07,inAir,3,12.0,10.0,29000,390,Airbus A320,N561SK,B2
+CM-256,B6356,JetBlue,B6,departing,DEN,PHX,14:28,inAir,12,15.0,25.0,32000,420,Boeing 737 MAX 8,N564SK,E5
+CM-257,F9357,Frontier,F9,departing,DEN,IAH,16:35,inAir,1,16.0,30.0,33000,430,Embraer E175,N565SK,A6
+CM-259,WN359,Southwest,WN,departing,DEN,DTW,20:49,inAir,7,18.0,40.0,35000,450,Airbus A320,N567SK,C8
+CM-261,G4361,Allegiant,G4,departing,DEN,LAX,06:03,inAir,13,20.0,50.0,37000,470,Airbus A321neo,N569SK,E10
+CM-262,UA362,United,UA,departing,DEN,ATL,08:10,inAir,2,21.0,55.0,38000,480,Boeing 737 MAX 8,N570SK,A11
+CM-264,HA364,Hawaiian,HA,departing,DEN,SFO,12:24,inAir,8,23.0,65.0,40000,500,Boeing 737-800,N572SK,C13
+CM-267,F9367,Frontier,F9,departing,DEN,MIA,18:45,inAir,3,26.0,80.0,28000,390,Airbus A321neo,N575SK,A16
+CM-268,DL368,Delta,DL,departing,DEN,BOS,20:52,inAir,6,27.0,85.0,29000,400,Boeing 737 MAX 8,N576SK,B17
+CM-271,G4371,Allegiant,G4,departing,DEN,IAH,08:13,inAir,1,30.0,10.0,32000,430,Airbus A320,N579SK,E20
+CM-273,AS373,Alaska Airlines,AS,departing,DEN,DTW,12:27,inAir,7,32.0,20.0,34000,450,Airbus A321neo,N581SK,B22
+CM-275,AA375,American Airlines,AA,departing,DEN,LAX,16:41,inAir,13,6.0,30.0,36000,470,Embraer E175,N583SK,D24
+CM-277,F9377,Frontier,F9,departing,DEN,ORD,20:55,inAir,5,8.0,40.0,38000,490,Airbus A320,N585SK,A26
+CM-278,DL378,Delta,DL,departing,DEN,SFO,22:02,inAir,8,9.0,45.0,39000,500,Boeing 777,N586SK,B27
+CM-280,NK380,Spirit,NK,departing,DEN,SEA,08:16,inAir,0,11.0,55.0,41000,380,Boeing 737 MAX 8,N588SK,D29
+CM-282,UA382,United,UA,departing,DEN,BOS,12:30,inAir,6,13.0,65.0,28000,400,Boeing 737-800,N590SK,A1
+CM-285,AA385,American Airlines,AA,departing,DEN,IAH,18:51,inAir,1,16.0,80.0,31000,430,Airbus A321neo,N593SK,D4
+CM-287,F9387,Frontier,F9,departing,DEN,DTW,22:05,inAir,7,18.0,90.0,33000,450,Embraer E175,N595SK,A6
+CM-288,DL388,Delta,DL,departing,DEN,JFK,06:12,inAir,10,19.0,5.0,34000,460,Boeing 737-800,N596SK,B7
+CM-292,UA392,United,UA,departing,DEN,SFO,14:40,inAir,8,23.0,25.0,38000,500,Boeing 737 MAX 8,N600SK,A11

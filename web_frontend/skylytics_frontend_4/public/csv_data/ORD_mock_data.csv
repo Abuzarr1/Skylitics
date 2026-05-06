@@ -1,0 +1,63 @@
+# ===== SKYLYTICS MOCK DATA — ORD (O'Hare International) =====
+# Matches ConnectedMockData.swift deterministic values
+
+## DASHBOARD STATS
+active_nodes,high_risk_count,est_impact_minutes,net_sync
+2341,689,7.1,0.48
+
+## HOURLY DELAY PATTERN (avg minutes per hour)
+01:00,03:00,05:00,07:00,09:00,11:00,13:00,15:00,17:00,19:00,21:00,23:00
+11,16,24,35,28,43,39,48,52,40,23,14
+
+## TOP RISK ROUTES
+origin,destination,risk_score,avg_delay_minutes
+ORD,SFO,0.63,24
+ORD,DFW,0.8,31
+ORD,DEN,0.37,38
+ORD,SEA,0.54,45
+ORD,MIA,0.71,52
+
+## FLIGHTS (42 departing + 14 arriving = 42 total)
+id,callsign,airline,airline_code,flight_direction,origin,destination,dep_time,status,delay_minutes,delay_probability_%,progress_%,altitude_ft,speed_kts,aircraft_type,tail_number,gate
+CM-128,F9228,Frontier,F9,departing,ORD,DEN,10:14,atRisk,49,60.0,15.0,30000,400,Boeing 777,N382SK,C3
+CM-129,DL229,Delta,DL,departing,ORD,SEA,12:21,delayed,56,61.0,20.0,31000,410,Airbus A321neo,N383SK,D4
+CM-132,G4232,Allegiant,G4,departing,ORD,LGA,18:42,delayed,77,64.0,35.0,34000,440,Boeing 737-800,N386SK,B7
+CM-134,AS234,Alaska Airlines,AS,departing,ORD,IAH,22:56,atRisk,91,66.0,45.0,36000,460,Boeing 777,N388SK,D9
+CM-137,B6237,JetBlue,B6,departing,ORD,JFK,10:17,atRisk,27,69.0,60.0,39000,490,Embraer E175,N391SK,B12
+CM-139,DL239,Delta,DL,departing,ORD,ATL,14:31,delayed,41,71.0,70.0,41000,510,Airbus A320,N393SK,D14
+CM-143,UA243,United,UA,departing,ORD,SEA,22:59,atRisk,69,75.0,90.0,30000,410,Embraer E175,N397SK,C18
+CM-144,AS244,Alaska Airlines,AS,departing,ORD,MIA,06:06,delayed,76,76.0,5.0,31000,420,Boeing 737-800,N398SK,D19
+CM-148,F9248,Frontier,F9,departing,ORD,IAH,14:34,delayed,104,80.0,25.0,35000,460,Boeing 737 MAX 8,N402SK,C23
+CM-150,WN250,Southwest,WN,departing,ORD,DTW,18:48,atRisk,33,82.0,35.0,37000,480,Boeing 737-800,N404SK,E25
+CM-153,UA253,United,UA,departing,ORD,ATL,06:09,delayed,54,85.0,50.0,40000,510,Airbus A321neo,N407SK,C28
+CM-155,HA255,Hawaiian,HA,departing,ORD,DFW,10:23,atRisk,68,87.0,60.0,42000,390,Embraer E175,N409SK,E30
+CM-158,F9258,Frontier,F9,departing,ORD,MIA,16:44,atRisk,89,90.0,75.0,30000,420,Boeing 777,N412SK,C3
+CM-160,WN260,Southwest,WN,departing,ORD,LGA,20:58,delayed,103,92.0,85.0,32000,440,Boeing 737 MAX 8,N414SK,E5
+CM-163,UA263,United,UA,departing,ORD,MSP,08:19,atRisk,39,55.0,10.0,35000,470,Airbus A320,N417SK,C8
+CM-165,HA265,Hawaiian,HA,departing,ORD,JFK,12:33,delayed,53,57.0,20.0,37000,490,Airbus A321neo,N419SK,E10
+CM-2,NK102,Spirit,NK,arriving,JFK,ORD,10:14,atRisk,34,57.0,15.0,30000,400,Boeing 777,N202SK,C3
+CM-71,B6171,JetBlue,B6,arriving,LAX,ORD,10:23,atRisk,58,85.0,60.0,42000,390,Embraer E175,N289SK,E30
+CM-181,F9281,Frontier,F9,arriving,SFO,ORD,14:31,delayed,46,72.0,70.0,41000,510,Airbus A320,N453SK,D14
+CM-195,G4295,Allegiant,G4,arriving,SFO,ORD,06:09,delayed,59,86.0,50.0,40000,510,Airbus A321neo,N467SK,C28
+CM-126,AA226,American Airlines,AA,departing,ORD,SFO,06:00,inAir,0,8.0,5.0,28000,380,Boeing 737-800,N380SK,A1
+CM-127,B6227,JetBlue,B6,departing,ORD,DFW,08:07,inAir,3,9.0,10.0,29000,390,Airbus A320,N381SK,B2
+CM-130,WN230,Southwest,WN,departing,ORD,MIA,14:28,inAir,12,12.0,25.0,32000,420,Boeing 737 MAX 8,N384SK,E5
+CM-131,NK231,Spirit,NK,departing,ORD,BOS,16:35,inAir,1,13.0,30.0,33000,430,Embraer E175,N385SK,A6
+CM-133,UA233,United,UA,departing,ORD,PHX,20:49,inAir,7,15.0,40.0,35000,450,Airbus A320,N387SK,C8
+CM-135,HA235,Hawaiian,HA,departing,ORD,MSP,06:03,inAir,13,17.0,50.0,37000,470,Airbus A321neo,N389SK,E10
+CM-136,AA236,American Airlines,AA,departing,ORD,DTW,08:10,inAir,2,18.0,55.0,38000,480,Boeing 737 MAX 8,N390SK,A11
+CM-138,F9238,Frontier,F9,departing,ORD,LAX,12:24,inAir,8,20.0,65.0,40000,500,Boeing 737-800,N392SK,C13
+CM-141,NK241,Spirit,NK,departing,ORD,DFW,18:45,inAir,3,23.0,80.0,28000,390,Airbus A321neo,N395SK,A16
+CM-142,G4242,Allegiant,G4,departing,ORD,DEN,20:52,inAir,6,24.0,85.0,29000,400,Boeing 737 MAX 8,N396SK,B17
+CM-145,HA245,Hawaiian,HA,departing,ORD,BOS,08:13,inAir,1,27.0,10.0,32000,430,Airbus A320,N399SK,E20
+CM-147,B6247,JetBlue,B6,departing,ORD,PHX,12:27,inAir,7,29.0,20.0,34000,450,Airbus A321neo,N401SK,B22
+CM-149,DL249,Delta,DL,departing,ORD,MSP,16:41,inAir,13,31.0,30.0,36000,470,Embraer E175,N403SK,D24
+CM-151,NK251,Spirit,NK,departing,ORD,JFK,20:55,inAir,5,5.0,40.0,38000,490,Airbus A320,N405SK,A26
+CM-152,G4252,Allegiant,G4,departing,ORD,LAX,22:02,inAir,8,6.0,45.0,39000,500,Boeing 777,N406SK,B27
+CM-154,AS254,Alaska Airlines,AS,departing,ORD,SFO,08:16,inAir,0,8.0,55.0,41000,380,Boeing 737 MAX 8,N408SK,D29
+CM-156,AA256,American Airlines,AA,departing,ORD,DEN,12:30,inAir,6,10.0,65.0,28000,400,Boeing 737-800,N410SK,A1
+CM-159,DL259,Delta,DL,departing,ORD,BOS,18:51,inAir,1,13.0,80.0,31000,430,Airbus A321neo,N413SK,D4
+CM-161,NK261,Spirit,NK,departing,ORD,PHX,22:05,inAir,7,15.0,90.0,33000,450,Embraer E175,N415SK,A6
+CM-162,G4262,Allegiant,G4,departing,ORD,IAH,06:12,inAir,10,16.0,5.0,34000,460,Boeing 737-800,N416SK,B7
+CM-166,AA266,American Airlines,AA,departing,ORD,LAX,14:40,inAir,8,20.0,25.0,38000,500,Boeing 737 MAX 8,N420SK,A11
+CM-167,B6267,JetBlue,B6,departing,ORD,ATL,16:47,inAir,11,21.0,30.0,39000,510,Embraer E175,N421SK,B12

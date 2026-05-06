@@ -1,0 +1,63 @@
+# ===== SKYLYTICS MOCK DATA — JFK (John F. Kennedy International) =====
+# Matches ConnectedMockData.swift deterministic values
+
+## DASHBOARD STATS
+active_nodes,high_risk_count,est_impact_minutes,net_sync
+1847,423,4.2,0.62
+
+## HOURLY DELAY PATTERN (avg minutes per hour)
+01:00,03:00,05:00,07:00,09:00,11:00,13:00,15:00,17:00,19:00,21:00,23:00
+8,12,18,29,22,35,31,44,48,38,21,13
+
+## TOP RISK ROUTES
+origin,destination,risk_score,avg_delay_minutes
+JFK,LAX,0.3,15
+JFK,ATL,0.47,22
+JFK,ORD,0.64,29
+JFK,SFO,0.81,36
+JFK,DFW,0.38,43
+
+## FLIGHTS (42 departing + 14 arriving = 42 total)
+id,callsign,airline,airline_code,flight_direction,origin,destination,dep_time,status,delay_minutes,delay_probability_%,progress_%,altitude_ft,speed_kts,aircraft_type,tail_number,gate
+CM-2,NK102,Spirit,NK,departing,JFK,ORD,10:14,atRisk,34,57.0,15.0,30000,400,Boeing 777,N202SK,C3
+CM-3,G4103,Allegiant,G4,departing,JFK,SFO,12:21,delayed,41,58.0,20.0,31000,410,Airbus A321neo,N203SK,D4
+CM-6,HA106,Hawaiian,HA,departing,JFK,SEA,18:42,delayed,62,61.0,35.0,34000,440,Boeing 737-800,N206SK,B7
+CM-8,B6108,JetBlue,B6,departing,JFK,BOS,22:56,atRisk,76,63.0,45.0,36000,460,Boeing 777,N208SK,D9
+CM-11,WN111,Southwest,WN,departing,JFK,IAH,10:17,atRisk,97,66.0,60.0,39000,490,Embraer E175,N211SK,B12
+CM-13,G4113,Allegiant,G4,departing,JFK,DTW,14:31,delayed,26,68.0,70.0,41000,510,Airbus A320,N213SK,D14
+CM-17,AA117,American Airlines,AA,departing,JFK,SFO,22:59,atRisk,54,72.0,90.0,30000,410,Embraer E175,N217SK,C18
+CM-18,B6118,JetBlue,B6,departing,JFK,DFW,06:06,delayed,61,73.0,5.0,31000,420,Boeing 737-800,N218SK,D19
+CM-22,NK122,Spirit,NK,departing,JFK,BOS,14:34,delayed,89,77.0,25.0,35000,460,Boeing 737 MAX 8,N222SK,C23
+CM-24,UA124,United,UA,departing,JFK,PHX,18:48,atRisk,103,79.0,35.0,37000,480,Boeing 737-800,N224SK,E25
+CM-27,AA127,American Airlines,AA,departing,JFK,DTW,06:09,delayed,39,82.0,50.0,40000,510,Airbus A321neo,N227SK,C28
+CM-29,F9129,Frontier,F9,departing,JFK,ATL,10:23,atRisk,53,84.0,60.0,42000,390,Embraer E175,N229SK,E30
+CM-32,NK132,Spirit,NK,departing,JFK,DFW,16:44,atRisk,74,87.0,75.0,30000,420,Boeing 777,N232SK,C3
+CM-34,UA134,United,UA,departing,JFK,SEA,20:58,delayed,88,89.0,85.0,32000,440,Boeing 737 MAX 8,N234SK,E5
+CM-37,AA137,American Airlines,AA,departing,JFK,LGA,08:19,atRisk,24,92.0,10.0,35000,470,Airbus A320,N237SK,C8
+CM-39,F9139,Frontier,F9,departing,JFK,IAH,12:33,delayed,38,94.0,20.0,37000,490,Airbus A321neo,N239SK,E10
+CM-55,NK155,Spirit,NK,arriving,LAX,JFK,14:31,delayed,31,69.0,70.0,41000,510,Airbus A320,N273SK,D14
+CM-69,HA169,Hawaiian,HA,arriving,LAX,JFK,06:09,delayed,44,83.0,50.0,40000,510,Airbus A321neo,N287SK,C28
+CM-137,B6237,JetBlue,B6,arriving,ORD,JFK,10:17,atRisk,27,69.0,60.0,39000,490,Embraer E175,N391SK,B12
+CM-165,HA265,Hawaiian,HA,arriving,ORD,JFK,12:33,delayed,53,57.0,20.0,37000,490,Airbus A321neo,N419SK,E10
+CM-192,DL292,Delta,DL,arriving,SFO,JFK,18:48,atRisk,38,83.0,35.0,37000,480,Boeing 737-800,N464SK,E25
+CM-0,DL100,Delta,DL,departing,JFK,LAX,06:00,inAir,0,5.0,5.0,28000,380,Boeing 737-800,N200SK,A1
+CM-1,WN101,Southwest,WN,departing,JFK,ATL,08:07,inAir,3,6.0,10.0,29000,390,Airbus A320,N201SK,B2
+CM-4,UA104,United,UA,departing,JFK,DFW,14:28,inAir,12,9.0,25.0,32000,420,Boeing 737 MAX 8,N204SK,E5
+CM-5,AS105,Alaska Airlines,AS,departing,JFK,DEN,16:35,inAir,1,10.0,30.0,33000,430,Embraer E175,N205SK,A6
+CM-7,AA107,American Airlines,AA,departing,JFK,MIA,20:49,inAir,7,12.0,40.0,35000,450,Airbus A320,N207SK,C8
+CM-9,F9109,Frontier,F9,departing,JFK,LGA,06:03,inAir,13,14.0,50.0,37000,470,Airbus A321neo,N209SK,E10
+CM-10,DL110,Delta,DL,departing,JFK,PHX,08:10,inAir,2,15.0,55.0,38000,480,Boeing 737 MAX 8,N210SK,A11
+CM-12,NK112,Spirit,NK,departing,JFK,MSP,12:24,inAir,8,17.0,65.0,40000,500,Boeing 737-800,N212SK,C13
+CM-15,AS115,Alaska Airlines,AS,departing,JFK,ATL,18:45,inAir,3,20.0,80.0,28000,390,Airbus A321neo,N215SK,A16
+CM-16,HA116,Hawaiian,HA,departing,JFK,ORD,20:52,inAir,6,21.0,85.0,29000,400,Boeing 737 MAX 8,N216SK,B17
+CM-19,F9119,Frontier,F9,departing,JFK,DEN,08:13,inAir,1,24.0,10.0,32000,430,Airbus A320,N219SK,E20
+CM-21,WN121,Southwest,WN,departing,JFK,MIA,12:27,inAir,7,26.0,20.0,34000,450,Airbus A321neo,N221SK,B22
+CM-23,G4123,Allegiant,G4,departing,JFK,LGA,16:41,inAir,13,28.0,30.0,36000,470,Embraer E175,N223SK,D24
+CM-25,AS125,Alaska Airlines,AS,departing,JFK,IAH,20:55,inAir,5,30.0,40.0,38000,490,Airbus A320,N225SK,A26
+CM-26,HA126,Hawaiian,HA,departing,JFK,MSP,22:02,inAir,8,31.0,45.0,39000,500,Boeing 777,N226SK,B27
+CM-28,B6128,JetBlue,B6,departing,JFK,LAX,08:16,inAir,0,5.0,55.0,41000,380,Boeing 737 MAX 8,N228SK,D29
+CM-30,DL130,Delta,DL,departing,JFK,ORD,12:30,inAir,6,7.0,65.0,28000,400,Boeing 737-800,N230SK,A1
+CM-33,G4133,Allegiant,G4,departing,JFK,DEN,18:51,inAir,1,10.0,80.0,31000,430,Airbus A321neo,N233SK,D4
+CM-35,AS135,Alaska Airlines,AS,departing,JFK,MIA,22:05,inAir,7,12.0,90.0,33000,450,Embraer E175,N235SK,A6
+CM-36,HA136,Hawaiian,HA,departing,JFK,BOS,06:12,inAir,10,13.0,5.0,34000,460,Boeing 737-800,N236SK,B7
+CM-40,DL140,Delta,DL,departing,JFK,MSP,14:40,inAir,8,17.0,25.0,38000,500,Boeing 737 MAX 8,N240SK,A11

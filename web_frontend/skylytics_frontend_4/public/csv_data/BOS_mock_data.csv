@@ -1,0 +1,63 @@
+# ===== SKYLYTICS MOCK DATA — BOS (Boston Logan International) =====
+# Matches ConnectedMockData.swift deterministic values
+
+## DASHBOARD STATS
+active_nodes,high_risk_count,est_impact_minutes,net_sync
+2012,512,5.8,0.61
+
+## HOURLY DELAY PATTERN (avg minutes per hour)
+01:00,03:00,05:00,07:00,09:00,11:00,13:00,15:00,17:00,19:00,21:00,23:00
+12,17,25,36,29,44,40,50,54,42,24,15
+
+## TOP RISK ROUTES
+origin,destination,risk_score,avg_delay_minutes
+BOS,LGA,0.69,42
+BOS,PHX,0.86,49
+BOS,IAH,0.43,16
+BOS,MSP,0.6,23
+BOS,DTW,0.77,30
+
+## FLIGHTS (42 departing + 14 arriving = 42 total)
+id,callsign,airline,airline_code,flight_direction,origin,destination,dep_time,status,delay_minutes,delay_probability_%,progress_%,altitude_ft,speed_kts,aircraft_type,tail_number,gate
+CM-380,G4480,Allegiant,G4,departing,BOS,IAH,10:14,atRisk,79,66.0,15.0,30000,400,Boeing 777,N742SK,C3
+CM-381,UA481,United,UA,departing,BOS,MSP,12:21,delayed,86,67.0,20.0,31000,410,Airbus A321neo,N743SK,D4
+CM-384,AA484,American Airlines,AA,departing,BOS,LAX,18:42,delayed,22,70.0,35.0,34000,440,Boeing 737-800,N746SK,B7
+CM-386,F9486,Frontier,F9,departing,BOS,ORD,22:56,atRisk,36,72.0,45.0,36000,460,Boeing 777,N748SK,D9
+CM-389,NK489,Spirit,NK,departing,BOS,DEN,10:17,atRisk,57,75.0,60.0,39000,490,Embraer E175,N751SK,B12
+CM-391,UA491,United,UA,departing,BOS,MIA,14:31,delayed,71,77.0,70.0,41000,510,Airbus A320,N753SK,D14
+CM-395,B6495,JetBlue,B6,departing,BOS,MSP,22:59,atRisk,99,81.0,90.0,30000,410,Embraer E175,N757SK,C18
+CM-396,F9496,Frontier,F9,departing,BOS,DTW,06:06,delayed,21,82.0,5.0,31000,420,Boeing 737-800,N758SK,D19
+CM-400,G4500,Allegiant,G4,departing,BOS,ORD,14:34,delayed,49,86.0,25.0,35000,460,Boeing 737 MAX 8,N762SK,C23
+CM-402,AS502,Alaska Airlines,AS,departing,BOS,DFW,18:48,atRisk,63,88.0,35.0,37000,480,Boeing 737-800,N764SK,E25
+CM-405,B6505,JetBlue,B6,departing,BOS,MIA,06:09,delayed,84,91.0,50.0,40000,510,Airbus A321neo,N767SK,C28
+CM-407,DL507,Delta,DL,departing,BOS,PHX,10:23,atRisk,98,93.0,60.0,42000,390,Embraer E175,N769SK,E30
+CM-410,G4510,Allegiant,G4,departing,BOS,DTW,16:44,atRisk,34,56.0,75.0,30000,420,Boeing 777,N772SK,C3
+CM-412,AS512,Alaska Airlines,AS,departing,BOS,LAX,20:58,delayed,48,58.0,85.0,32000,440,Boeing 737 MAX 8,N774SK,E5
+CM-415,B6515,JetBlue,B6,departing,BOS,SFO,08:19,atRisk,69,61.0,10.0,35000,470,Airbus A320,N777SK,C8
+CM-417,DL517,Delta,DL,departing,BOS,DEN,12:33,delayed,83,63.0,20.0,37000,490,Airbus A321neo,N779SK,E10
+CM-8,B6108,JetBlue,B6,arriving,JFK,BOS,22:56,atRisk,76,63.0,45.0,36000,460,Boeing 777,N208SK,D9
+CM-22,NK122,Spirit,NK,arriving,JFK,BOS,14:34,delayed,89,77.0,25.0,35000,460,Boeing 737 MAX 8,N222SK,C23
+CM-90,UA190,United,UA,arriving,ATL,BOS,18:42,delayed,72,63.0,35.0,34000,440,Boeing 737-800,N326SK,B7
+CM-118,NK218,Spirit,NK,arriving,ATL,BOS,20:58,delayed,98,91.0,85.0,32000,440,Boeing 737 MAX 8,N354SK,E5
+CM-186,UA286,United,UA,arriving,SFO,BOS,06:06,delayed,81,77.0,5.0,31000,420,Boeing 737-800,N458SK,D19
+CM-378,WN478,Southwest,WN,departing,BOS,LGA,06:00,inAir,0,14.0,5.0,28000,380,Boeing 737-800,N740SK,A1
+CM-379,NK479,Spirit,NK,departing,BOS,PHX,08:07,inAir,3,15.0,10.0,29000,390,Airbus A320,N741SK,B2
+CM-382,AS482,Alaska Airlines,AS,departing,BOS,DTW,14:28,inAir,12,18.0,25.0,32000,420,Boeing 737 MAX 8,N744SK,E5
+CM-383,HA483,Hawaiian,HA,departing,BOS,JFK,16:35,inAir,1,19.0,30.0,33000,430,Embraer E175,N745SK,A6
+CM-385,B6485,JetBlue,B6,departing,BOS,ATL,20:49,inAir,7,21.0,40.0,35000,450,Airbus A320,N747SK,C8
+CM-387,DL487,Delta,DL,departing,BOS,SFO,06:03,inAir,13,23.0,50.0,37000,470,Airbus A321neo,N749SK,E10
+CM-388,WN488,Southwest,WN,departing,BOS,DFW,08:10,inAir,2,24.0,55.0,38000,480,Boeing 737 MAX 8,N750SK,A11
+CM-390,G4490,Allegiant,G4,departing,BOS,SEA,12:24,inAir,8,26.0,65.0,40000,500,Boeing 737-800,N752SK,C13
+CM-393,HA493,Hawaiian,HA,departing,BOS,PHX,18:45,inAir,3,29.0,80.0,28000,390,Airbus A321neo,N755SK,A16
+CM-394,AA494,American Airlines,AA,departing,BOS,IAH,20:52,inAir,6,30.0,85.0,29000,400,Boeing 737 MAX 8,N756SK,B17
+CM-397,DL497,Delta,DL,departing,BOS,JFK,08:13,inAir,1,5.0,10.0,32000,430,Airbus A320,N759SK,E20
+CM-399,NK499,Spirit,NK,departing,BOS,ATL,12:27,inAir,7,7.0,20.0,34000,450,Airbus A321neo,N761SK,B22
+CM-401,UA501,United,UA,departing,BOS,SFO,16:41,inAir,13,9.0,30.0,36000,470,Embraer E175,N763SK,D24
+CM-403,HA503,Hawaiian,HA,departing,BOS,DEN,20:55,inAir,5,11.0,40.0,38000,490,Airbus A320,N765SK,A26
+CM-404,AA504,American Airlines,AA,departing,BOS,SEA,22:02,inAir,8,12.0,45.0,39000,500,Boeing 777,N766SK,B27
+CM-406,F9506,Frontier,F9,departing,BOS,LGA,08:16,inAir,0,14.0,55.0,41000,380,Boeing 737 MAX 8,N768SK,D29
+CM-408,WN508,Southwest,WN,departing,BOS,IAH,12:30,inAir,6,16.0,65.0,28000,400,Boeing 737-800,N770SK,A1
+CM-411,UA511,United,UA,departing,BOS,JFK,18:51,inAir,1,19.0,80.0,31000,430,Airbus A321neo,N773SK,D4
+CM-413,HA513,Hawaiian,HA,departing,BOS,ATL,22:05,inAir,7,21.0,90.0,33000,450,Embraer E175,N775SK,A6
+CM-414,AA514,American Airlines,AA,departing,BOS,ORD,06:12,inAir,10,22.0,5.0,34000,460,Boeing 737-800,N776SK,B7
+CM-418,WN518,Southwest,WN,departing,BOS,SEA,14:40,inAir,8,26.0,25.0,38000,500,Boeing 737 MAX 8,N780SK,A11

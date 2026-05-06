@@ -1,0 +1,63 @@
+# ===== SKYLYTICS MOCK DATA — SFO (San Francisco International) =====
+# Matches ConnectedMockData.swift deterministic values
+
+## DASHBOARD STATS
+active_nodes,high_risk_count,est_impact_minutes,net_sync
+1923,445,5.3,0.67
+
+## HOURLY DELAY PATTERN (avg minutes per hour)
+01:00,03:00,05:00,07:00,09:00,11:00,13:00,15:00,17:00,19:00,21:00,23:00
+7,11,16,27,30,37,42,49,44,32,16,9
+
+## TOP RISK ROUTES
+origin,destination,risk_score,avg_delay_minutes
+SFO,DFW,0.74,27
+SFO,DEN,0.31,34
+SFO,SEA,0.48,41
+SFO,MIA,0.65,48
+SFO,BOS,0.82,15
+
+## FLIGHTS (42 departing + 14 arriving = 42 total)
+id,callsign,airline,airline_code,flight_direction,origin,destination,dep_time,status,delay_minutes,delay_probability_%,progress_%,altitude_ft,speed_kts,aircraft_type,tail_number,gate
+CM-170,B6270,JetBlue,B6,departing,SFO,SEA,10:14,atRisk,54,61.0,15.0,30000,400,Boeing 777,N442SK,C3
+CM-171,F9271,Frontier,F9,departing,SFO,MIA,12:21,delayed,61,62.0,20.0,31000,410,Airbus A321neo,N443SK,D4
+CM-174,NK274,Spirit,NK,departing,SFO,PHX,18:42,delayed,82,65.0,35.0,34000,440,Boeing 737-800,N446SK,B7
+CM-176,UA276,United,UA,departing,SFO,MSP,22:56,atRisk,96,67.0,45.0,36000,460,Boeing 777,N448SK,D9
+CM-179,AA279,American Airlines,AA,departing,SFO,LAX,10:17,atRisk,32,70.0,60.0,39000,490,Embraer E175,N451SK,B12
+CM-181,F9281,Frontier,F9,departing,SFO,ORD,14:31,delayed,46,72.0,70.0,41000,510,Airbus A320,N453SK,D14
+CM-185,G4285,Allegiant,G4,departing,SFO,MIA,22:59,atRisk,74,76.0,90.0,30000,410,Embraer E175,N457SK,C18
+CM-186,UA286,United,UA,departing,SFO,BOS,06:06,delayed,81,77.0,5.0,31000,420,Boeing 737-800,N458SK,D19
+CM-190,B6290,JetBlue,B6,departing,SFO,MSP,14:34,delayed,24,81.0,25.0,35000,460,Boeing 737 MAX 8,N462SK,C23
+CM-192,DL292,Delta,DL,departing,SFO,JFK,18:48,atRisk,38,83.0,35.0,37000,480,Boeing 737-800,N464SK,E25
+CM-195,G4295,Allegiant,G4,departing,SFO,ORD,06:09,delayed,59,86.0,50.0,40000,510,Airbus A321neo,N467SK,C28
+CM-197,AS297,Alaska Airlines,AS,departing,SFO,DEN,10:23,atRisk,73,88.0,60.0,42000,390,Embraer E175,N469SK,E30
+CM-200,B6300,JetBlue,B6,departing,SFO,BOS,16:44,atRisk,94,91.0,75.0,30000,420,Boeing 777,N472SK,C3
+CM-202,DL302,Delta,DL,departing,SFO,PHX,20:58,delayed,23,93.0,85.0,32000,440,Boeing 737 MAX 8,N474SK,E5
+CM-205,G4305,Allegiant,G4,departing,SFO,DTW,08:19,atRisk,44,56.0,10.0,35000,470,Airbus A320,N477SK,C8
+CM-207,AS307,Alaska Airlines,AS,departing,SFO,LAX,12:33,delayed,58,58.0,20.0,37000,490,Airbus A321neo,N479SK,E10
+CM-3,G4103,Allegiant,G4,arriving,JFK,SFO,12:21,delayed,41,58.0,20.0,31000,410,Airbus A321neo,N203SK,D4
+CM-17,AA117,American Airlines,AA,arriving,JFK,SFO,22:59,atRisk,54,72.0,90.0,30000,410,Embraer E175,N217SK,C18
+CM-44,WN144,Southwest,WN,arriving,LAX,SFO,10:14,atRisk,39,58.0,15.0,30000,400,Boeing 777,N262SK,C3
+CM-113,AA213,American Airlines,AA,arriving,ATL,SFO,10:23,atRisk,63,86.0,60.0,42000,390,Embraer E175,N349SK,E30
+CM-223,B6323,JetBlue,B6,arriving,DFW,SFO,14:31,delayed,51,73.0,70.0,41000,510,Airbus A320,N513SK,D14
+CM-237,NK337,Spirit,NK,arriving,DFW,SFO,06:09,delayed,64,87.0,50.0,40000,510,Airbus A321neo,N527SK,C28
+CM-168,HA268,Hawaiian,HA,departing,SFO,DFW,06:00,inAir,0,9.0,5.0,28000,380,Boeing 737-800,N440SK,A1
+CM-169,AA269,American Airlines,AA,departing,SFO,DEN,08:07,inAir,3,10.0,10.0,29000,390,Airbus A320,N441SK,B2
+CM-172,DL272,Delta,DL,departing,SFO,BOS,14:28,inAir,12,13.0,25.0,32000,420,Boeing 737 MAX 8,N444SK,E5
+CM-173,WN273,Southwest,WN,departing,SFO,LGA,16:35,inAir,1,14.0,30.0,33000,430,Embraer E175,N445SK,A6
+CM-175,G4275,Allegiant,G4,departing,SFO,IAH,20:49,inAir,7,16.0,40.0,35000,450,Airbus A320,N447SK,C8
+CM-177,AS277,Alaska Airlines,AS,departing,SFO,DTW,06:03,inAir,13,18.0,50.0,37000,470,Airbus A321neo,N449SK,E10
+CM-178,HA278,Hawaiian,HA,departing,SFO,JFK,08:10,inAir,2,19.0,55.0,38000,480,Boeing 737 MAX 8,N450SK,A11
+CM-180,B6280,JetBlue,B6,departing,SFO,ATL,12:24,inAir,8,21.0,65.0,40000,500,Boeing 737-800,N452SK,C13
+CM-183,WN283,Southwest,WN,departing,SFO,DEN,18:45,inAir,3,24.0,80.0,28000,390,Airbus A321neo,N455SK,A16
+CM-184,NK284,Spirit,NK,departing,SFO,SEA,20:52,inAir,6,25.0,85.0,29000,400,Boeing 737 MAX 8,N456SK,B17
+CM-187,AS287,Alaska Airlines,AS,departing,SFO,LGA,08:13,inAir,1,28.0,10.0,32000,430,Airbus A320,N459SK,E20
+CM-189,AA289,American Airlines,AA,departing,SFO,IAH,12:27,inAir,7,30.0,20.0,34000,450,Airbus A321neo,N461SK,B22
+CM-191,F9291,Frontier,F9,departing,SFO,DTW,16:41,inAir,13,32.0,30.0,36000,470,Embraer E175,N463SK,D24
+CM-193,WN293,Southwest,WN,departing,SFO,LAX,20:55,inAir,5,6.0,40.0,38000,490,Airbus A320,N465SK,A26
+CM-194,NK294,Spirit,NK,departing,SFO,ATL,22:02,inAir,8,7.0,45.0,39000,500,Boeing 777,N466SK,B27
+CM-196,UA296,United,UA,departing,SFO,DFW,08:16,inAir,0,9.0,55.0,41000,380,Boeing 737 MAX 8,N468SK,D29
+CM-198,HA298,Hawaiian,HA,departing,SFO,SEA,12:30,inAir,6,11.0,65.0,28000,400,Boeing 737-800,N470SK,A1
+CM-201,F9301,Frontier,F9,departing,SFO,LGA,18:51,inAir,1,14.0,80.0,31000,430,Airbus A321neo,N473SK,D4
+CM-203,WN303,Southwest,WN,departing,SFO,IAH,22:05,inAir,7,16.0,90.0,33000,450,Embraer E175,N475SK,A6
+CM-204,NK304,Spirit,NK,departing,SFO,MSP,06:12,inAir,10,17.0,5.0,34000,460,Boeing 737-800,N476SK,B7

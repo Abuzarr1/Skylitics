@@ -1,0 +1,63 @@
+# ===== SKYLYTICS MOCK DATA — MIA (Miami International) =====
+# Matches ConnectedMockData.swift deterministic values
+
+## DASHBOARD STATS
+active_nodes,high_risk_count,est_impact_minutes,net_sync
+1634,289,3.5,0.74
+
+## HOURLY DELAY PATTERN (avg minutes per hour)
+01:00,03:00,05:00,07:00,09:00,11:00,13:00,15:00,17:00,19:00,21:00,23:00
+6,9,13,21,27,32,36,43,40,29,14,8
+
+## TOP RISK ROUTES
+origin,destination,risk_score,avg_delay_minutes
+MIA,BOS,0.58,39
+MIA,LGA,0.75,46
+MIA,PHX,0.32,53
+MIA,IAH,0.49,20
+MIA,MSP,0.66,27
+
+## FLIGHTS (42 departing + 14 arriving = 42 total)
+id,callsign,airline,airline_code,flight_direction,origin,destination,dep_time,status,delay_minutes,delay_probability_%,progress_%,altitude_ft,speed_kts,aircraft_type,tail_number,gate
+CM-338,UA438,United,UA,departing,MIA,PHX,10:14,atRisk,74,65.0,15.0,30000,400,Boeing 777,N682SK,C3
+CM-339,AS439,Alaska Airlines,AS,departing,MIA,IAH,12:21,delayed,81,66.0,20.0,31000,410,Airbus A321neo,N683SK,D4
+CM-342,B6442,JetBlue,B6,departing,MIA,JFK,18:42,delayed,102,69.0,35.0,34000,440,Boeing 737-800,N686SK,B7
+CM-344,DL444,Delta,DL,departing,MIA,ATL,22:56,atRisk,31,71.0,45.0,36000,460,Boeing 777,N688SK,D9
+CM-347,G4447,Allegiant,G4,departing,MIA,DFW,10:17,atRisk,52,74.0,60.0,39000,490,Embraer E175,N691SK,B12
+CM-349,AS449,Alaska Airlines,AS,departing,MIA,SEA,14:31,delayed,66,76.0,70.0,41000,510,Airbus A320,N693SK,D14
+CM-353,F9453,Frontier,F9,departing,MIA,IAH,22:59,atRisk,94,80.0,90.0,30000,410,Embraer E175,N697SK,C18
+CM-354,DL454,Delta,DL,departing,MIA,MSP,06:06,delayed,101,81.0,5.0,31000,420,Boeing 737-800,N698SK,D19
+CM-358,UA458,United,UA,departing,MIA,ATL,14:34,delayed,44,85.0,25.0,35000,460,Boeing 737 MAX 8,N702SK,C23
+CM-360,HA460,Hawaiian,HA,departing,MIA,SFO,18:48,atRisk,58,87.0,35.0,37000,480,Boeing 737-800,N704SK,E25
+CM-363,F9463,Frontier,F9,departing,MIA,SEA,06:09,delayed,79,90.0,50.0,40000,510,Airbus A321neo,N707SK,C28
+CM-365,WN465,Southwest,WN,departing,MIA,LGA,10:23,atRisk,93,92.0,60.0,42000,390,Embraer E175,N709SK,E30
+CM-368,UA468,United,UA,departing,MIA,MSP,16:44,atRisk,29,55.0,75.0,30000,420,Boeing 777,N712SK,C3
+CM-370,HA470,Hawaiian,HA,departing,MIA,JFK,20:58,delayed,43,57.0,85.0,32000,440,Boeing 737 MAX 8,N714SK,E5
+CM-373,F9473,Frontier,F9,departing,MIA,ORD,08:19,atRisk,64,60.0,10.0,35000,470,Airbus A320,N717SK,C8
+CM-375,WN475,Southwest,WN,departing,MIA,DFW,12:33,delayed,78,62.0,20.0,37000,490,Airbus A321neo,N719SK,E10
+CM-48,AS148,Alaska Airlines,AS,arriving,LAX,MIA,18:42,delayed,67,62.0,35.0,34000,440,Boeing 737-800,N266SK,B7
+CM-76,G4176,Allegiant,G4,arriving,LAX,MIA,20:58,delayed,93,90.0,85.0,32000,440,Boeing 737 MAX 8,N294SK,E5
+CM-144,AS244,Alaska Airlines,AS,arriving,ORD,MIA,06:06,delayed,76,76.0,5.0,31000,420,Boeing 737-800,N398SK,D19
+CM-158,F9258,Frontier,F9,arriving,ORD,MIA,16:44,atRisk,89,90.0,75.0,30000,420,Boeing 777,N412SK,C3
+CM-171,F9271,Frontier,F9,arriving,SFO,MIA,12:21,delayed,61,62.0,20.0,31000,410,Airbus A321neo,N443SK,D4
+CM-185,G4285,Allegiant,G4,arriving,SFO,MIA,22:59,atRisk,74,76.0,90.0,30000,410,Embraer E175,N457SK,C18
+CM-336,NK436,Spirit,NK,departing,MIA,BOS,06:00,inAir,0,13.0,5.0,28000,380,Boeing 737-800,N680SK,A1
+CM-337,G4437,Allegiant,G4,departing,MIA,LGA,08:07,inAir,3,14.0,10.0,29000,390,Airbus A320,N681SK,B2
+CM-340,HA440,Hawaiian,HA,departing,MIA,MSP,14:28,inAir,12,17.0,25.0,32000,420,Boeing 737 MAX 8,N684SK,E5
+CM-341,AA441,American Airlines,AA,departing,MIA,DTW,16:35,inAir,1,18.0,30.0,33000,430,Embraer E175,N685SK,A6
+CM-343,F9443,Frontier,F9,departing,MIA,LAX,20:49,inAir,7,20.0,40.0,35000,450,Airbus A320,N687SK,C8
+CM-345,WN445,Southwest,WN,departing,MIA,ORD,06:03,inAir,13,22.0,50.0,37000,470,Airbus A321neo,N689SK,E10
+CM-346,NK446,Spirit,NK,departing,MIA,SFO,08:10,inAir,2,23.0,55.0,38000,480,Boeing 737 MAX 8,N690SK,A11
+CM-348,UA448,United,UA,departing,MIA,DEN,12:24,inAir,8,25.0,65.0,40000,500,Boeing 737-800,N692SK,C13
+CM-351,AA451,American Airlines,AA,departing,MIA,LGA,18:45,inAir,3,28.0,80.0,28000,390,Airbus A321neo,N695SK,A16
+CM-352,B6452,JetBlue,B6,departing,MIA,PHX,20:52,inAir,6,29.0,85.0,29000,400,Boeing 737 MAX 8,N696SK,B17
+CM-355,WN455,Southwest,WN,departing,MIA,DTW,08:13,inAir,1,32.0,10.0,32000,430,Airbus A320,N699SK,E20
+CM-357,G4457,Allegiant,G4,departing,MIA,LAX,12:27,inAir,7,6.0,20.0,34000,450,Airbus A321neo,N701SK,B22
+CM-359,AS459,Alaska Airlines,AS,departing,MIA,ORD,16:41,inAir,13,8.0,30.0,36000,470,Embraer E175,N703SK,D24
+CM-361,AA461,American Airlines,AA,departing,MIA,DFW,20:55,inAir,5,10.0,40.0,38000,490,Airbus A320,N705SK,A26
+CM-362,B6462,JetBlue,B6,departing,MIA,DEN,22:02,inAir,8,11.0,45.0,39000,500,Boeing 777,N706SK,B27
+CM-364,DL464,Delta,DL,departing,MIA,BOS,08:16,inAir,0,13.0,55.0,41000,380,Boeing 737 MAX 8,N708SK,D29
+CM-366,NK466,Spirit,NK,departing,MIA,PHX,12:30,inAir,6,15.0,65.0,28000,400,Boeing 737-800,N710SK,A1
+CM-369,AS469,Alaska Airlines,AS,departing,MIA,DTW,18:51,inAir,1,18.0,80.0,31000,430,Airbus A321neo,N713SK,D4
+CM-371,AA471,American Airlines,AA,departing,MIA,LAX,22:05,inAir,7,20.0,90.0,33000,450,Embraer E175,N715SK,A6
+CM-372,B6472,JetBlue,B6,departing,MIA,ATL,06:12,inAir,10,21.0,5.0,34000,460,Boeing 737-800,N716SK,B7
