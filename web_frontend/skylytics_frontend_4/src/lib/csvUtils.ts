@@ -104,7 +104,7 @@ export async function loadAllCSVs(): Promise<FlightRow[]> {
     let allRows: FlightRow[] = [];
     const promises = REGISTERED_AIRPORTS.map(async (code) => {
         try {
-            const res = await fetch(`/data/CSVs/${code}_mock_data.csv`);
+            const res = await fetch(`/csv_data/${code}_mock_data.csv`);
             if (res.ok) {
                 const text = await res.text();
                 return parseCSV(text);
