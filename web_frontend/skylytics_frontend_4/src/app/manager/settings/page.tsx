@@ -3,12 +3,12 @@ import React, { useState, useEffect } from "react";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { User, Bell, Cpu, Check, Activity } from "lucide-react";
 import { getUserInfo, getNotificationPreferences, updateNotificationPreferences } from "@/lib/api";
-import { useData } from "@/lib/useData";
+import { useMockData } from "@/lib/useMockData";
 import { getAllAirportStats } from "@/lib/csvUtils";
 
 export default function SettingsPage() {
     const user = getUserInfo();
-    const { rows } = useData();
+    const { rows } = useMockData();
     const displayName = user?.full_name || user?.email || "Operator";
 
     const [prefs, setPrefs] = useState({

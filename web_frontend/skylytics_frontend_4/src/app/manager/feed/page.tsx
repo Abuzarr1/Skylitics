@@ -4,10 +4,10 @@ import React, { useState, useEffect, useMemo } from "react";
 import { Radio, Search } from "lucide-react";
 import { LoadingRadar } from "@/components/ui/LoadingRadar";
 import { getFeedItems } from "@/lib/csvUtils";
-import { useData } from "@/lib/useData";
+import { useMockData } from "@/lib/useMockData";
 
 export default function LiveFeedPage() {
-    const { rows, loading } = useData();
+    const { rows, loading } = useMockData();
     const [search, setSearch] = useState("");
 
     const feedItems = useMemo(() => {

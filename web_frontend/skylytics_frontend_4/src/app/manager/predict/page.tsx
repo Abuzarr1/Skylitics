@@ -6,7 +6,7 @@ import { Zap, Activity, Target, Shield, Info } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 import { useAuth } from "@/hooks/useAuth";
 import { getAirportStats, getRiskLevel, REGISTERED_AIRPORTS, getFeedItems } from "@/lib/csvUtils";
-import { useData } from "@/lib/useData";
+import { useMockData } from "@/lib/useMockData";
 import { LoadingRadar } from "@/components/ui/LoadingRadar";
 
 function GaugeChart({ value = 0 }: { value?: number }) {
@@ -43,7 +43,7 @@ function GaugeChart({ value = 0 }: { value?: number }) {
 
 export default function PredictPage() {
     const auth = useAuth();
-    const { rows, loading } = useData();
+    const { rows, loading } = useMockData();
     const [isPredicting, setIsPredicting] = useState(false);
     const [result, setResult] = useState<any>(null);
 

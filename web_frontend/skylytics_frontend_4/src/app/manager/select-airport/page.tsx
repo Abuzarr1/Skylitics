@@ -5,12 +5,12 @@ import { motion } from "framer-motion";
 import { Plane, CheckCircle2, Activity } from "lucide-react";
 import { setSelectedAirport } from "@/hooks/useAuth";
 import { getAirportStats, getRiskLevel } from "@/lib/csvUtils";
-import { useData } from "@/lib/useData";
+import { useMockData } from "@/lib/useMockData";
 import { LoadingRadar } from "@/components/ui/LoadingRadar";
 
 export default function SelectAirportPage() {
     const [selected, setSelected] = useState<string | null>(null);
-    const { rows, loading } = useData();
+    const { rows, loading } = useMockData();
 
     function handleSelect(code: string) {
         setSelected(code);

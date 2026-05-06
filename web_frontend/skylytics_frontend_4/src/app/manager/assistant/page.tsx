@@ -14,7 +14,7 @@ import {
 } from "lucide-react";
 import { queryAssistant } from "@/lib/api";
 import { getAirportStats, getFeedItems } from "@/lib/csvUtils";
-import { useData } from "@/lib/useData";
+import { useMockData } from "@/lib/useMockData";
 
 interface Message {
     role: 'user' | 'assistant' | 'sys';
@@ -23,7 +23,7 @@ interface Message {
 }
 
 export default function AssistantPage() {
-    const { rows } = useData();
+    const { rows } = useMockData();
     const [input, setInput] = useState("");
     const [messages, setMessages] = useState<Message[]>([
         {

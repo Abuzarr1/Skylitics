@@ -7,14 +7,14 @@ import { motion } from "framer-motion";
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import { LoadingRadar } from "@/components/ui/LoadingRadar";
 import { getAllAirportStats, getFeedItems, getDelayByDate, getAirportStats } from "@/lib/csvUtils";
-import { useData } from "@/lib/useData";
+import { useMockData } from "@/lib/useMockData";
 import { useAuth } from "@/hooks/useAuth";
 import { useTheme } from "next-themes";
 
 export default function ManagerDashboard() {
     const auth = useAuth();
     const airportCode = auth?.airportCode || 'ATL';
-    const { rows, loading } = useData(airportCode);
+    const { rows, loading } = useMockData(airportCode);
     const [mounted, setMounted] = useState(false);
     const { theme } = useTheme();
 
