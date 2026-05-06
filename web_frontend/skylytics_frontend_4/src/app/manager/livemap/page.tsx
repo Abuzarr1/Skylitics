@@ -3,7 +3,8 @@
 import React, { useState, useEffect, useMemo } from "react";
 import dynamic from "next/dynamic";
 import { LoadingRadar } from "@/components/ui/LoadingRadar";
-import { loadAllCSVs, getAirportStats, getRoutes, getRiskLevel, REGISTERED_AIRPORTS, AIRPORT_META, FlightRow } from "@/lib/csvUtils";
+import { getAirportStats, getRoutes, getRiskLevel, REGISTERED_AIRPORTS, AIRPORT_META } from "@/lib/csvUtils";
+import { useFlightData } from "@/lib/useFlightData";
 
 const FlightMap = dynamic(() => import("@/components/map/FlightMap"), { 
     ssr: false,
@@ -11,18 +12,24 @@ const FlightMap = dynamic(() => import("@/components/map/FlightMap"), {
 });
 
 export default function LiveMapPage() {
-    const [rows, setRows] = useState<FlightRow[]>([]);
-    const [loading, setLoading] = useState(true);
+    const { rows, loading } = useFlightData();
     const [selected, setSelected] = useState<any>(null);
 
-    useEffect(() => {
-        async function load() {
-            const data = await loadAllCSVs();
-            setRows(data);
-            setLoading(false);
-        }
-        load();
-    }, []);
+    const airportNodes = useMemo(() => {
+        return REGISTERED_AIRPORTS.map(code => {
+            const stats = getAirportStats(code, rows);
+            const meta = AIRPORT_META[code];
+            return {
+                code,
+                name: meta.name,
+                lat: meta.lat,
+                lng: meta.lng,
+                totalFlights: stats.totalFlights,
+                delayed: stats.delayed,
+                riskLevel: stats.riskLevel
+            };
+        });
+    }, [rows]);
 
     const mappedFlights = useMemo(() => {
         const routes = getRoutes(rows);
@@ -34,6 +41,8 @@ export default function LiveMapPage() {
             const progress = Math.floor(Math.random() * 100);
             const current_lat = start.lat + (end.lat - start.lat) * (progress / 100);
             const current_lon = start.lng + (end.lng - start.lng) * (progress / 100);
+
+            const risk = getRiskLevel(r.origin, rows);
 
             return {
                 id: `flight-${i}`,
@@ -49,8 +58,8 @@ export default function LiveMapPage() {
                 current_lon,
                 altitude_ft: 32000,
                 speed_kts: 450,
-                delay_probability: getRiskLevel(r.origin, rows) === 'high' ? 0.8 : 0.1,
-                status: "on_time",
+                delay_probability: risk === 'high' ? 0.8 : risk === 'medium' ? 0.4 : 0.1,
+                status: risk === 'high' ? "delayed" : risk === 'medium' ? "at_risk" : "on_time",
                 progress
             };
         }).filter(Boolean);
@@ -67,6 +76,7 @@ export default function LiveMapPage() {
 
             <FlightMap 
                 flights={mappedFlights as any} 
+                airports={airportNodes as any}
                 selected={selected} 
                 onSelect={setSelected} 
             />

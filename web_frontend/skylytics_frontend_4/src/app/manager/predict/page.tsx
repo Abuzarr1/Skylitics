@@ -5,7 +5,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Zap, Activity, Target, Shield, Info } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 import { useAuth } from "@/hooks/useAuth";
-import { loadAllCSVs, getAirportStats, getRiskLevel, FlightRow, REGISTERED_AIRPORTS } from "@/lib/csvUtils";
+import { getAirportStats, getRiskLevel, REGISTERED_AIRPORTS, getFeedItems } from "@/lib/csvUtils";
+import { useFlightData } from "@/lib/useFlightData";
 import { LoadingRadar } from "@/components/ui/LoadingRadar";
 
 function GaugeChart({ value = 0 }: { value?: number }) {
@@ -42,19 +43,9 @@ function GaugeChart({ value = 0 }: { value?: number }) {
 
 export default function PredictPage() {
     const auth = useAuth();
-    const [rows, setRows] = useState<FlightRow[]>([]);
-    const [loading, setLoading] = useState(true);
+    const { rows, loading } = useFlightData();
     const [isPredicting, setIsPredicting] = useState(false);
     const [result, setResult] = useState<any>(null);
-
-    useEffect(() => {
-        async function load() {
-            const data = await loadAllCSVs();
-            setRows(data);
-            setLoading(false);
-        }
-        load();
-    }, []);
 
     const airportRiskScores = useMemo(() => {
         return REGISTERED_AIRPORTS.map(code => ({
@@ -89,7 +80,7 @@ export default function PredictPage() {
                 <div>
                     <h1 className="text-4xl font-heading font-black text-white uppercase tracking-tighter">Predictive Analysis</h1>
                     <p className="text-brand-500 font-mono text-xs uppercase tracking-widest mt-2 flex items-center gap-2">
-                        <Shield className="w-3 h-3 text-accent-neon" /> Based on historical CSV intelligence
+                        <Shield className="w-3 h-3 text-accent-neon" /> Based on historical network intelligence
                     </p>
                 </div>
             </div>
@@ -105,6 +96,25 @@ export default function PredictPage() {
                             </div>
                         ))}
                     </div>
+
+                    <h2 className="text-xl font-heading font-black text-white mt-12 mb-6 uppercase tracking-tighter text-center">Delayed Sequence</h2>
+                    <div className="space-y-3 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
+                        {getFeedItems(rows)
+                            .filter(f => f.status === 'delayed')
+                            .sort((a, b) => b.delayMinutes - a.delayMinutes)
+                            .slice(0, 10)
+                            .map((f, i) => (
+                                <div key={i} className="p-3 bg-brand-950 border border-white/5 font-mono text-[9px] uppercase">
+                                    <div className="flex justify-between text-white font-bold mb-1">
+                                        <span>{f.flightNumber}</span>
+                                        <span className="text-accent-alert">+{f.delayMinutes}m</span>
+                                    </div>
+                                    <div className="text-brand-500">{f.origin} → {f.destination}</div>
+                                </div>
+                            ))
+                        }
+                    </div>
+
                     <button onClick={executePrediction} className="w-full mt-8 bg-white text-black font-black font-heading py-4 uppercase tracking-tighter hover:bg-accent-neon transition-colors">
                         Refresh Engine
                     </button>

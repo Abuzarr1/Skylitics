@@ -21,8 +21,19 @@ interface LiveFlight {
     progress: number;
 }
 
+interface AirportNode {
+    code: string;
+    name: string;
+    lat: number;
+    lng: number;
+    totalFlights: number;
+    delayed: number;
+    riskLevel: 'low' | 'medium' | 'high';
+}
+
 interface Props {
     flights: LiveFlight[];
+    airports: AirportNode[];
     selected: LiveFlight | null;
     onSelect: (flight: LiveFlight) => void;
 }
@@ -31,9 +42,12 @@ const STATUS_COLOR: Record<string, string> = {
     on_time: "#DFFF00",
     at_risk: "#FBBF24",
     delayed: "#EF4444",
+    low: "#22c55e",
+    medium: "#eab308",
+    high: "#ef4444"
 };
 
-export default function FlightMap({ flights, selected, onSelect }: Props) {
+export default function FlightMap({ flights, airports, selected, onSelect }: Props) {
     const mapRef = useRef<any>(null);
     const mapContainerRef = useRef<HTMLDivElement>(null);
     const markersRef = useRef<any[]>([]);
@@ -136,6 +150,45 @@ export default function FlightMap({ flights, selected, onSelect }: Props) {
                         { permanent: false, direction: "top", offset: [0, -8], className: "leaflet-custom-tooltip" }
                     )
                     .on("click", () => onSelect(flight));
+
+                markersRef.current.push(marker);
+            });
+
+            // Draw Airport Nodes
+            airports.forEach((airport) => {
+                const color = STATUS_COLOR[airport.riskLevel] || "#DFFF00";
+                
+                // SVG Circle for Airport Node
+                const airportIcon = L.divIcon({
+                    className: "",
+                    html: `<div style="width:14px;height:14px;background:${color};border:2px solid #fff;border-radius:50%;box-shadow:0 0 10px ${color}80;cursor:pointer;"></div>`,
+                    iconSize: [14, 14],
+                    iconAnchor: [7, 7],
+                });
+
+                const marker = L.marker([airport.lat, airport.lng], { icon: airportIcon })
+                    .addTo(mapRef.current)
+                    .bindTooltip(
+                        `<div style="background:#0d1117;border:1px solid #30363d;padding:10px;border-radius:0;font-family:monospace;font-size:10px;color:#e6edf3;min-width:160px">
+                            <div style="color:${color};font-weight:bold;letter-spacing:1.5px;margin-bottom:4px;font-size:12px">${airport.code}</div>
+                            <div style="color:#8b949e;margin-bottom:8px">${airport.name}</div>
+                            <div style="border-top:1px solid #30363d;padding-top:8px">
+                                <div style="display:flex;justify-content:between;margin-bottom:2px">
+                                    <span style="color:#8b949e">FLIGHTS:</span>
+                                    <span style="color:#fff;margin-left:auto">${airport.totalFlights}</span>
+                                </div>
+                                <div style="display:flex;justify-content:between;margin-bottom:2px">
+                                    <span style="color:#8b949e">DELAYED:</span>
+                                    <span style="color:#ef4444;margin-left:auto">${airport.delayed}</span>
+                                </div>
+                                <div style="display:flex;justify-content:between;margin-top:4px">
+                                    <span style="color:#8b949e">RISK:</span>
+                                    <span style="color:${color};margin-left:auto;font-weight:bold;text-transform:uppercase">${airport.riskLevel}</span>
+                                </div>
+                            </div>
+                        </div>`,
+                        { permanent: false, direction: "top", offset: [0, -4] }
+                    );
 
                 markersRef.current.push(marker);
             });

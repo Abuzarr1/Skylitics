@@ -13,6 +13,7 @@ import {
     ArrowRight,
 } from "lucide-react";
 import { queryAssistant } from "@/lib/api";
+import { getAirportStats, getFeedItems, loadAllCSVs } from "@/lib/csvUtils";
 
 interface Message {
     role: 'user' | 'assistant' | 'sys';
@@ -65,12 +66,31 @@ export default function AssistantPage() {
             let response = data?.response || "> [SYSTEM_ERROR]: Unrecognizable telemetry received from Neural Core. Diagnostics initiated.";
             
             // Local Fallback Logic: If backend says "Sensor sync required", provide immersive mock response
-            if (response.includes("Sensor sync required") || response.includes("telemetry unavailable")) {
-                if (userMsg.toUpperCase().includes("ATL")) {
-                    response = "> [SKYAI_OFFLINE_VECTOR]: Real-time ATL telemetry unavailable. Loading archive baseline...\n" +
-                               "> ▸ Current Conditions: 12°C | Overcast | Wind 14 km/h\n" +
-                               "> ▸ Network Status: NOMINAL (Archive baseline 89.4% Sync)\n" +
-                               "> ▸ Active Anomalies: 7 critical vectors identified in buffer.";
+            if (response.includes("Sensor sync required") || response.includes("telemetry unavailable") || response.includes("SYSTEM_ERROR")) {
+                const csvRows = await loadAllCSVs();
+                const upperMsg = userMsg.toUpperCase();
+                
+                if (upperMsg.includes("STATUS") || upperMsg.includes("SUMMARY") || upperMsg.includes("NETWORK")) {
+                    const stats = getAirportStats('ATL', csvRows);
+                    response = `> [SKYAI_ARCHIVE_VECTOR]: Real-time network telemetry unavailable. Loading intelligence baseline for hub ATL...\n` +
+                               `> ▸ Status: ${stats.riskLevel.toUpperCase()}\n` +
+                               `> ▸ Total Flights: ${stats.totalFlights}\n` +
+                               `> ▸ Delayed: ${stats.delayed}\n` +
+                               `> ▸ Reliability: ${(stats.onTime / stats.totalFlights * 100).toFixed(1)}%\n` +
+                               `> ▸ System baseline sync: 100% (Local Intelligence Node)`;
+                } else if (upperMsg.includes("FEED") || upperMsg.includes("FLIGHTS") || upperMsg.includes("RISK")) {
+                    const items = getFeedItems(csvRows).slice(0, 3);
+                    response = `> [SKYAI_ARCHIVE_VECTOR]: Operational flight sequence recovered from node buffer:\n` +
+                               items.map(i => `> ▸ ${i.flightNumber} | ${i.origin}→${i.destination} | ${i.status.toUpperCase()}`).join('\n') +
+                               `\n> Analysis: Intelligence suggests nominal flow with minor latency.`;
+                } else {
+                    const airport = ['ATL', 'JFK', 'ORD', 'LAX', 'MIA', 'DFW', 'SFO', 'DEN', 'SEA'].find(code => upperMsg.includes(code)) || 'ATL';
+                    const stats = getAirportStats(airport, csvRows);
+                    response = `> [SKYAI_ARCHIVE_VECTOR]: Operational intelligence for ${airport} node:\n` +
+                               `> ▸ Current Risk: ${stats.riskLevel.toUpperCase()}\n` +
+                               `> ▸ Delayed Flights: ${stats.delayed}\n` +
+                               `> ▸ Avg Latency: ${stats.avgDelayMinutes} min\n` +
+                               `> Source: Local Intelligence Binary.`;
                 }
             }
 

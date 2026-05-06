@@ -4,22 +4,13 @@ import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Plane, CheckCircle2, Activity } from "lucide-react";
 import { setSelectedAirport } from "@/hooks/useAuth";
-import { loadAllCSVs, getAirportStats, getRiskLevel, FlightRow, AirportStats } from "@/lib/csvUtils";
+import { getAirportStats, getRiskLevel } from "@/lib/csvUtils";
+import { useFlightData } from "@/lib/useFlightData";
 import { LoadingRadar } from "@/components/ui/LoadingRadar";
 
 export default function SelectAirportPage() {
     const [selected, setSelected] = useState<string | null>(null);
-    const [rows, setRows] = useState<FlightRow[]>([]);
-    const [loading, setLoading] = useState(true);
-
-    useEffect(() => {
-        async function load() {
-            const data = await loadAllCSVs();
-            setRows(data);
-            setLoading(false);
-        }
-        load();
-    }, []);
+    const { rows, loading } = useFlightData();
 
     function handleSelect(code: string) {
         setSelected(code);

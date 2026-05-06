@@ -8,7 +8,8 @@ import {
     CloudSnow, Eye, ChevronDown, WifiOff, Lock, RefreshCw,
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
-import { loadAllCSVs, getAirportStats, getRiskLevel, FlightRow, REGISTERED_AIRPORTS } from "@/lib/csvUtils";
+import { getAirportStats, getRiskLevel } from "@/lib/csvUtils";
+import { useFlightData } from "@/lib/useFlightData";
 import { LoadingRadar } from "@/components/ui/LoadingRadar";
 
 function OnTimeBar({ value }: { value: number }) {
@@ -126,8 +127,8 @@ const CAUSE_LABELS: Record<string, string> = {
 
 export default function WhatIfSimulator() {
     const auth = useAuth();
-    const [rows, setRows] = useState<FlightRow[]>([]);
-    const [loadingData, setLoadingData] = useState(true);
+    const airportCode = auth?.airportCode || 'ATL';
+    const { rows, loading: loadingData } = useFlightData();
     const [form, setForm] = useState(DEFAULT_FORM);
     const [overrides, setOverrides] = useState<Overrides>(DEFAULT_OVERRIDES);
     const [result, setResult] = useState<SimResult | null>(null);
@@ -140,16 +141,8 @@ export default function WhatIfSimulator() {
     const endRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
-        async function load() {
-            const data = await loadAllCSVs();
-            setRows(data);
-            setLoadingData(false);
-            
-            const airport = auth?.airportCode || "ATL";
-            setForm(f => ({ ...f, origin: airport }));
-        }
-        load();
-    }, [auth?.airportCode]);
+        if (airportCode) setForm(f => ({ ...f, origin: airportCode }));
+    }, [airportCode]);
 
     const airlines = useMemo(() => {
         const set = new Set(rows.map(r => r.carrier));
@@ -195,7 +188,7 @@ export default function WhatIfSimulator() {
             shap_breakdown: { weather: 40, inbound_delay: 30, gate: 20, crew: 10, traffic: 0 },
             confidence_score: 88,
             recommendation: delay > 30 ? "Divert resources to node turnaround." : "Maintain nominal operations.",
-            engine: "CSV-SYNC"
+            engine: "Operational Archive Sync"
         };
 
         setTimeout(() => {

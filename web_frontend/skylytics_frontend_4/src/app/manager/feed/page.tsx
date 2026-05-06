@@ -3,21 +3,12 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { Radio, Search } from "lucide-react";
 import { LoadingRadar } from "@/components/ui/LoadingRadar";
-import { loadAllCSVs, getFeedItems, FlightRow } from "@/lib/csvUtils";
+import { getFeedItems } from "@/lib/csvUtils";
+import { useFlightData } from "@/lib/useFlightData";
 
 export default function LiveFeedPage() {
-    const [rows, setRows] = useState<FlightRow[]>([]);
-    const [loading, setLoading] = useState(true);
+    const { rows, loading } = useFlightData();
     const [search, setSearch] = useState("");
-
-    useEffect(() => {
-        async function load() {
-            const data = await loadAllCSVs();
-            setRows(data);
-            setLoading(false);
-        }
-        load();
-    }, []);
 
     const feedItems = useMemo(() => {
         const items = getFeedItems(rows);

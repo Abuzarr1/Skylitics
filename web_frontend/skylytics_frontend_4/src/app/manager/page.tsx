@@ -6,39 +6,26 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import { LoadingRadar } from "@/components/ui/LoadingRadar";
-import { loadAllCSVs, getAllAirportStats, getFeedItems, getDelayByDate, FlightRow } from "@/lib/csvUtils";
+import { getAllAirportStats, getFeedItems, getDelayByDate, getAirportStats } from "@/lib/csvUtils";
+import { useFlightData } from "@/lib/useFlightData";
 import { useAuth } from "@/hooks/useAuth";
 import { useTheme } from "next-themes";
 
 export default function ManagerDashboard() {
     const auth = useAuth();
-    const [rows, setRows] = useState<FlightRow[]>([]);
-    const [loading, setLoading] = useState(true);
+    const airportCode = auth?.airportCode || 'ATL';
+    const { rows, loading } = useFlightData(airportCode);
     const [mounted, setMounted] = useState(false);
     const { theme } = useTheme();
 
     useEffect(() => {
         setMounted(true);
-        async function load() {
-            const data = await loadAllCSVs();
-            setRows(data);
-            setLoading(false);
-        }
-        load();
     }, []);
 
-    const totalFlights = rows.length;
-    const delayedCount = rows.filter(r => r.status === 'delayed').length;
-    const onTimeCount = totalFlights - delayedCount;
-    const onTimeRate = totalFlights > 0 ? (onTimeCount / totalFlights * 100).toFixed(1) + '%' : '100%';
-    const delayedRows = rows.filter(r => r.delayMinutes > 0);
-    const avgDelay = delayedRows.length > 0 
-        ? Math.round(delayedRows.reduce((acc, r) => acc + r.delayMinutes, 0) / delayedRows.length) 
-        : 0;
-
+    const stats = getAirportStats(airportCode, rows);
     const topRiskAirports = getAllAirportStats(rows).sort((a, b) => b.delayRate - a.delayRate).slice(0, 3);
     const recentFeed = getFeedItems(rows).slice(0, 5);
-    const trendData = getDelayByDate(rows).map(d => ({ label: d.date, value: Math.round(d.delayRate * 100) }));
+    const trendData = getDelayByDate(rows, airportCode).map(d => ({ label: d.date, value: Math.round(d.delayRate * 100) }));
 
     if (loading) return <LoadingRadar text="SYNCHRONIZING GLOBAL OPERATIONS..." />;
 
@@ -58,10 +45,10 @@ export default function ManagerDashboard() {
                 <div className="lg:col-span-2 space-y-8">
                     <div className="grid grid-cols-2 md:grid-cols-4 border border-[var(--border-ui)] bg-[var(--bg-card)]">
                         {[
-                            { label: "Total Flights", val: totalFlights.toString(), sub: "Network Wide", glow: "text-white" },
-                            { label: "Delayed", val: delayedCount.toString(), sub: "Current Session", glow: "text-accent-alert" },
-                            { label: "On-Time Rate", val: onTimeRate, sub: "Optimal", glow: "text-accent-neon" },
-                            { label: "Avg Delay", val: `${avgDelay}m`, sub: "Latency", glow: "text-white" }
+                            { label: "Total Flights", val: stats.totalFlights.toString(), sub: "Network Wide", glow: "text-white" },
+                            { label: "Delayed", val: stats.delayed.toString(), sub: "Current Session", glow: "text-accent-alert" },
+                            { label: "On-Time Rate", val: (stats.onTime / (stats.totalFlights || 1) * 100).toFixed(1) + '%', sub: "Optimal", glow: "text-accent-neon" },
+                            { label: "Avg Delay", val: `${stats.avgDelayMinutes}m`, sub: "Latency", glow: "text-white" }
                         ].map((metric, i) => (
                             <motion.div 
                                 key={i} 

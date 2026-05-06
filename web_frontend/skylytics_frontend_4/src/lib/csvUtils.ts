@@ -18,10 +18,10 @@ export type FlightRow = {
     origin: string;
     destination: string;
     scheduledTime: string;
+    date: string;
+    carrier: string;
     delayMinutes: number;
     status: 'on-time' | 'delayed' | 'cancelled';
-    carrier: string;
-    date: string;
     carrierDelay?: number;
     weatherDelay?: number;
     nasDelay?: number;
@@ -31,6 +31,7 @@ export type FlightRow = {
 
 export type AirportStats = {
     code: string;
+    name: string;
     totalFlights: number;
     delayed: number;
     onTime: number;
@@ -64,8 +65,8 @@ export function parseCSV(raw: string): FlightRow[] {
         headers.forEach((h, i) => { row[h] = values[i]; });
         
         const delayMinutes = parseInt(row.delay) || parseInt(row.delay_minutes) || 0;
-        const origin = row.origin || '';
-        const destination = row.destination || '';
+        const origin = (row.origin || '').toUpperCase();
+        const destination = (row.destination || '').toUpperCase();
         
         return {
             flightNumber: row.flight_num || row.callsign || 'N/A',
@@ -82,20 +83,25 @@ export function parseCSV(raw: string): FlightRow[] {
             lateAircraftDelay: parseInt(row.late_aircraft_delay) || 0,
             securityDelay: parseInt(row.security_delay) || 0,
         };
-    }).filter(f => REGISTERED_AIRPORTS.includes(f.origin) || REGISTERED_AIRPORTS.includes(f.destination));
+    }).filter(f => REGISTERED_AIRPORTS.includes(f.origin) && REGISTERED_AIRPORTS.includes(f.destination));
 }
 
 export async function loadAllCSVs(): Promise<FlightRow[]> {
     let allRows: FlightRow[] = [];
-    for (const code of REGISTERED_AIRPORTS) {
+    const promises = REGISTERED_AIRPORTS.map(async (code) => {
         try {
             const res = await fetch(`/data/CSVs/${code}_mock_data.csv`);
             if (res.ok) {
                 const text = await res.text();
-                allRows = allRows.concat(parseCSV(text));
+                return parseCSV(text);
             }
-        } catch (e) { console.error(`Error loading ${code}:`, e); }
-    }
+        } catch (e) {
+            console.error(`Error loading ${code}:`, e);
+        }
+        return [];
+    });
+    const results = await Promise.all(promises);
+    results.forEach(rows => { allRows = allRows.concat(rows); });
     return allRows;
 }
 
@@ -119,14 +125,21 @@ export function getAirportStats(code: string, rows: FlightRow[]): AirportStats {
     
     return {
         code,
+        name: AIRPORT_META[code]?.name || code,
         totalFlights: total,
         delayed,
         onTime,
         cancelled,
         delayRate: total > 0 ? (delayed / total) : 0,
-        avgDelayMinutes: total > 0 ? (sumDelay / total) : 0,
+        avgDelayMinutes: total > 0 ? Math.round(sumDelay / total) : 0,
         riskLevel: getRiskLevel(code, rows)
     };
+}
+
+export function getAllAirportStats(rows: FlightRow[]): AirportStats[] {
+    return REGISTERED_AIRPORTS
+        .map(code => getAirportStats(code, rows))
+        .sort((a, b) => b.totalFlights - a.totalFlights);
 }
 
 export function getRoutes(rows: FlightRow[]) {
@@ -199,12 +212,10 @@ export function getDelayCauses(rows: FlightRow[], code?: string): CauseStat[] {
     });
     
     return Object.entries(causes)
-        .map(([cause, totalMinutes]) => ({ cause, totalMinutes }))
+        .map(([cause, totalMinutes]) => {
+            let label = cause.replace('Delay', '').toUpperCase();
+            if (label === 'NAS') label = 'NAS (SYSTEM)';
+            return { cause: label, totalMinutes };
+        })
         .sort((a, b) => b.totalMinutes - a.totalMinutes);
-}
-
-export function getAllAirportStats(rows: FlightRow[]): AirportStats[] {
-    return REGISTERED_AIRPORTS
-        .map(code => getAirportStats(code, rows))
-        .sort((a, b) => b.totalFlights - a.totalFlights);
 }

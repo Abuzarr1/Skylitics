@@ -3,7 +3,8 @@
 import React, { useState, useEffect, useMemo, Suspense } from "react";
 import dynamic from "next/dynamic";
 import { LoadingRadar } from "@/components/ui/LoadingRadar";
-import { loadAllCSVs, getAirportStats, getRoutes, getRiskLevel, REGISTERED_AIRPORTS, AIRPORT_META, FlightRow } from "@/lib/csvUtils";
+import { getAirportStats, getRoutes, getRiskLevel, REGISTERED_AIRPORTS, AIRPORT_META } from "@/lib/csvUtils";
+import { useFlightData } from "@/lib/useFlightData";
 
 const RouteNetworkGraph = dynamic(() => import("@/components/visualization/RouteNetworkGraph"), { 
     ssr: false,
@@ -11,17 +12,7 @@ const RouteNetworkGraph = dynamic(() => import("@/components/visualization/Route
 });
 
 export default function HeatmapPage() {
-    const [rows, setRows] = useState<FlightRow[]>([]);
-    const [loading, setLoading] = useState(true);
-
-    useEffect(() => {
-        async function load() {
-            const data = await loadAllCSVs();
-            setRows(data);
-            setLoading(false);
-        }
-        load();
-    }, []);
+    const { rows, loading } = useFlightData();
 
     const hubs = useMemo(() => {
         const stats = REGISTERED_AIRPORTS.map(code => getAirportStats(code, rows));

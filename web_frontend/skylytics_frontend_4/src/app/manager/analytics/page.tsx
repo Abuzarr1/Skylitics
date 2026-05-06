@@ -4,20 +4,11 @@ import React, { useState, useEffect, useMemo } from "react";
 import { BarChart3, PieChart as PieIcon, TrendingUp, AlertTriangle } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
 import { LoadingRadar } from "@/components/ui/LoadingRadar";
-import { loadAllCSVs, getDelayCauses, getDelayByDate, FlightRow } from "@/lib/csvUtils";
+import { getDelayCauses, getDelayByDate } from "@/lib/csvUtils";
+import { useFlightData } from "@/lib/useFlightData";
 
 export default function AnalyticsPage() {
-    const [rows, setRows] = useState<FlightRow[]>([]);
-    const [loading, setLoading] = useState(true);
-
-    useEffect(() => {
-        async function load() {
-            const data = await loadAllCSVs();
-            setRows(data);
-            setLoading(false);
-        }
-        load();
-    }, []);
+    const { rows, loading } = useFlightData();
 
     const causeData = useMemo(() => {
         const causes = getDelayCauses(rows);
