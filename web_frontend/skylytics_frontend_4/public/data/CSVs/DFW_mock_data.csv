@@ -1,0 +1,63 @@
+# ===== SKYLYTICS MOCK DATA — DFW (Dallas Fort Worth International) =====
+# Matches ConnectedMockData.swift deterministic values
+
+## DASHBOARD STATS
+active_nodes,high_risk_count,est_impact_minutes,net_sync
+2087,534,5.9,0.58
+
+## HOURLY DELAY PATTERN (avg minutes per hour)
+01:00,03:00,05:00,07:00,09:00,11:00,13:00,15:00,17:00,19:00,21:00,23:00
+8,13,20,30,24,36,32,41,45,33,17,9
+
+## TOP RISK ROUTES
+origin,destination,risk_score,avg_delay_minutes
+DFW,DEN,0.85,30
+DFW,SEA,0.42,37
+DFW,MIA,0.59,44
+DFW,BOS,0.76,51
+DFW,LGA,0.33,18
+
+## FLIGHTS (42 departing + 14 arriving = 42 total)
+id,callsign,airline,airline_code,flight_direction,origin,destination,dep_time,status,delay_minutes,delay_probability_%,progress_%,altitude_ft,speed_kts,aircraft_type,tail_number,gate
+CM-212,AA312,American Airlines,AA,departing,DFW,MIA,10:14,atRisk,59,62.0,15.0,30000,400,Boeing 777,N502SK,C3
+CM-213,B6313,JetBlue,B6,departing,DFW,BOS,12:21,delayed,66,63.0,20.0,31000,410,Airbus A321neo,N503SK,D4
+CM-216,WN316,Southwest,WN,departing,DFW,IAH,18:42,delayed,87,66.0,35.0,34000,440,Boeing 737-800,N506SK,B7
+CM-218,G4318,Allegiant,G4,departing,DFW,DTW,22:56,atRisk,101,68.0,45.0,36000,460,Boeing 777,N508SK,D9
+CM-221,HA321,Hawaiian,HA,departing,DFW,ATL,10:17,atRisk,37,71.0,60.0,39000,490,Embraer E175,N511SK,B12
+CM-223,B6323,JetBlue,B6,departing,DFW,SFO,14:31,delayed,51,73.0,70.0,41000,510,Airbus A320,N513SK,D14
+CM-227,NK327,Spirit,NK,departing,DFW,BOS,22:59,atRisk,79,77.0,90.0,30000,410,Embraer E175,N517SK,C18
+CM-228,G4328,Allegiant,G4,departing,DFW,LGA,06:06,delayed,86,78.0,5.0,31000,420,Boeing 737-800,N518SK,D19
+CM-232,AA332,American Airlines,AA,departing,DFW,DTW,14:34,delayed,29,82.0,25.0,35000,460,Boeing 737 MAX 8,N522SK,C23
+CM-234,F9334,Frontier,F9,departing,DFW,LAX,18:48,atRisk,43,84.0,35.0,37000,480,Boeing 737-800,N524SK,E25
+CM-237,NK337,Spirit,NK,departing,DFW,SFO,06:09,delayed,64,87.0,50.0,40000,510,Airbus A321neo,N527SK,C28
+CM-239,UA339,United,UA,departing,DFW,SEA,10:23,atRisk,78,89.0,60.0,42000,390,Embraer E175,N529SK,E30
+CM-242,AA342,American Airlines,AA,departing,DFW,LGA,16:44,atRisk,99,92.0,75.0,30000,420,Boeing 777,N532SK,C3
+CM-244,F9344,Frontier,F9,departing,DFW,IAH,20:58,delayed,28,94.0,85.0,32000,440,Boeing 737 MAX 8,N534SK,E5
+CM-247,NK347,Spirit,NK,departing,DFW,JFK,08:19,atRisk,49,57.0,10.0,35000,470,Airbus A320,N537SK,C8
+CM-249,UA349,United,UA,departing,DFW,ATL,12:33,delayed,63,59.0,20.0,37000,490,Airbus A321neo,N539SK,E10
+CM-18,B6118,JetBlue,B6,arriving,JFK,DFW,06:06,delayed,61,73.0,5.0,31000,420,Boeing 737-800,N218SK,D19
+CM-32,NK132,Spirit,NK,arriving,JFK,DFW,16:44,atRisk,74,87.0,75.0,30000,420,Boeing 777,N232SK,C3
+CM-45,NK145,Spirit,NK,arriving,LAX,DFW,12:21,delayed,46,59.0,20.0,31000,410,Airbus A321neo,N263SK,D4
+CM-59,HA159,Hawaiian,HA,arriving,LAX,DFW,22:59,atRisk,59,73.0,90.0,30000,410,Embraer E175,N277SK,C18
+CM-86,DL186,Delta,DL,arriving,ATL,DFW,10:14,atRisk,44,59.0,15.0,30000,400,Boeing 777,N322SK,C3
+CM-155,HA255,Hawaiian,HA,arriving,ORD,DFW,10:23,atRisk,68,87.0,60.0,42000,390,Embraer E175,N409SK,E30
+CM-210,AS310,Alaska Airlines,AS,departing,DFW,DEN,06:00,inAir,0,10.0,5.0,28000,380,Boeing 737-800,N500SK,A1
+CM-211,HA311,Hawaiian,HA,departing,DFW,SEA,08:07,inAir,3,11.0,10.0,29000,390,Airbus A320,N501SK,B2
+CM-214,F9314,Frontier,F9,departing,DFW,LGA,14:28,inAir,12,14.0,25.0,32000,420,Boeing 737 MAX 8,N504SK,E5
+CM-215,DL315,Delta,DL,departing,DFW,PHX,16:35,inAir,1,15.0,30.0,33000,430,Embraer E175,N505SK,A6
+CM-217,NK317,Spirit,NK,departing,DFW,MSP,20:49,inAir,7,17.0,40.0,35000,450,Airbus A320,N507SK,C8
+CM-219,UA319,United,UA,departing,DFW,JFK,06:03,inAir,13,19.0,50.0,37000,470,Airbus A321neo,N509SK,E10
+CM-220,AS320,Alaska Airlines,AS,departing,DFW,LAX,08:10,inAir,2,20.0,55.0,38000,480,Boeing 737 MAX 8,N510SK,A11
+CM-222,AA322,American Airlines,AA,departing,DFW,ORD,12:24,inAir,8,22.0,65.0,40000,500,Boeing 737-800,N512SK,C13
+CM-225,DL325,Delta,DL,departing,DFW,SEA,18:45,inAir,3,25.0,80.0,28000,390,Airbus A321neo,N515SK,A16
+CM-226,WN326,Southwest,WN,departing,DFW,MIA,20:52,inAir,6,26.0,85.0,29000,400,Boeing 737 MAX 8,N516SK,B17
+CM-229,UA329,United,UA,departing,DFW,PHX,08:13,inAir,1,29.0,10.0,32000,430,Airbus A320,N519SK,E20
+CM-231,HA331,Hawaiian,HA,departing,DFW,MSP,12:27,inAir,7,31.0,20.0,34000,450,Airbus A321neo,N521SK,B22
+CM-233,B6333,JetBlue,B6,departing,DFW,JFK,16:41,inAir,13,5.0,30.0,36000,470,Embraer E175,N523SK,D24
+CM-235,DL335,Delta,DL,departing,DFW,ATL,20:55,inAir,5,7.0,40.0,38000,490,Airbus A320,N525SK,A26
+CM-236,WN336,Southwest,WN,departing,DFW,ORD,22:02,inAir,8,8.0,45.0,39000,500,Boeing 777,N526SK,B27
+CM-238,G4338,Allegiant,G4,departing,DFW,DEN,08:16,inAir,0,10.0,55.0,41000,380,Boeing 737 MAX 8,N528SK,D29
+CM-240,AS340,Alaska Airlines,AS,departing,DFW,MIA,12:30,inAir,6,12.0,65.0,28000,400,Boeing 737-800,N530SK,A1
+CM-243,B6343,JetBlue,B6,departing,DFW,PHX,18:51,inAir,1,15.0,80.0,31000,430,Airbus A321neo,N533SK,D4
+CM-245,DL345,Delta,DL,departing,DFW,MSP,22:05,inAir,7,17.0,90.0,33000,450,Embraer E175,N535SK,A6
+CM-246,WN346,Southwest,WN,departing,DFW,DTW,06:12,inAir,10,18.0,5.0,34000,460,Boeing 737-800,N536SK,B7

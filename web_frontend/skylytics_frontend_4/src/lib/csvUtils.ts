@@ -54,27 +54,41 @@ export type CauseStat = {
 };
 
 export function parseCSV(raw: string): FlightRow[] {
-    const lines = raw.split('\n').filter(l => l.trim());
-    if (lines.length < 2) return [];
+    const lines = raw.split('\n').map(l => l.trim()).filter(l => l);
     
-    const headers = lines[0].split(',').map(h => h.trim().toLowerCase());
+    // Find the FLIGHTS section
+    const flightsIndex = lines.findIndex(l => l.includes('## FLIGHTS'));
+    if (flightsIndex === -1) return [];
     
-    return lines.slice(1).map(line => {
+    const dataLines = lines.slice(flightsIndex + 1).filter(l => !l.startsWith('#'));
+    if (dataLines.length < 2) return [];
+    
+    const headers = dataLines[0].split(',').map(h => h.trim().toLowerCase());
+    
+    return dataLines.slice(1).map(line => {
         const values = line.split(',').map(v => v.trim());
         const row: any = {};
         headers.forEach((h, i) => { row[h] = values[i]; });
         
-        const delayMinutes = parseInt(row.delay) || parseInt(row.delay_minutes) || 0;
+        const delayMinutes = parseInt(row.delay_minutes) || parseInt(row.delay) || 0;
         const origin = (row.origin || '').toUpperCase();
         const destination = (row.destination || '').toUpperCase();
         
+        // Status mapping from CSV status field
+        let status: 'on-time' | 'delayed' | 'cancelled' = 'on-time';
+        if (row.status === 'delayed' || row.status === 'atRisk' || delayMinutes > 15) {
+            status = 'delayed';
+        } else if (row.status === 'cancelled') {
+            status = 'cancelled';
+        }
+
         return {
-            flightNumber: row.flight_num || row.callsign || 'N/A',
+            flightNumber: row.callsign || row.flight_num || 'N/A',
             origin,
             destination,
             scheduledTime: row.dep_time || row.scheduled_time || '00:00',
             delayMinutes,
-            status: (delayMinutes > 0 ? 'delayed' : 'on-time') as 'delayed' | 'on-time' | 'cancelled',
+            status,
             carrier: row.airline || row.carrier || 'Unknown',
             date: row.date || new Date().toISOString().split('T')[0],
             carrierDelay: parseInt(row.carrier_delay) || 0,

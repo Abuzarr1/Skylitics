@@ -1,0 +1,63 @@
+# ===== SKYLYTICS MOCK DATA — LAX (Los Angeles International) =====
+# Matches ConnectedMockData.swift deterministic values
+
+## DASHBOARD STATS
+active_nodes,high_risk_count,est_impact_minutes,net_sync
+2134,587,6.8,0.54
+
+## HOURLY DELAY PATTERN (avg minutes per hour)
+01:00,03:00,05:00,07:00,09:00,11:00,13:00,15:00,17:00,19:00,21:00,23:00
+6,10,15,25,33,41,45,52,47,35,19,11
+
+## TOP RISK ROUTES
+origin,destination,risk_score,avg_delay_minutes
+LAX,ATL,0.41,18
+LAX,ORD,0.58,25
+LAX,SFO,0.75,32
+LAX,DFW,0.32,39
+LAX,DEN,0.49,46
+
+## FLIGHTS (42 departing + 14 arriving = 42 total)
+id,callsign,airline,airline_code,flight_direction,origin,destination,dep_time,status,delay_minutes,delay_probability_%,progress_%,altitude_ft,speed_kts,aircraft_type,tail_number,gate
+CM-44,WN144,Southwest,WN,departing,LAX,SFO,10:14,atRisk,39,58.0,15.0,30000,400,Boeing 777,N262SK,C3
+CM-45,NK145,Spirit,NK,departing,LAX,DFW,12:21,delayed,46,59.0,20.0,31000,410,Airbus A321neo,N263SK,D4
+CM-48,AS148,Alaska Airlines,AS,departing,LAX,MIA,18:42,delayed,67,62.0,35.0,34000,440,Boeing 737-800,N266SK,B7
+CM-50,AA150,American Airlines,AA,departing,LAX,LGA,22:56,atRisk,81,64.0,45.0,36000,460,Boeing 777,N268SK,D9
+CM-53,DL153,Delta,DL,departing,LAX,MSP,10:17,atRisk,102,67.0,60.0,39000,490,Embraer E175,N271SK,B12
+CM-55,NK155,Spirit,NK,departing,LAX,JFK,14:31,delayed,31,69.0,70.0,41000,510,Airbus A320,N273SK,D14
+CM-59,HA159,Hawaiian,HA,departing,LAX,DFW,22:59,atRisk,59,73.0,90.0,30000,410,Embraer E175,N277SK,C18
+CM-60,AA160,American Airlines,AA,departing,LAX,DEN,06:06,delayed,66,74.0,5.0,31000,420,Boeing 737-800,N278SK,D19
+CM-64,WN164,Southwest,WN,departing,LAX,LGA,14:34,delayed,94,78.0,25.0,35000,460,Boeing 737 MAX 8,N282SK,C23
+CM-66,G4166,Allegiant,G4,departing,LAX,IAH,18:48,atRisk,23,80.0,35.0,37000,480,Boeing 737-800,N284SK,E25
+CM-69,HA169,Hawaiian,HA,departing,LAX,JFK,06:09,delayed,44,83.0,50.0,40000,510,Airbus A321neo,N287SK,C28
+CM-71,B6171,JetBlue,B6,departing,LAX,ORD,10:23,atRisk,58,85.0,60.0,42000,390,Embraer E175,N289SK,E30
+CM-74,WN174,Southwest,WN,departing,LAX,DEN,16:44,atRisk,79,88.0,75.0,30000,420,Boeing 777,N292SK,C3
+CM-76,G4176,Allegiant,G4,departing,LAX,MIA,20:58,delayed,93,90.0,85.0,32000,440,Boeing 737 MAX 8,N294SK,E5
+CM-79,HA179,Hawaiian,HA,departing,LAX,PHX,08:19,atRisk,29,93.0,10.0,35000,470,Airbus A320,N297SK,C8
+CM-81,B6181,JetBlue,B6,departing,LAX,MSP,12:33,delayed,43,55.0,20.0,37000,490,Airbus A321neo,N299SK,E10
+CM-97,WN197,Southwest,WN,arriving,ATL,LAX,14:31,delayed,36,70.0,70.0,41000,510,Airbus A320,N333SK,D14
+CM-111,AS211,Alaska Airlines,AS,arriving,ATL,LAX,06:09,delayed,49,84.0,50.0,40000,510,Airbus A321neo,N347SK,C28
+CM-179,AA279,American Airlines,AA,arriving,SFO,LAX,10:17,atRisk,32,70.0,60.0,39000,490,Embraer E175,N451SK,B12
+CM-207,AS307,Alaska Airlines,AS,arriving,SFO,LAX,12:33,delayed,58,58.0,20.0,37000,490,Airbus A321neo,N479SK,E10
+CM-234,F9334,Frontier,F9,arriving,DFW,LAX,18:48,atRisk,43,84.0,35.0,37000,480,Boeing 737-800,N524SK,E25
+CM-42,F9142,Frontier,F9,departing,LAX,ATL,06:00,inAir,0,6.0,5.0,28000,380,Boeing 737-800,N260SK,A1
+CM-43,DL143,Delta,DL,departing,LAX,ORD,08:07,inAir,3,7.0,10.0,29000,390,Airbus A320,N261SK,B2
+CM-46,G4146,Allegiant,G4,departing,LAX,DEN,14:28,inAir,12,10.0,25.0,32000,420,Boeing 737 MAX 8,N264SK,E5
+CM-47,UA147,United,UA,departing,LAX,SEA,16:35,inAir,1,11.0,30.0,33000,430,Embraer E175,N265SK,A6
+CM-49,HA149,Hawaiian,HA,departing,LAX,BOS,20:49,inAir,7,13.0,40.0,35000,450,Airbus A320,N267SK,C8
+CM-51,B6151,JetBlue,B6,departing,LAX,PHX,06:03,inAir,13,15.0,50.0,37000,470,Airbus A321neo,N269SK,E10
+CM-52,F9152,Frontier,F9,departing,LAX,IAH,08:10,inAir,2,16.0,55.0,38000,480,Boeing 737 MAX 8,N270SK,A11
+CM-54,WN154,Southwest,WN,departing,LAX,DTW,12:24,inAir,8,18.0,65.0,40000,500,Boeing 737-800,N272SK,C13
+CM-57,UA157,United,UA,departing,LAX,ORD,18:45,inAir,3,21.0,80.0,28000,390,Airbus A321neo,N275SK,A16
+CM-58,AS158,Alaska Airlines,AS,departing,LAX,SFO,20:52,inAir,6,22.0,85.0,29000,400,Boeing 737 MAX 8,N276SK,B17
+CM-61,B6161,JetBlue,B6,departing,LAX,SEA,08:13,inAir,1,25.0,10.0,32000,430,Airbus A320,N279SK,E20
+CM-63,DL163,Delta,DL,departing,LAX,BOS,12:27,inAir,7,27.0,20.0,34000,450,Airbus A321neo,N281SK,B22
+CM-65,NK165,Spirit,NK,departing,LAX,PHX,16:41,inAir,13,29.0,30.0,36000,470,Embraer E175,N283SK,D24
+CM-67,UA167,United,UA,departing,LAX,MSP,20:55,inAir,5,31.0,40.0,38000,490,Airbus A320,N285SK,A26
+CM-68,AS168,Alaska Airlines,AS,departing,LAX,DTW,22:02,inAir,8,32.0,45.0,39000,500,Boeing 777,N286SK,B27
+CM-70,AA170,American Airlines,AA,departing,LAX,ATL,08:16,inAir,0,6.0,55.0,41000,380,Boeing 737 MAX 8,N288SK,D29
+CM-72,F9172,Frontier,F9,departing,LAX,SFO,12:30,inAir,6,8.0,65.0,28000,400,Boeing 737-800,N290SK,A1
+CM-75,NK175,Spirit,NK,departing,LAX,SEA,18:51,inAir,1,11.0,80.0,31000,430,Airbus A321neo,N293SK,D4
+CM-77,UA177,United,UA,departing,LAX,BOS,22:05,inAir,7,13.0,90.0,33000,450,Embraer E175,N295SK,A6
+CM-78,AS178,Alaska Airlines,AS,departing,LAX,LGA,06:12,inAir,10,14.0,5.0,34000,460,Boeing 737-800,N296SK,B7
+CM-82,F9182,Frontier,F9,departing,LAX,DTW,14:40,inAir,8,18.0,25.0,38000,500,Boeing 737 MAX 8,N300SK,A11
