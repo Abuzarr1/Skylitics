@@ -9,7 +9,7 @@ import {
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { getAirportStats, getRiskLevel } from "@/lib/csvUtils";
-import { useFlightData } from "@/lib/useFlightData";
+import { useData } from "@/lib/useData";
 import { LoadingRadar } from "@/components/ui/LoadingRadar";
 
 function OnTimeBar({ value }: { value: number }) {
@@ -128,7 +128,7 @@ const CAUSE_LABELS: Record<string, string> = {
 export default function WhatIfSimulator() {
     const auth = useAuth();
     const airportCode = auth?.airportCode || 'ATL';
-    const { rows, loading: loadingData } = useFlightData();
+    const { rows, loading: loadingData } = useData();
     const [form, setForm] = useState(DEFAULT_FORM);
     const [overrides, setOverrides] = useState<Overrides>(DEFAULT_OVERRIDES);
     const [result, setResult] = useState<SimResult | null>(null);

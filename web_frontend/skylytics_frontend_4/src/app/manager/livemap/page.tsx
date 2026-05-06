@@ -4,7 +4,7 @@ import React, { useState, useEffect, useMemo } from "react";
 import dynamic from "next/dynamic";
 import { LoadingRadar } from "@/components/ui/LoadingRadar";
 import { getAirportStats, getRoutes, getRiskLevel, REGISTERED_AIRPORTS, AIRPORT_META } from "@/lib/csvUtils";
-import { useFlightData } from "@/lib/useFlightData";
+import { useData } from "@/lib/useData";
 
 const FlightMap = dynamic(() => import("@/components/map/FlightMap"), { 
     ssr: false,
@@ -12,7 +12,7 @@ const FlightMap = dynamic(() => import("@/components/map/FlightMap"), {
 });
 
 export default function LiveMapPage() {
-    const { rows, loading } = useFlightData();
+    const { rows, loading } = useData();
     const [selected, setSelected] = useState<any>(null);
 
     const airportNodes = useMemo(() => {

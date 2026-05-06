@@ -5,10 +5,10 @@ import { BarChart3, PieChart as PieIcon, TrendingUp, AlertTriangle } from "lucid
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
 import { LoadingRadar } from "@/components/ui/LoadingRadar";
 import { getDelayCauses, getDelayByDate } from "@/lib/csvUtils";
-import { useFlightData } from "@/lib/useFlightData";
+import { useData } from "@/lib/useData";
 
 export default function AnalyticsPage() {
-    const { rows, loading } = useFlightData();
+    const { rows, loading } = useData();
 
     const causeData = useMemo(() => {
         const causes = getDelayCauses(rows);

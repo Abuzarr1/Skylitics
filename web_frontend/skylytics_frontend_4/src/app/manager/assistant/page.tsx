@@ -13,7 +13,8 @@ import {
     ArrowRight,
 } from "lucide-react";
 import { queryAssistant } from "@/lib/api";
-import { getAirportStats, getFeedItems, loadAllCSVs } from "@/lib/csvUtils";
+import { getAirportStats, getFeedItems } from "@/lib/csvUtils";
+import { useData } from "@/lib/useData";
 
 interface Message {
     role: 'user' | 'assistant' | 'sys';
@@ -22,6 +23,7 @@ interface Message {
 }
 
 export default function AssistantPage() {
+    const { rows } = useData();
     const [input, setInput] = useState("");
     const [messages, setMessages] = useState<Message[]>([
         {
@@ -67,11 +69,10 @@ export default function AssistantPage() {
             
             // Local Fallback Logic: If backend says "Sensor sync required", provide immersive mock response
             if (response.includes("Sensor sync required") || response.includes("telemetry unavailable") || response.includes("SYSTEM_ERROR")) {
-                const csvRows = await loadAllCSVs();
                 const upperMsg = userMsg.toUpperCase();
                 
                 if (upperMsg.includes("STATUS") || upperMsg.includes("SUMMARY") || upperMsg.includes("NETWORK")) {
-                    const stats = getAirportStats('ATL', csvRows);
+                    const stats = getAirportStats('ATL', rows);
                     response = `> [SKYAI_ARCHIVE_VECTOR]: Real-time network telemetry unavailable. Loading intelligence baseline for hub ATL...\n` +
                                `> ▸ Status: ${stats.riskLevel.toUpperCase()}\n` +
                                `> ▸ Total Flights: ${stats.totalFlights}\n` +
@@ -79,13 +80,13 @@ export default function AssistantPage() {
                                `> ▸ Reliability: ${(stats.onTime / stats.totalFlights * 100).toFixed(1)}%\n` +
                                `> ▸ System baseline sync: 100% (Local Intelligence Node)`;
                 } else if (upperMsg.includes("FEED") || upperMsg.includes("FLIGHTS") || upperMsg.includes("RISK")) {
-                    const items = getFeedItems(csvRows).slice(0, 3);
+                    const items = getFeedItems(rows).slice(0, 3);
                     response = `> [SKYAI_ARCHIVE_VECTOR]: Operational flight sequence recovered from node buffer:\n` +
                                items.map(i => `> ▸ ${i.flightNumber} | ${i.origin}→${i.destination} | ${i.status.toUpperCase()}`).join('\n') +
                                `\n> Analysis: Intelligence suggests nominal flow with minor latency.`;
                 } else {
                     const airport = ['ATL', 'JFK', 'ORD', 'LAX', 'MIA', 'DFW', 'SFO', 'DEN', 'SEA'].find(code => upperMsg.includes(code)) || 'ATL';
-                    const stats = getAirportStats(airport, csvRows);
+                    const stats = getAirportStats(airport, rows);
                     response = `> [SKYAI_ARCHIVE_VECTOR]: Operational intelligence for ${airport} node:\n` +
                                `> ▸ Current Risk: ${stats.riskLevel.toUpperCase()}\n` +
                                `> ▸ Delayed Flights: ${stats.delayed}\n` +

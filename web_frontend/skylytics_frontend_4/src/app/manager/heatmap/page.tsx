@@ -4,7 +4,7 @@ import React, { useState, useEffect, useMemo, Suspense } from "react";
 import dynamic from "next/dynamic";
 import { LoadingRadar } from "@/components/ui/LoadingRadar";
 import { getAirportStats, getRoutes, getRiskLevel, REGISTERED_AIRPORTS, AIRPORT_META } from "@/lib/csvUtils";
-import { useFlightData } from "@/lib/useFlightData";
+import { useData } from "@/lib/useData";
 
 const RouteNetworkGraph = dynamic(() => import("@/components/visualization/RouteNetworkGraph"), { 
     ssr: false,
@@ -12,7 +12,7 @@ const RouteNetworkGraph = dynamic(() => import("@/components/visualization/Route
 });
 
 export default function HeatmapPage() {
-    const { rows, loading } = useFlightData();
+    const { rows, loading } = useData();
 
     const hubs = useMemo(() => {
         const stats = REGISTERED_AIRPORTS.map(code => getAirportStats(code, rows));
