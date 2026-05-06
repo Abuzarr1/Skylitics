@@ -145,23 +145,7 @@ export default function SolutionsPage() {
                         </div>
                     </div>
                     
-                    {/* Visual Aid */}
-                    <div className="border border-white/5 p-8 bg-[var(--ch-brand-900)]/50">
-                        <div className="flex items-center justify-between mb-8">
-                            <span className="text-[10px] font-mono text-brand-500 uppercase tracking-widest">Model Input Feature Heat-Map</span>
-                        </div>
-                        <div className="grid grid-cols-6 md:grid-cols-12 gap-2">
-                            {Array.from({ length: 24 }).map((_, i) => (
-                                <motion.div 
-                                    key={i}
-                                    initial={{ opacity: 0 }}
-                                    whileInView={{ opacity: 1 }}
-                                    transition={{ delay: i * 0.02 }}
-                                    className={`aspect-square border border-white/5 ${i % 3 === 0 ? 'bg-accent-neon/20' : 'bg-[var(--ch-brand-900)]'}`}
-                                />
-                            ))}
-                        </div>
-                    </div>
+
                 </div>
             </LabSection>
 
@@ -182,7 +166,7 @@ export default function SolutionsPage() {
                                 Our SHAP (SHapley Additive exPlanations) engine decomposes every prediction into its component influences. This allows managers to see precisely how much each variable—like wind speed or previous delays—contributed to the final risk score.
                             </p>
                             <div className="flex gap-4">
-                                <button className="px-6 py-3 border border-[var(--border-ui)] hover:border-accent-neon transition-colors font-mono text-[10px] uppercase text-white flex items-center gap-3">
+                                <button disabled className="px-6 py-3 border border-[var(--border-ui)] transition-colors font-mono text-[10px] uppercase text-white flex items-center gap-3 opacity-50 cursor-not-allowed">
                                     Read Whitepaper <ArrowRight className="w-3 h-3" />
                                 </button>
                             </div>

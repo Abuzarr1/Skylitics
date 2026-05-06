@@ -226,7 +226,7 @@ export default function ArchitecturePage() {
                     </div>
                 </div>
                 <div className="p-8 border border-[var(--border-ui)] bg-[var(--bg-card)]/40 hover:bg-[var(--bg-card)] transition-colors cursor-default">
-                    <button className="w-full h-full text-left group flex flex-col items-start">
+                    <div className="w-full h-full text-left group flex flex-col items-start">
                         <div className="w-8 h-8 border border-white/20 mb-6 flex items-center justify-center text-white group-hover:bg-white group-hover:text-black transition-colors">
                             <ChevronRight className="w-4 h-4" />
                         </div>
@@ -237,7 +237,7 @@ export default function ArchitecturePage() {
                         <div className="mt-4 pt-4 border-t border-white/5 font-mono text-[9px] text-white uppercase tracking-widest">
                             Infrastructure Logic: Modular Edge
                         </div>
-                    </button>
+                    </div>
                 </div>
             </div>
         </div>
