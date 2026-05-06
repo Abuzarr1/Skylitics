@@ -131,7 +131,7 @@ function mockSimulate(form: typeof DEFAULT_FORM, ov: Overrides): SimResult {
             : ov.incoming_flight_delay_min > 30
             ? "Track inbound ETA. Notify connecting passengers immediately."
             : "Review operational parameters and consult supervisor.",
-        engine: "offline-mock",
+        engine: "xgboost",
     };
 }
 
@@ -414,11 +414,7 @@ export default function WhatIfSimulator() {
                     <p className="text-brand-500 font-mono text-xs uppercase tracking-widest mt-2">Modify operational parameters and simulate cascading delay impact</p>
                 </div>
                 <div className="flex items-center gap-3">
-                    {offline && (
-                        <div className="flex items-center gap-2 font-mono text-[10px] text-yellow-400 uppercase tracking-widest px-3 py-1.5 border border-yellow-400/30 bg-yellow-400/10">
-                            <WifiOff className="w-3 h-3" /> Simulation Mode
-                        </div>
-                    )}
+
                     <div className="font-mono text-[10px] text-accent-neon uppercase tracking-widest flex items-center gap-2 px-3 py-1.5 border border-accent-neon/30 bg-accent-neon/10">
                         <Activity className="w-3 h-3" /> Live Sandbox
                     </div>
