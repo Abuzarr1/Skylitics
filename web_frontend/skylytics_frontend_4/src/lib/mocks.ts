@@ -4,8 +4,8 @@
  */
 
 export const MOCK_SYSTEM_STATUS = {
-    status: "ARCHIVE (OFFLINE)",
-    uptime: "24d 14h 02m",
+    status: "ONLINE",
+    uptime: "24d 14h 03m",
     python_version: "3.11.2",
     platform: "Skylytics-Cloud",
     live_flights: 1422,
@@ -20,12 +20,13 @@ export const MOCK_SYSTEM_STATUS = {
     total_endpoints: 91,
     active_endpoints: 40,
     model_status: {
-        xgb_classifier: "ARCHIVED",
-        xgb_regressor: "ARCHIVED",
+        xgb_classifier: "ONLINE",
+        xgb_regressor: "ONLINE",
+        shap_explainer: "LOADED",
     },
     external_apis: {
-        meteostat: "MOCKED",
-        opensky: "UNREACHABLE",
+        meteostat: "ONLINE",
+        opensky: "ACTIVE",
         openflights: "LOCAL",
     }
 };

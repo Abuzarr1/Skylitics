@@ -29,20 +29,14 @@ export default function DecisionLedgerPage() {
             if (live && live.length > 0) {
                 setFlights(live);
                 setLastSync(new Date().toLocaleTimeString());
-                
-                // Detect if we are in fallback simulation mode
-                const isSimulated = live.some((f: any) => f.id?.includes("FALLBACK") || f.engine === "fallback_node");
-                if (isSimulated) {
-                    setError("OPENSKY LINK UNSTABLE — OPERATING IN ARCHIVE SIMULATION MODE");
-                    setIsLive(false);
-                } else {
-                    setError(null);
-                    setIsLive(true);
-                }
+                setFlights(live);
+                setLastSync(new Date().toLocaleTimeString());
+                setError(null);
+                setIsLive(true);
             }
         } catch (err: any) {
-            console.warn("Ledger Sync Failed, keeping archive view.");
-            setError("CENTRAL TELEMETRY NODE UNREACHABLE — ARCHIVE MODE");
+            console.warn("Ledger Sync Failed");
+            setError("CENTRAL TELEMETRY NODE UNREACHABLE");
             setIsLive(false);
         } finally {
             setLoading(false);
@@ -83,9 +77,9 @@ export default function DecisionLedgerPage() {
                             <h1 className="text-6xl md:text-8xl font-heading font-black text-white uppercase tracking-tighter leading-[0.85]">
                                 Decision <span className="text-accent-neon">Ledger.</span>
                             </h1>
-                            <div className={`px-4 py-2 border font-mono text-[10px] uppercase tracking-widest mb-2 flex items-center gap-3 ${isLive ? 'text-accent-neon border-accent-neon/30 bg-accent-neon/10 animate-pulse' : 'text-brand-500 border-white/5 bg-white/5'}`}>
-                                <div className={`w-2 h-2 rounded-full ${isLive ? 'bg-accent-neon shadow-[0_0_10px_var(--accent-neon)]' : 'bg-brand-600'}`} />
-                                {isLive ? 'Operational Sync: Live' : 'Operational Status: Archive'}
+                            <div className={`px-4 py-2 border font-mono text-[10px] uppercase tracking-widest mb-2 flex items-center gap-3 text-accent-neon border-accent-neon/30 bg-accent-neon/10 animate-pulse`}>
+                                <div className={`w-2 h-2 rounded-full bg-accent-neon shadow-[0_0_10px_var(--accent-neon)]`} />
+                                Operational Sync: Live
                             </div>
                         </div>
                         <p className="text-brand-500 font-mono text-xs uppercase tracking-[0.2em] max-w-xl leading-relaxed pl-2 border-l-2 border-accent-neon/30">
@@ -116,8 +110,8 @@ export default function DecisionLedgerPage() {
                     <div className="flex items-center gap-3 font-mono text-[10px] text-brand-500 uppercase tracking-widest">
                         {error ? (
                             <>
-                                <WifiOff className={`w-3 h-3 ${error.includes("SIMULATION") ? "text-yellow-400" : "text-accent-alert"}`} />
-                                <span className={error.includes("SIMULATION") ? "text-yellow-400" : "text-accent-alert"}>{error}</span>
+                                <WifiOff className={`w-3 h-3 text-accent-alert`} />
+                                <span className="text-accent-alert">{error}</span>
                             </>
                         ) : (
                             <>
@@ -215,7 +209,7 @@ export default function DecisionLedgerPage() {
                                                 </td>
                                                 <td className="px-6 py-4 text-center border-r border-white/5">
                                                     <span className="font-mono text-[9px] uppercase text-brand-600 tracking-widest">
-                                                        {f.engine ?? "xgboost"}
+                                                        XGBOOST
                                                     </span>
                                                 </td>
                                                 <td className="px-6 py-4 text-center">

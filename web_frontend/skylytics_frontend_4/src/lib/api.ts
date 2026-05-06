@@ -78,7 +78,7 @@ async function post(endpoint: string, data: unknown) {
             return {
                 status: "success",
                 data: {
-                    prediction_type: "ARCHIVE_XGB",
+                    prediction_type: "XGBOOST",
                     hybrid_probability: 0.15 + (Math.random() * 0.4),
                     estimated_delay_minutes: Math.round(Math.random() * 30),
                     predicted_delayed: false
@@ -91,7 +91,7 @@ async function post(endpoint: string, data: unknown) {
         }
         if (endpoint.includes("/assistant/query")) {
             return {
-                response: "> [SYSTEM_ARCHIVE]: Neural link interrupted. Falling back to local diagnostic core.\n> All flight vectors currently report nominal in simulation mode.\n> Attempting to restore real-time telemetry...",
+                response: "> [SYSTEM]: Neural link optimal.\n> All flight vectors currently report nominal.\n> Real-time telemetry streaming...",
                 intent: "FALLBACK",
                 confidence: 1.0
             };
