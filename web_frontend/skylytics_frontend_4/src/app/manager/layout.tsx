@@ -58,10 +58,10 @@ export default function ManagerLayout({
                 <MobileNav />
 
                 {/* Top Header - Stark Line Design - Hidden on Mobile */}
-                <header className="hidden md:flex h-[80px] items-center justify-between px-10 text-white z-10 border-b border-white/5 bg-[var(--ch-brand-900)]/80 backdrop-blur-md">
+                <header className="hidden md:flex h-[70px] items-center justify-between px-10 text-white z-40 border-b border-white/5 bg-brand-900/80 backdrop-blur-md sticky top-0">
                     <div className="flex flex-col">
-                        <h1 className="text-xl font-heading font-black tracking-tight uppercase">Manager Vector</h1>
-                        <p className="text-[10px] font-mono text-brand-400 uppercase tracking-widest">
+                        <h1 className="text-lg font-heading font-black tracking-tight uppercase">Manager Vector</h1>
+                        <p className="text-[9px] font-mono text-brand-500 uppercase tracking-widest mt-0.5">
                             {auth?.isAdmin
                                 ? "Admin — All Airports"
                                 : auth?.airportCode
@@ -70,41 +70,44 @@ export default function ManagerLayout({
                         </p>
                     </div>
 
-                    <div className="flex items-center gap-6">
-                        <form onSubmit={handleSearch} className="hidden lg:flex items-center border border-[var(--border-ui)] bg-[var(--bg-card)] px-4 py-2 text-brand-400 font-mono text-xs w-64 focus-within:border-accent-neon transition-colors">
-                            <Search className="w-3 h-3 mr-3 text-brand-500" />
+                    <div className="flex items-center gap-8">
+                        <form onSubmit={handleSearch} className="hidden lg:flex items-center border border-white/5 bg-brand-950 px-4 py-2 text-brand-500 font-mono text-[9px] w-64 focus-within:border-accent-neon/50 transition-colors">
+                            <Search className="w-3 h-3 mr-3 text-brand-600" />
                             <input 
                                 type="text" 
                                 placeholder="QUERY FLIGHT ID..." 
-                                className="bg-transparent focus:outline-none w-full placeholder:text-brand-600 text-white" 
+                                className="bg-transparent focus:outline-none w-full placeholder:text-brand-700 text-white" 
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
                             />
                         </form>
 
-                        <Link href="/passenger" className="hidden lg:block font-mono text-[10px] uppercase tracking-widest border border-[var(--border-ui)] text-brand-400 px-3 py-1.5 hover:bg-white hover:text-black transition-colors">
-                            Passenger View
-                        </Link>
-                        <Link href="/manager/notifications" className="relative group p-2">
-                            <Bell className="w-5 h-5 text-brand-300 group-hover:text-white transition-colors" />
-                            {unread > 0 && (
-                                <span className="absolute -top-0.5 -right-0.5 min-w-[16px] h-4 bg-accent-alert rounded-sm text-[9px] font-mono font-bold text-white flex items-center justify-center px-0.5">
-                                    {unread > 9 ? "9+" : unread}
-                                </span>
-                            )}
-                        </Link>
-                        <div className="flex items-center gap-3 pl-6 border-l border-[var(--border-ui)]">
-                            <div className="text-right">
-                                <div className="text-xs font-bold font-mono tracking-wider uppercase text-white">{displayName}</div>
-                                <div className="text-[10px] font-mono text-brand-500 uppercase tracking-widest">Online</div>
-                            </div>
-                            <div className="flex gap-2">
-                                <div className="w-10 h-10 bg-[var(--bg-card)] border border-white/20 flex items-center justify-center text-accent-neon">
+                        <div className="flex items-center gap-6">
+                            <Link href="/passenger" className="hidden lg:block font-mono text-[9px] uppercase tracking-widest border border-white/10 text-brand-400 px-4 py-2 hover:bg-white hover:text-black transition-colors">
+                                Passenger View
+                            </Link>
+                            
+                            <Link href="/manager/notifications" className="relative group p-1">
+                                <Bell className="w-4 h-4 text-brand-400 group-hover:text-white transition-colors" />
+                                {unread > 0 && (
+                                    <span className="absolute -top-1 -right-1 w-3 h-3 bg-accent-alert rounded-full text-[7px] font-mono font-bold text-white flex items-center justify-center">
+                                        {unread > 9 ? "!" : unread}
+                                    </span>
+                                )}
+                            </Link>
+
+                            <div className="flex items-center gap-4 pl-6 border-l border-white/5">
+                                <div className="text-right">
+                                    <div className="text-[10px] font-black font-mono tracking-wider uppercase text-white leading-none">{displayName}</div>
+                                    <div className="text-[8px] font-mono text-brand-600 uppercase tracking-[0.2em] mt-1.5 flex items-center justify-end gap-1.5">
+                                        <span className="w-1 h-1 bg-accent-neon rounded-full"></span>
+                                        Online
+                                    </div>
+                                </div>
+                                <div className="w-9 h-9 bg-brand-900 border border-white/10 flex items-center justify-center text-brand-600 relative overflow-hidden group">
+                                    <div className="absolute inset-0 bg-accent-neon opacity-0 group-hover:opacity-5 transition-opacity"></div>
                                     <MonitorPlay className="w-4 h-4" />
                                 </div>
-                                <button onClick={handleLogout} className="w-10 h-10 bg-[var(--bg-card)] border border-white/20 flex items-center justify-center text-brand-500 hover:text-accent-alert hover:border-accent-alert transition-colors" title="Logout">
-                                    <LogOut className="w-4 h-4" />
-                                </button>
                             </div>
                         </div>
                     </div>

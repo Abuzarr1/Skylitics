@@ -1,4 +1,3 @@
-"use client";
 import { useState, useEffect } from 'react';
 import { loadAllCSVs, FlightRow } from './csvUtils';
 
@@ -9,9 +8,14 @@ import { loadAllCSVs, FlightRow } from './csvUtils';
 export function useMockData(airportCode?: string) {
     const [rows, setRows] = useState<FlightRow[]>([]);
     const [loading, setLoading] = useState(true);
+    const [refreshToggle, setRefreshToggle] = useState(false);
+
+    // expose refresh function
+    const refresh = () => setRefreshToggle(prev => !prev);
 
     useEffect(() => {
         let isMounted = true;
+        setLoading(true);
         
         loadAllCSVs().then(allRows => {
             if (!isMounted) return;
@@ -28,7 +32,7 @@ export function useMockData(airportCode?: string) {
         });
 
         return () => { isMounted = false; };
-    }, [airportCode]);
+    }, [airportCode, refreshToggle]);
 
-    return { rows, loading };
+    return { rows, loading, refresh };
 }

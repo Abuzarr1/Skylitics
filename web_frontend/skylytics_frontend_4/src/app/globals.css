@@ -68,7 +68,7 @@
     /* Semantic Theme Bindings */
     --border-ui: rgba(255, 255, 255, 0.1);
     --bg-surface: rgba(255, 255, 255, 0.05);
-    --bg-card: var(--ch-brand-950);
+    --bg-card: #050505;
     --text-muted: rgba(255, 255, 255, 0.5);
     --card-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.5), 0 8px 10px -6px rgb(0 0 0 / 0.5);
   }
@@ -85,6 +85,18 @@
 
 @layer utilities {
   .glass-panel {
-    @apply bg-brand-800/40 backdrop-blur-xl border border-[var(--border-ui)];
+    @apply bg-brand-950/60 backdrop-blur-xl border border-white/5;
+  }
+  
+  .stark-card {
+    @apply bg-brand-950 border border-white/5 p-8 relative overflow-hidden;
+  }
+  
+  .stark-header {
+    @apply font-heading font-black uppercase tracking-tighter;
+  }
+  
+  .stark-mono {
+    @apply font-mono uppercase tracking-[0.2em];
   }
 }
