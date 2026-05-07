@@ -1,14 +1,11 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { ThemeToggle } from "@/components/ThemeToggle";
-import { User, Bell, Cpu, Check, Activity } from "lucide-react";
+import { User, Bell, Cpu, Check } from "lucide-react";
 import { getUserInfo, getNotificationPreferences, updateNotificationPreferences } from "@/lib/api";
-import { useMockData } from "@/lib/useMockData";
-import { getAllAirportStats } from "@/lib/csvUtils";
 
 export default function SettingsPage() {
     const user = getUserInfo();
-    const { rows } = useMockData();
     const displayName = user?.full_name || user?.email || "Operator";
 
     const [prefs, setPrefs] = useState({
@@ -185,25 +182,6 @@ export default function SettingsPage() {
                             <span className="w-2 h-2 rounded-full bg-accent-neon animate-pulse" />
                             <span className="font-mono text-xs text-accent-neon uppercase tracking-widest">XGBoost v1.0 — Production</span>
                         </div>
-                    </div>
-                </div>
-            </section>
-
-            {/* Network Overview */}
-            <section className="space-y-4">
-                <h2 className="text-sm font-heading font-black text-white uppercase tracking-tight flex items-center gap-3">
-                    <span className="w-2 h-2 rounded-sm bg-accent-neon inline-block" />
-                    <Activity className="w-4 h-4 text-brand-500" /> Network Hub Inventory
-                </h2>
-                <div className="bg-[var(--bg-card)] border border-[var(--border-ui)] p-8">
-                    <div className="grid grid-cols-3 md:grid-cols-9 gap-4">
-                        {getAllAirportStats(rows).map(ap => (
-                            <div key={ap.code} className="flex flex-col items-center gap-2 p-3 bg-brand-950 border border-white/5">
-                                <span className="font-mono text-xs text-white font-bold">{ap.code}</span>
-                                <div className={`w-2 h-2 rounded-full ${ap.riskLevel === 'high' ? 'bg-accent-alert' : ap.riskLevel === 'medium' ? 'bg-amber-400' : 'bg-accent-neon'}`} />
-                                <span className="font-mono text-[8px] text-brand-500 uppercase">{(ap.delayRate * 100).toFixed(0)}% RISK</span>
-                            </div>
-                        ))}
                     </div>
                 </div>
             </section>
